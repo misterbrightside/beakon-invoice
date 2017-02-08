@@ -2,8 +2,8 @@ export default class InvoiceAPI {
 
   static getForm (invoiceId, surname) {
     const form = new FormData()
-    form.append('invoiceId', escape(invoiceId))
-    form.append('surname', escape(surname))
+    form.append('invoiceId', escape(invoiceId.trim()))
+    form.append('surname', escape(surname.trim()))
     return form
   }
 
@@ -12,5 +12,6 @@ export default class InvoiceAPI {
       method: 'POST',
       body: this.getForm(invoiceId, surname)
     }).then(response => response.json())
+			.then(json => JSON.parse(json))
   }
 }

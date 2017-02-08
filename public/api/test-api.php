@@ -35,7 +35,20 @@ function my_awesome_func( $data ) {
 		'meta_key'		=> 'surname-id',
 		'meta_value'	=> $surname
 	);
-	$the_query = new WP_Query( $args );
+	$query = new WP_Query( $args );
+	return json_encode(
+		array(
+			'invoiceExists' => $query->have_posts(),
+			'invoice' => bijb_get_invoice($query)
+		)
+	);
+}
 
-	return $the_query->have_posts();
+function bijb_get_invoice($query) {
+	if (!$query->have_posts()) {
+		return NULL;
+	} else {
+		$id = $query->posts[0]->ID;
+		return get_post_custom($id);
+	}
 }

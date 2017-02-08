@@ -41,7 +41,8 @@ class InvoiceLogin extends Component {
 			invoiceErrorMessage: '',
 			displayMessage: false,
       invoiceId: this.getInitialInputState(),
-      surname: this.getInitialInputState()
+      surname: this.getInitialInputState(),
+			invoice: null
     }
   }
 
@@ -69,10 +70,11 @@ class InvoiceLogin extends Component {
 		if (invoiceId.touched && surname.touched) {
 			this.setState({ isSearchingForInvoice: true })
 			InvoiceAPI.checkWhetherInvoiceExists(invoiceId.value, surname.value)
-				.then((invoiceExists) => this.setState({
+				.then(({ invoiceExists, invoice }) => this.setState({
 					isSearchingForInvoice: false,
 					displayMessage: !invoiceExists,
-					invoiceErrorMessage: !invoiceExists ? 'No invoice found!' : ''
+					invoiceErrorMessage: !invoiceExists ? 'No invoice found!' : '',
+					invoice
 				}))
 				.catch(error => {
 					console.error(error)
