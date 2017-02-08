@@ -1,29 +1,21 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
+import InvoiceLoginField from './InvoiceLoginField'
 import style from './login-page.css'
 import { escape } from 'lodash'
-import 'font-awesome/css/font-awesome.css'
 
-const InvoiceLoginField = ({ label, value, onUpdateInput, id }) => (
-  <div className={style.loginField}>
-    <label className={style.fieldLabel}>
-      { label }
-      <i className={`fa fa-question-circle ${style.fieldLabelHelpIcon}`} aria-hidden='true' />
-    </label>
-    <input
-      className={style.fieldInput}
-      value={value}
-      onChange={onUpdateInput}
-		/>
-  </div>
-)
-
-const CheckInvoiceButton = ({ onSubmitForm }) => (
+const CheckInvoiceButton = () => (
   <div className={style.findInvoiceButtonContainer}>
-    <button onClick={onSubmitForm}>
+    <button type="submit">
 			Find my invoice ➔
 		</button>
   </div>
+)
+
+const InputFieldError = ({ label }) => (
+	<div className={style.inputFieldErrorMessage}>
+		{ label }
+	</div>
 )
 
 class InvoiceLogin extends Component {
@@ -33,16 +25,26 @@ class InvoiceLogin extends Component {
     this.updateFieldValue = this.updateFieldValue.bind(this)
     this.API_LOCATION = '/wp-json/beakon-invoices/v1/invoice-exists'
     this.state = {
-      invoiceId: '',
-      surname: ''
+      invoiceId: this.getInitialInputState(),
+      surname: this.getInitialInputState()
     }
   }
+
+	getInitialInputState() {
+		return ({
+			value: '', valid: false, touched: false
+		})
+	}
 
   updateFieldValue = (id) => (event) => {
     event.preventDefault()
     const { value } = event.target
-		this.setState({
-			[id]: value
+		return this.setState({
+			[id]: {
+				value,
+				valid: value.trim().length > 0,
+				touched: true
+			}
 		})
   }
 
@@ -58,31 +60,40 @@ class InvoiceLogin extends Component {
     event.preventDefault()
     fetch(this.API_LOCATION, {
       method: 'POST',
-      body: this.getForm(invoiceId, surname)
+      body: this.getForm(invoiceId.value, surname.value)
     }).then(response => response.json())
 			.then(json => console.log(json))
 			.catch(error => console.error(error))
   }
 
+	isValid = (field) => {
+		return this.state[field].valid || !this.state[field].touched
+	}
+
   render () {
     const { invoiceId, surname } = this.state
     return (
       <div className={style.invoicesLogin}>
-        <form className={style.invoicesContainer}>
+        <form
+					className={style.invoicesContainer}
+					onSubmit={this.onSubmitForm}
+				>
           <h1 className={style.invoicesLoginHeader}>Pay a Bill</h1>
           <InvoiceLoginField
             label={'Invoice Number'}
-            value={invoiceId}
+            value={invoiceId.value}
             onUpdateInput={this.updateFieldValue('invoiceId')}
+						errorMessage={<InputFieldError label={'You must enter a valid invoice reference.'} />}
+						isValid={this.isValid('invoiceId')}
 					/>
           <InvoiceLoginField
             label={'Surname'}
-            value={surname}
+            value={surname.value}
             onUpdateInput={this.updateFieldValue('surname')}
+						errorMessage={<InputFieldError label={'You must enter a valid surname.'} />}
+						isValid={this.isValid('surname')}
 					/>
-          <CheckInvoiceButton
-            onSubmitForm={this.onSubmitForm}
-					/>
+          <CheckInvoiceButton />
         </form>
       </div>
     )
