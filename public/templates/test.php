@@ -1,11 +1,8 @@
-<?php get_header(); ?>
+<?php get_header();
 
-<div id="primary" class="site-content">
-  <div id="content" role="main">
+?>
 
-		Test. Hello World!
-
-  </div><!-- #content -->
+<div id="invoices-app">
 </div><!-- #primary -->
-
+<script src="<?php echo plugins_url('beakon-invoice/js/build/bundle.js') ?>"></script>
 <?php get_footer(); ?>

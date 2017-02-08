@@ -1,0 +1,59 @@
+#invoices-app {
+	background: white;
+}
+
+:local(.invoicesLogin) {
+	height: 50vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+:local(.invoicesContainer) {
+	background: #f1f1f2;
+	margin: 2em;
+	padding: 2em;
+	flex: 0 1 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+:local(.invoicesLoginHeader) {
+	font-weight: 900;
+	color: #e52025;
+	font-size: 3em;
+}
+
+:local(.loginField) {
+	padding: 20px;
+	flex: 0 1 100%;
+	width: 100%;
+}
+
+:local(.fieldLabel) {
+	text-align: center;
+	font-weight: 400;
+}
+
+:local(.fieldInput) {
+	width: 100%;
+	padding: 8px;
+}
+
+:local(.findInvoiceButtonContainer) {
+	padding: 5px;
+}
+
+:local(.findInvoiceButtonContainer button) {
+	border-radius: 5px;
+	background: linear-gradient(to right, #e72128, #b32024);
+	text-transform: uppercase;
+	padding: 10px 20px;
+}
+
+:local(.fieldLabelHelpIcon) {
+	color: #e72128;
+	margin-left: 10px;
+}

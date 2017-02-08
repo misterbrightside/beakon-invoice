@@ -42,11 +42,26 @@ var config = {
       test: /\.css$/,
       loaders: cssLoader,
       exclude: '/node_modules/'
+    }, {
+      test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+    }, {
+      test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+    }, {
+      test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+    }, {
+      test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'file-loader'
+    }, {
+      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+      loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
     }]
   },
   output: {
     path: buildPath,
-    publicPath: isProduction ? '/' : '/build/',
+    publicPath: isProduction ? '/' : '/wp-content/plugins/beakon-invoice/js/build/',
     filename: 'bundle.js'
   }
 }
