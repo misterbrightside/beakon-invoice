@@ -13,13 +13,39 @@ const InvoiceLoginField = ({ label }) => (
   </div>
 )
 
-const CheckInvoiceButton = () => (
+const CheckInvoiceButton = ({ onSubmitForm }) => (
   <div className={style.findInvoiceButtonContainer}>
-    <button>Find my invoice ➔</button>
+    <button onClick={onSubmitForm}>
+			Find my invoice ➔
+		</button>
   </div>
 )
 
 class HelloWorld extends Component {
+
+  constructor () {
+    super()
+    this.onSubmitForm = this.onSubmitForm.bind(this)
+    this.API_LOCATION = '/wp-content/plugins/beakon-invoice/public/api/test-api.php'
+  }
+
+  getForm () {
+    const form = new FormData()
+    form.append('invoiceId', '10203020')
+    form.append('surname', 'brennan')
+    return form
+  }
+
+  onSubmitForm (event) {
+    event.preventDefault()
+    fetch(this.API_LOCATION, {
+      method: 'post',
+      body: this.getForm()
+    }).then(response => response.json())
+			.then(json => console.log(json))
+			.catch(error => console.error(error))
+  }
+
   render () {
     return (
       <div className={style.invoicesLogin}>
@@ -27,7 +53,9 @@ class HelloWorld extends Component {
           <h1 className={style.invoicesLoginHeader}>Pay a Bill</h1>
           <InvoiceLoginField label={'Invoice Number'} />
           <InvoiceLoginField label={'Surname'} />
-          <CheckInvoiceButton />
+          <CheckInvoiceButton
+            onSubmitForm={this.onSubmitForm}
+					/>
         </form>
       </div>
     )

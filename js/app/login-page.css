@@ -34,6 +34,7 @@
 
 :local(.fieldLabel) {
 	text-align: center;
+	color: #6d6e70;
 	font-weight: 400;
 }
 
