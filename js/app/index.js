@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import InvoiceLoginField from './InvoiceLoginField'
+import InvoiceAPI from './api/InvoiceAPI'
 import style from './login-page.css'
 import { escape } from 'lodash'
 
@@ -18,13 +19,27 @@ const InputFieldError = ({ label }) => (
 	</div>
 )
 
+const InvoiceAPISearchIndicator = ({ invoiceErrorMessage, displayMessage, isSearchingForInvoice }) => {
+	if (isSearchingForInvoice) {
+		return (
+			<div>Loading...</div>
+		)
+	} else if (displayMessage && invoiceErrorMessage) {
+		return (
+			<div>{ invoiceErrorMessage }</div>
+		)
+	} else return null;
+}
+
 class InvoiceLogin extends Component {
   constructor () {
     super()
     this.onSubmitForm = this.onSubmitForm.bind(this)
     this.updateFieldValue = this.updateFieldValue.bind(this)
-    this.API_LOCATION = '/wp-json/beakon-invoices/v1/invoice-exists'
     this.state = {
+			isSearchingForInvoice: false,
+			invoiceErrorMessage: '',
+			displayMessage: false,
       invoiceId: this.getInitialInputState(),
       surname: this.getInitialInputState()
     }
@@ -48,30 +63,42 @@ class InvoiceLogin extends Component {
 		})
   }
 
-  getForm (invoiceId, surname) {
-    const form = new FormData()
-    form.append('invoiceId', escape(invoiceId))
-    form.append('surname', escape(surname))
-    return form
-  }
-
   onSubmitForm (event) {
 		const { invoiceId, surname } = this.state
     event.preventDefault()
-    fetch(this.API_LOCATION, {
-      method: 'POST',
-      body: this.getForm(invoiceId.value, surname.value)
-    }).then(response => response.json())
-			.then(json => console.log(json))
-			.catch(error => console.error(error))
+		if (invoiceId.touched && surname.touched) {
+			this.setState({ isSearchingForInvoice: true })
+			InvoiceAPI.checkWhetherInvoiceExists(invoiceId.value, surname.value)
+				.then((invoiceExists) => this.setState({
+					isSearchingForInvoice: false,
+					displayMessage: !invoiceExists,
+					invoiceErrorMessage: !invoiceExists ? 'No invoice found!' : ''
+				}))
+				.catch(error => {
+					console.error(error)
+					return this.setState({
+						isSearchingForInvoice: false,
+						invoiceErrorMessage: 'Error checking the database, please try again later.',
+						displayMessage: true
+					})
+				})
+		} else {
+			this.setState({
+				isSearchingForInvoice: false,
+				displayMessage: true,
+				invoiceErrorMessage: 'Fill in all info!'
+			})
+		}
   }
+
+
 
 	isValid = (field) => {
 		return this.state[field].valid || !this.state[field].touched
 	}
 
   render () {
-    const { invoiceId, surname } = this.state
+    const { invoiceId, surname, isSearchingForInvoice, displayMessage, invoiceErrorMessage } = this.state
     return (
       <div className={style.invoicesLogin}>
         <form
@@ -94,6 +121,12 @@ class InvoiceLogin extends Component {
 						isValid={this.isValid('surname')}
 					/>
           <CheckInvoiceButton />
+					{ displayMessage ?
+						<InvoiceAPISearchIndicator
+							invoiceErrorMessage={invoiceErrorMessage}
+							displayMessage={displayMessage}
+							isSearchingForInvoice={isSearchingForInvoice}
+						/> : null }
         </form>
       </div>
     )
