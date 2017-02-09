@@ -1,0 +1,21 @@
+:local(.invoicesViewContainer) {
+	min-height: 70vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+:local(.invoiceViewHeader) {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+:local(.invoiceMetaDetails) {
+	flex: 0 1 35%;
+}
+
+:local(.businessAddress) {
+	flex: 0 1 45%;
+}

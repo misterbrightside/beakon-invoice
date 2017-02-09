@@ -127,7 +127,8 @@ class PayInvoicesApplication extends Component {
     const invoiceView = (
       <InvoiceView />
     );
-    return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
+    // return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
+    return invoiceView;
   }
 }
 
