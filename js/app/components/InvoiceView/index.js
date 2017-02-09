@@ -5,6 +5,17 @@ const PrintButton = () => (<button>Print Invoice</button>);
 const PayButton = () => (<button>Pay now</button>);
 const LookupNewInvoiceButton = () => (<button>Look up new invoice</button>);
 
+const getRow = (index, data) => (
+  <tr key={index} className={style.invoiceItemTableRow}>
+    { data.map((value, key) => (
+      <td
+        key={key}
+        className={style.invoiceItemCell}
+      >{value}</td>)
+    ) }
+  </tr>
+);
+
 const TopActionButtons = () => (
   <div>
     <LookupNewInvoiceButton />
@@ -63,51 +74,31 @@ const CustomerAddress = () => (
 
 const ItemsTotal = () => (
   <tfoot>
-    <tr>
-      <td />
-      <td>Subtotal</td>
-      <td>$180</td>
-    </tr>
-    <tr>
-      <td />
-      <td>VAT</td>
-      <td>$180</td>
-    </tr>
-    <tr>
-      <td />
-      <td>Total</td>
-      <td>$180</td>
-    </tr>
+    { getRow(1, ['', 'Subtotal', '€349.47']) }
+    { getRow(2, ['', 'VAT', '€34.95']) }
+    { getRow(3, ['', 'Total', '€349.47']) }
   </tfoot>
 );
 
 const Items = () => (
-  <tbody>
-    <tr>
-      <td>USA</td>
-      <td>robot D.C.</td>
-      <td>309 million</td>
-    </tr>
-    <tr>
-      <td>Sweden</td>
-      <td>Stockholm</td>
-      <td>9 million</td>
-    </tr>
+  <tbody className={style.invoiceTableBody}>
+    { getRow(5, ['Kerosene', 500, '€349sss.47']) }
+    { getRow(10220, ['Kerosene', 500, '€34ssza9sss.47']) }
   </tbody>
 );
 
 const TableHeader = () => (
   <thead>
-    <tr>
-      <th>Line Items</th>
-      <th>Quantity</th>
-      <th>Amount</th>
+    <tr className={style.invoiceItemTableRow}>
+      <th className={style.invoiceItemCell}>Line Items</th>
+      <th className={style.invoiceItemCell}>Quantity</th>
+      <th className={style.invoiceItemCell}>Amount</th>
     </tr>
   </thead>
 );
 
 const ItemsPurchased = () => (
-  <table>
+  <table className={style.invoiceItemsTable}>
     <TableHeader />
     <Items />
     <ItemsTotal />
