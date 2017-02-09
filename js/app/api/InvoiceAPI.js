@@ -1,3 +1,5 @@
+import { escape } from 'lodash';
+
 export default class InvoiceAPI {
 
   static getForm(invoiceId, surname) {
