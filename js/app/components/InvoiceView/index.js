@@ -73,7 +73,7 @@ const CustomerAddress = () => (
 );
 
 const ItemsTotal = () => (
-  <tfoot>
+  <tfoot className={style.invoicesFooter}>
     { getRow(1, ['', 'Subtotal', '€349.47']) }
     { getRow(2, ['', 'VAT', '€34.95']) }
     { getRow(3, ['', 'Total', '€349.47']) }

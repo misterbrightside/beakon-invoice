@@ -40,7 +40,11 @@
 	border: 1px solid black;
 }
 
-:local(tr.invoiceItemTableRow > :not(:last-child)) {
+:local(tbody > tr.invoiceItemTableRow > :not(:last-child)) {
+	border-right: 1px solid black;
+}
+
+:local(thead > tr.invoiceItemTableRow > :not(:last-child)) {
 	border-right: 1px solid black;
 }
 
@@ -62,4 +66,13 @@
 
 tbody > tr:last-child > td:first-child {
 	min-height: 100px;
+}
+
+:local(tfoot.invoicesFooter) {
+	border-right: 1px solid;
+}
+
+:local(tfoot.invoicesFooter > tr > td:last-child) {
+	border-bottom: 1px solid;
+	border-left: 1px solid;
 }
