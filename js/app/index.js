@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import InvoiceLogin from './InvoiceLogin';
-import InvoiceAPI from './api/InvoiceAPI';
 import { isEmpty } from 'lodash';
+import { render } from 'react-dom';
+import InvoiceLogin from './components/InvoiceLogin/';
+import InvoiceView from './components/InvoiceView/';
+import InvoiceAPI from './api/InvoiceAPI';
 
 class PayInvoicesApplication extends Component {
 
@@ -13,6 +14,42 @@ class PayInvoicesApplication extends Component {
     this.state = this.getInitialApplicationState();
   }
 
+  onSubmitForm(event) {
+    const { invoiceId, surname } = this.state.loginForm;
+    event.preventDefault();
+    if (this.formValid(invoiceId, surname)) {
+      this.checkWhetherInvoiceExists(invoiceId, surname);
+    } else {
+      this.tellUserToFillInAllInfo();
+    }
+  }
+
+  setLoadingState() {
+    return this.setState(previousState => ({
+      loginForm: Object.assign({}, previousState.loginForm, {
+        isSearchingForInvoice: true,
+      }),
+    }));
+  }
+
+  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice }) => (
+    this.setState(previousState => ({
+      loginForm: Object.assign({}, previousState.loginForm, {
+        isSearchingForInvoice: false,
+        invoiceErrorMessage: !invoiceExists ? 'No invoice found!' : '',
+      }),
+      invoice: Object.assign({}, previousState.invoice, {
+        payload: invoiceExists ? invoice : {},
+      }),
+    }))
+  )
+
+  getInitialInputState = () => ({
+    value: '',
+    valid: false,
+    touched: false,
+  })
+
   getInitialApplicationState() {
     return {
       loginForm: {
@@ -22,61 +59,31 @@ class PayInvoicesApplication extends Component {
         surname: this.getInitialInputState(),
       },
       invoice: {
-        payload: {}
+        payload: {},
       },
     };
   }
 
-  getInitialInputState() {
-    return ({
-      value: '',
-      valid: false,
-      touched: false
-    });
+  setNewValue(id, value) {
+    return this.setState(previousState => ({
+      loginForm: Object.assign({}, previousState.loginForm, {
+        [id]: {
+          value,
+          valid: value.trim().length > 0,
+          touched: true,
+        } }) }
+      ),
+    );
   }
 
-  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice }) => {
-    return this.setState((previousState) => ({ 
+  setStateAfterCheckingInvoiceExistsFailed = error => (
+    this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
-        invoiceErrorMessage: !invoiceExists ? 'No invoice found!' : '',
-      }), 
-      invoice: Object.assign({}, previousState.invoice, {
-        payload: invoiceExists ? invoice : {}
+        invoiceErrorMessage: `Error checking the database, please try again later: ${error}.`,
       }),
-    }));
-  }
-
-  setStateAfterCheckingInvoiceExistsFailed = (error) => {
-    console.error(error);
-    return this.setState(() => ({
-      loginForm: Object.assign({}, previousState.loginForm, {
-        isSearchingForInvoice: false,
-        invoiceErrorMessage: 'Error checking the database, please try again later.',
-      })
-    }));
-  }
-
-  setLoadingState() {
-    return this.setState((previousState) => ({
-      loginForm: Object.assign({}, previousState.loginForm, {
-        isSearchingForInvoice: true,
-      })
-    }));
-  }
-
-  tellUserToFillInAllInfo() {
-    return this.setState((previousState) => ({
-      loginForm: Object.assign({}, previousState.loginForm, {
-        isSearchingForInvoice: false,
-        invoiceErrorMessage: 'Fill in all info!',
-      })
     }))
-  }
-
-  fieldValid(field) {
-    return field.touched && field.valid;
-  }
+  )
 
   formValid(invoiceId, surname) {
     return this.fieldValid(invoiceId) && this.fieldValid(surname);
@@ -89,29 +96,20 @@ class PayInvoicesApplication extends Component {
       .catch(this.setStateAfterCheckingInvoiceExistsFailed);
   }
 
-  onSubmitForm(event) {
-    const {invoiceId, surname} = this.state.loginForm;
-    event.preventDefault();
-    if (this.formValid(invoiceId, surname)) {
-      this.checkWhetherInvoiceExists(invoiceId, surname);
-    } else {
-      this.tellUserToFillInAllInfo();
-    }
-  }
+  fieldValid = field => (
+    field.touched && field.valid
+  )
 
-  setNewValue(id, value) {
-    return this.setState((previousState) => ({
+  tellUserToFillInAllInfo() {
+    return this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
-        [id]: {
-          value,
-          valid: value.trim().length > 0,
-          touched: true,
-        }})}
-      )
-    );
+        isSearchingForInvoice: false,
+        invoiceErrorMessage: 'Fill in all info!',
+      }),
+    }));
   }
 
-  updateFieldValue = (id) => (event) => {
+  updateFieldValue = id => (event) => {
     event.preventDefault();
     const { value } = event.target;
     return this.setNewValue(id, value);
@@ -121,16 +119,16 @@ class PayInvoicesApplication extends Component {
     const { loginForm, invoice } = this.state;
     const loginScreen = (
       <InvoiceLogin
-        { ... loginForm }
+        {... loginForm}
         updateFieldValue={this.updateFieldValue}
         onSubmitForm={this.onSubmitForm}
       />
     );
     const invoiceView = (
-      <div>Hello guys!</div>
+      <InvoiceView />
     );
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
   }
 }
 
-ReactDOM.render(<PayInvoicesApplication />, document.getElementById('invoices-app'));
+render(<PayInvoicesApplication />, document.getElementById('invoices-app'));
