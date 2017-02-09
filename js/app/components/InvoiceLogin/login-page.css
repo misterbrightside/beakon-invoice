@@ -30,10 +30,12 @@
 	padding: 20px;
 	flex: 0 1 100%;
 	width: 100%;
+	height: 140px;
 }
 
 :local(.fieldLabel) {
 	text-align: center;
+	color: #6d6e70;
 	font-weight: 400;
 }
 
@@ -56,4 +58,10 @@
 :local(.fieldLabelHelpIcon) {
 	color: #e72128;
 	margin-left: 10px;
+}
+
+:local(.inputFieldErrorMessage) {
+	padding-top: 5px;
+	font-size: .8em;
+	color: #e72128;
 }
