@@ -32,25 +32,27 @@ const BottomActionButtons = () => (
 );
 
 const Logo = () => (
-  <div>Logo goes here, hunty.</div>
+  <div className={style.invoiceBusinessLogo}>
+    <img src={'http://dundalkoil.beakon.ie/wp-content/uploads/2016/11/Logo.png'} />
+  </div>
 );
 
 const BusinessAddress = () => (
   <div className={style.businessAddress}>
     <Logo />
-    <address>
-      Dundalk Oil Products Limited,
-      Brewer Business Park,
-      Ardee Road, Co. Louth.
+    <address className={style.invoiceAddress}>
+      <div>Dundalk Oil Products Limited,</div>
+      <div>Brewer Business Park,</div>
+      <div>Ardee Road, Co. Louth.</div>
     </address>
   </div>
 );
 
 const InvoiceMetaDetails = () => (
   <div className={style.invoiceMetaDetails}>
-    <h2>Invoice</h2>
-    <div>Invoice number 293939</div>
-    <div>1st Jan 2020</div>
+    <h2 className={style.invoiceHeader}>Invoice</h2>
+    <div>Invoice # 293939</div>
+    <div>1 Janurary 2020</div>
   </div>
 );
 
@@ -62,7 +64,7 @@ const InvoiceHeader = () => (
 );
 
 const CustomerAddress = () => (
-  <address>
+  <address className={style.invoiceAddress}>
     <div>
       <strong>Customer name</strong>
     </div>
@@ -106,7 +108,7 @@ const ItemsPurchased = () => (
 );
 
 const Invoice = () => (
-  <div>
+  <div className={style.invoiceView}>
     <InvoiceHeader />
     <CustomerAddress />
     <ItemsPurchased />

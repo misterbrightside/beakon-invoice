@@ -4,6 +4,7 @@
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
+	color: #6d6e70;
 }
 
 :local(.invoiceViewHeader) {
@@ -12,8 +13,31 @@
 	justify-content: space-between;
 }
 
+:local(address.invoiceAddress) {
+	font-style: normal;
+}
+
+:local(.invoiceBusinessLogo) {
+	margin-bottom: 30px;
+}
+
+:local(.invoiceView) {
+	width: 80%;
+	padding: 50px;
+	background: #f1f1f2;
+	margin: 30px;
+}
+
 :local(.invoiceMetaDetails) {
 	flex: 0 1 35%;
+	text-align: right;
+}
+
+:local(.invoiceHeader) {
+	font-size: 2.75em;
+	color: #e52025;
+	text-transform: uppercase;
+	font-weight: 900;
 }
 
 :local(.businessAddress) {
@@ -37,15 +61,15 @@
 }
 
 :local(thead > tr.invoiceItemTableRow) {
-	border: 1px solid black;
+	border: 1px solid #939495;
 }
 
 :local(tbody > tr.invoiceItemTableRow > :not(:last-child)) {
-	border-right: 1px solid black;
+	border-right: 1px solid #939495;
 }
 
 :local(thead > tr.invoiceItemTableRow > :not(:last-child)) {
-	border-right: 1px solid black;
+	border-right: 1px solid #939495;
 }
 
 :local(.invoiceItemCell) {
@@ -59,9 +83,9 @@
 
 :local(tbody.invoiceTableBody) {
 	min-height: 100px;
-	border-left: 1px solid;
-    border-right: 1px solid;
-    border-bottom: 1px solid;
+	border-left: 1px solid #939495;
+    border-right: 1px solid #939495;
+    border-bottom: 1px solid #939495;
 }
 
 tbody > tr:last-child > td:first-child {
@@ -69,10 +93,10 @@ tbody > tr:last-child > td:first-child {
 }
 
 :local(tfoot.invoicesFooter) {
-	border-right: 1px solid;
+	border-right: 1px solid #939495;
 }
 
 :local(tfoot.invoicesFooter > tr > td:last-child) {
-	border-bottom: 1px solid;
-	border-left: 1px solid;
+	border-bottom: 1px solid #939495;
+	border-left: 1px solid #939495;
 }
