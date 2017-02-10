@@ -1,0 +1,117 @@
+:local(.invoicesViewContainer) {
+	min-height: 70vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	color: #6d6e70;
+}
+
+:local(.invoiceViewHeader) {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+:local(address.invoiceAddress) {
+	font-style: normal;
+}
+
+:local(.invoiceBusinessLogo) {
+	margin-bottom: 30px;
+}
+
+:local(.invoiceView) {
+	width: 80%;
+	max-width: 900px;
+	padding: 50px 50px 0 40px;
+	background: #f1f1f2;
+	margin: 30px;
+}
+
+:local(.invoiceMetaDetails) {
+	flex: 0 1 35%;
+	text-align: right;
+}
+
+:local(.invoiceHeader) {
+	font-size: 2.75em;
+	color: #e52025;
+	text-transform: uppercase;
+	font-weight: 900;
+}
+
+:local(.businessAddress) {
+	flex: 0 1 45%;
+}
+
+:local(.invoiceItemsTable) {
+	flex-direction: column;
+	display: flex;
+}
+
+:local(tr.invoiceItemTableRow) {
+	display: flex;
+	border: none;
+}
+
+:local(tr.invoiceItemTableRow > :first-child) {
+	flex: 0 1 60%;
+	text-align: left;
+	padding-left: 20px;
+}
+
+:local(thead > tr.invoiceItemTableRow) {
+	border: 1px solid #939495;
+}
+
+:local(tbody > tr.invoiceItemTableRow > :not(:last-child)) {
+	border-right: 1px solid #939495;
+}
+
+:local(thead > tr.invoiceItemTableRow > :not(:last-child)) {
+	border-right: 1px solid #939495;
+}
+
+:local(.invoiceItemCell) {
+	flex: 0 1 20%;
+	text-align: center;
+}
+
+:local(th.invoiceItemCell) {
+	border: none;
+}
+
+:local(tbody.invoiceTableBody) {
+	min-height: 100px;
+	border-left: 1px solid #939495;
+    border-right: 1px solid #939495;
+    border-bottom: 1px solid #939495;
+}
+
+tbody > tr:last-child > td:first-child {
+	min-height: 100px;
+}
+
+:local(tfoot.invoicesFooter) {
+	border-right: 1px solid #939495;
+}
+
+:local(tfoot.invoicesFooter > tr > td:last-child) {
+	border-bottom: 1px solid #939495;
+	border-left: 1px solid #939495;
+}
+
+:local(.businessInfo) {
+	text-align: center;
+	font-size: .85em;
+	padding: 30px 0;
+}
+
+:local(.companyInfo) {
+	padding-bottom: 10px;
+}
+
+:local(.customerAddress) {
+	font-size: 1.1em;
+}

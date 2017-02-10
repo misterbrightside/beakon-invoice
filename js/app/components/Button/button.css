@@ -1,0 +1,28 @@
+:local(button.primary) {
+	border-radius: 5px;
+	background: linear-gradient(to right, #e72128, #b32024);
+	text-transform: uppercase;
+    padding: 15px 20px;
+}
+
+:local(button.secondary) {
+	border-radius: 5px;
+    border: 1px solid #e72128;
+    color: #b32024;
+    background: white;
+    text-transform: uppercase;
+    padding: 15px 20px;
+}
+
+:local(.spaceBetween) {
+	display: flex;
+	justify-content: space-between;
+	width: 80%;
+	max-width: 900px;
+}
+
+:local(.spaceButtons) {
+	flex: 0 1 40%;
+    display: flex;
+    justify-content: space-around;
+}
