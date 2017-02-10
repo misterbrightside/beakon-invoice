@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { isEmpty } from 'lodash';
+import { isEmpty, camelCase } from 'lodash';
 import { render } from 'react-dom';
 import InvoiceLogin from './components/InvoiceLogin/';
 import InvoiceView from './components/InvoiceView/';
@@ -109,6 +109,18 @@ class PayInvoicesApplication extends Component {
     }));
   }
 
+  santizeInvoiceObject(invoiceData) {
+    return Object.keys(invoiceData).map((key) => {
+      const value = invoiceData[key];
+      const cleanAttribute = { [camelCase(key)]: value[0] };
+      return cleanAttribute;
+    });
+  }
+
+  prepareInvoiceObject(invoiceData) {
+    return Object.assign(...this.santizeInvoiceObject(invoiceData));
+  }
+
   updateFieldValue = id => (event) => {
     event.preventDefault();
     const { value } = event.target;
@@ -124,11 +136,12 @@ class PayInvoicesApplication extends Component {
         onSubmitForm={this.onSubmitForm}
       />
     );
-    const invoiceView = (
-      <InvoiceView />
-    );
-    // return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
-    return invoiceView;
+    const invoiceView = !isEmpty(invoice.payload) ? (
+      <InvoiceView
+        {... this.prepareInvoiceObject(invoice.payload) }
+      />
+    ) : null;
+    return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
   }
 }
 

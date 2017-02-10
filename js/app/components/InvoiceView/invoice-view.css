@@ -1,3 +1,12 @@
+.displayInvoice-appear {
+  opacity: 0.01;
+}
+
+.displayInvoice-appear.displayInvoice-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
+
 :local(.invoicesViewContainer) {
 	min-height: 70vh;
 	display: flex;

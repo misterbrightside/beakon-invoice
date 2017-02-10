@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import style from './invoice-view.css';
 import buttonStyle from '../Button/button.css';
 
 const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
 const PayButton = () => (<button className={buttonStyle.primary}>Pay now</button>);
-const LookupNewInvoiceButton = () => (<button className={buttonStyle.secondary}>Look up new invoice</button>);
+const LookupNewInvoiceButton = () => (
+  <button className={buttonStyle.secondary}>Look up new invoice</button>
+);
 
 const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
@@ -79,10 +82,10 @@ const InvoiceHeader = () => (
   </div>
 );
 
-const CustomerAddress = () => (
+const CustomerAddress = ({ firstName, surname }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
-      <strong>Customer name</strong>
+      <strong>{firstName} {surname}</strong>
     </div>
     <div>Address Line 1</div>
     <div>Address Line 2</div>
@@ -133,21 +136,39 @@ const BusinessInfo = () => (
   </div>
 );
 
-const Invoice = () => (
-  <div className={style.invoiceView}>
-    <InvoiceHeader />
-    <CustomerAddress />
-    <ItemsPurchased />
-    <BusinessInfo />
-  </div>
-);
+const Invoice = (props) => {
+  const { firstNameId, surnameId } = props;
+  return (
+    <div className={style.invoiceView}>
+      <InvoiceHeader />
+      <CustomerAddress
+        firstName={firstNameId}
+        surname={surnameId}
+      />
+      <ItemsPurchased />
+      <BusinessInfo />
+    </div>
+  );
+};
 
-const InvoiceView = () => (
-  <div className={style.invoicesViewContainer}>
-    <TopActionButtons />
-    <Invoice />
-    <BottomActionButtons />
-  </div>
-);
+class InvoiceView extends Component {
+  render() {
+    return (
+      <ReactCSSTransitionGroup
+        transitionName="displayInvoice"
+        transitionAppear={true}
+        transitionAppearTimeout={500}
+        transitionEnter={false}
+        transitionLeave={false}
+      >
+        <div className={style.invoicesViewContainer}>
+          <TopActionButtons />
+          <Invoice {... this.props} />
+          <BottomActionButtons />
+        </div>
+      </ReactCSSTransitionGroup>
+    );
+  }
+}
 
 export default InvoiceView;
