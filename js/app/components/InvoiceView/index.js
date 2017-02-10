@@ -1,9 +1,10 @@
 import React from 'react';
 import style from './invoice-view.css';
+import buttonStyle from '../Button/button.css';
 
-const PrintButton = () => (<button>Print Invoice</button>);
-const PayButton = () => (<button>Pay now</button>);
-const LookupNewInvoiceButton = () => (<button>Look up new invoice</button>);
+const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
+const PayButton = () => (<button className={buttonStyle.primary}>Pay now</button>);
+const LookupNewInvoiceButton = () => (<button className={buttonStyle.secondary}>Look up new invoice</button>);
 
 const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
@@ -17,17 +18,24 @@ const getRow = (index, data) => (
 );
 
 const TopActionButtons = () => (
-  <div>
-    <LookupNewInvoiceButton />
-    <PayButton />
-    <PrintButton />
+  <div className={buttonStyle.spaceBetween}>
+    <div>
+      <LookupNewInvoiceButton />
+    </div>
+    <div className={buttonStyle.spaceButtons}>
+      <PrintButton />
+      <PayButton />
+    </div>
   </div>
 );
 
 const BottomActionButtons = () => (
-  <div>
-    <PayButton />
-    <PrintButton />
+  <div className={buttonStyle.spaceBetween}>
+    <div />
+    <div className={buttonStyle.spaceButtons}>
+      <PrintButton />
+      <PayButton />
+    </div>
   </div>
 );
 
@@ -37,16 +45,21 @@ const Logo = () => (
   </div>
 );
 
-const BusinessAddress = () => (
-  <div className={style.businessAddress}>
-    <Logo />
-    <address className={style.invoiceAddress}>
-      <div>Dundalk Oil Products Limited,</div>
-      <div>Brewer Business Park,</div>
-      <div>Ardee Road, Co. Louth.</div>
-    </address>
-  </div>
-);
+const BusinessAddress = ({ inline, displayLogo }) => {
+  const address = ['Dundalk Oil Products Limited,', 'Brewer Business Park,', 'Ardee Road, Co. Louth.'];
+  return (
+    <div className={style.businessAddress}>
+      { displayLogo ? <Logo /> : null }
+      <address className={style.invoiceAddress}>
+        {
+          inline ?
+            address.map(addressLine => <span>{ addressLine }</span>) :
+            address.map(addressLine => <div>{ addressLine }</div>)
+        }
+      </address>
+    </div>
+  );
+};
 
 const InvoiceMetaDetails = () => (
   <div className={style.invoiceMetaDetails}>
@@ -58,13 +71,16 @@ const InvoiceMetaDetails = () => (
 
 const InvoiceHeader = () => (
   <div className={style.invoiceViewHeader}>
-    <BusinessAddress />
+    <BusinessAddress
+      inline={false}
+      displayLogo={true}
+    />
     <InvoiceMetaDetails />
   </div>
 );
 
 const CustomerAddress = () => (
-  <address className={style.invoiceAddress}>
+  <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
       <strong>Customer name</strong>
     </div>
@@ -107,11 +123,22 @@ const ItemsPurchased = () => (
   </table>
 );
 
+const BusinessInfo = () => (
+  <div className={style.businessInfo}>
+    <div className={style.companyInfo}>Company Registration Number: 123456P | VAT No. 1234567</div>
+    <BusinessAddress
+      inline={true}
+      displayLogo={false}
+    />
+  </div>
+);
+
 const Invoice = () => (
   <div className={style.invoiceView}>
     <InvoiceHeader />
     <CustomerAddress />
     <ItemsPurchased />
+    <BusinessInfo />
   </div>
 );
 

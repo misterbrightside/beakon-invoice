@@ -23,7 +23,8 @@
 
 :local(.invoiceView) {
 	width: 80%;
-	padding: 50px;
+	max-width: 900px;
+	padding: 50px 50px 0 40px;
 	background: #f1f1f2;
 	margin: 30px;
 }
@@ -99,4 +100,18 @@ tbody > tr:last-child > td:first-child {
 :local(tfoot.invoicesFooter > tr > td:last-child) {
 	border-bottom: 1px solid #939495;
 	border-left: 1px solid #939495;
+}
+
+:local(.businessInfo) {
+	text-align: center;
+	font-size: .85em;
+	padding: 30px 0;
+}
+
+:local(.companyInfo) {
+	padding-bottom: 10px;
+}
+
+:local(.customerAddress) {
+	font-size: 1.1em;
 }
