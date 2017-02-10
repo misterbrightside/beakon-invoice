@@ -2,12 +2,19 @@
 add_action( 'rest_api_init', function () {
   register_rest_route( 'beakon-invoices/v1', 'invoice-exists', array(
     'methods' => 'POST',
-    'callback' => 'my_awesome_func',
-  ) );
+    'callback' => 'bijb_check_if_invoice_exists',
+    ) );
+} );
+
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_get_details_to_pay_invoice',
+    ) );
 } );
 
 
-function my_awesome_func( $data ) {
+function bijb_check_if_invoice_exists( $data ) {
 	$invoiceId = $data['invoiceId'];
 	$surname = $data['surname'];
 
@@ -34,14 +41,14 @@ function my_awesome_func( $data ) {
 		'post_type'		=> 'invoice',
 		'meta_key'		=> 'surname-id',
 		'meta_value'	=> $surname
-	);
+   );
 	$query = new WP_Query( $args );
 	return json_encode(
 		array(
 			'invoiceExists' => $query->have_posts(),
 			'invoice' => bijb_get_invoice($query)
-		)
-	);
+      )
+   );
 }
 
 function bijb_get_invoice($query) {
@@ -51,4 +58,13 @@ function bijb_get_invoice($query) {
 		$id = $query->posts[0]->ID;
 		return get_post_custom($id);
 	}
+}
+
+function bijb_get_details_to_pay_invoice ( $data ) {
+  $invoiceId = $data['invoiceId'];
+  return json_encode(
+    array(
+      'invoiceId' => $invoiceId,
+    )
+  );
 }

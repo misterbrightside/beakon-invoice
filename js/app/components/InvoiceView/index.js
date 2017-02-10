@@ -2,42 +2,66 @@ import React, { Component } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import style from './invoice-view.css';
 import buttonStyle from '../Button/button.css';
+import InvoiceAPI from '../../api/InvoiceAPI';
+import LoadingIndicator from '../LoadingIndicator/';
+
+
+const RedirectToPaymentLoadingLayover = () => (
+  <div className={style.overlay}>
+    <LoadingIndicator />
+    <div>Loading Payment Gateway</div>
+    <div>Redirecting you to WorldNet...</div>
+  </div>
+);
 
 const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
-const PayButton = () => (<button className={buttonStyle.primary}>Pay now</button>);
+
+const PayButton = ({ onPaymentButtonClick }) => (
+  <button
+    className={buttonStyle.primary}
+    onClick={onPaymentButtonClick}
+  >
+    Pay now
+  </button>
+);
+
 const LookupNewInvoiceButton = () => (
   <button className={buttonStyle.secondary}>Look up new invoice</button>
 );
 
 const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
-    { data.map((value, key) => (
+    { data.map(value => (
       <td
-        key={key}
+        key={`todo-${value}`}
         className={style.invoiceItemCell}
-      >{value}</td>)
+      >{value}</td>),
     ) }
   </tr>
 );
 
-const TopActionButtons = () => (
+const TopActionButtons = ({ onPaymentButtonClick }) => (
   <div className={buttonStyle.spaceBetween}>
     <div>
       <LookupNewInvoiceButton />
     </div>
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
-      <PayButton />
+      <PayButton
+        onPaymentButtonClick={onPaymentButtonClick}
+      />
     </div>
   </div>
 );
 
-const BottomActionButtons = () => (
+const BottomActionButtons = ({ onPaymentButtonClick }) => (
   <div className={buttonStyle.spaceBetween}>
     <div />
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
-      <PayButton />
+      <PayButton
+        onPaymentButtonClick={onPaymentButtonClick}
+      />
     </div>
   </div>
 );
@@ -152,21 +176,54 @@ const Invoice = (props) => {
 };
 
 class InvoiceView extends Component {
-  render() {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      displayPaymentRedirectLoading: false,
+    };
+  }
+
+  onPaymentButtonClick = () => {
+    this.setState({ displayPaymentRedirectLoading: true });
+    InvoiceAPI.getURLForWorldNetPayment('hi!!').then(x => console.log(x));
+  }
+
+  getInvoice() {
     return (
-      <ReactCSSTransitionGroup
-        transitionName="displayInvoice"
-        transitionAppear={true}
-        transitionAppearTimeout={500}
-        transitionEnter={false}
-        transitionLeave={false}
-      >
-        <div className={style.invoicesViewContainer}>
-          <TopActionButtons />
-          <Invoice {... this.props} />
-          <BottomActionButtons />
+      <div className={style.invoicesViewContainer}>
+        <TopActionButtons
+          onPaymentButtonClick={this.onPaymentButtonClick}
+        />
+        <Invoice
+          {... this.props}
+        />
+        <BottomActionButtons
+          onPaymentButtonClick={this.onPaymentButtonClick}
+        />
+      </div>
+    );
+  }
+
+  render() {
+    const invoice = this.getInvoice();
+    const { displayPaymentRedirectLoading } = this.state;
+    const isBlurred = displayPaymentRedirectLoading ? style.blurred : '';
+    return (
+      <div>
+        <div className={isBlurred}>
+          <ReactCSSTransitionGroup
+            transitionName="displayInvoice"
+            transitionAppear={true}
+            transitionAppearTimeout={500}
+            transitionEnter={false}
+            transitionLeave={false}
+          >
+            { invoice }
+          </ReactCSSTransitionGroup>
         </div>
-      </ReactCSSTransitionGroup>
+        { displayPaymentRedirectLoading ? <RedirectToPaymentLoadingLayover /> : null }
+      </div>
     );
   }
 }

@@ -124,3 +124,21 @@ tbody > tr:last-child > td:first-child {
 :local(.customerAddress) {
 	font-size: 1.1em;
 }
+
+:local(.blurred) {
+	filter: blur(10px);
+}
+
+:local(.overlay) {
+	position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
