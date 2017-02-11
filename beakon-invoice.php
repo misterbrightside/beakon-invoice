@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-custom-post-type.php';
 require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-fields.php';
 require_once plugin_dir_path( __FILE__ ) . '/public/add_templates.php';
-require_once plugin_dir_path( __FILE__ ) . '/public/api/test-api.php';
+require_once plugin_dir_path( __FILE__ ) . '/public/api/invoice-endpoints.php';
 
 
 function bijb_admin_enqueue_scripts() {

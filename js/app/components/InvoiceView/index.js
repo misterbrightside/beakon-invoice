@@ -88,32 +88,34 @@ const BusinessAddress = ({ inline, displayLogo }) => {
   );
 };
 
-const InvoiceMetaDetails = () => (
+const InvoiceMetaDetails = ({ invoiceId }) => (
   <div className={style.invoiceMetaDetails}>
     <h2 className={style.invoiceHeader}>Invoice</h2>
-    <div>Invoice # 293939</div>
+    <div>Invoice # { invoiceId }</div>
     <div>1 Janurary 2020</div>
   </div>
 );
 
-const InvoiceHeader = () => (
+const InvoiceHeader = ({ invoiceId }) => (
   <div className={style.invoiceViewHeader}>
     <BusinessAddress
       inline={false}
       displayLogo={true}
     />
-    <InvoiceMetaDetails />
+    <InvoiceMetaDetails
+      invoiceId={invoiceId}
+    />
   </div>
 );
 
-const CustomerAddress = ({ firstName, surname }) => (
+const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addressLine3 }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
       <strong>{firstName} {surname}</strong>
     </div>
-    <div>Address Line 1</div>
-    <div>Address Line 2</div>
-    <div>Address Line 3</div>
+    <div>{addressLine1}</div>
+    <div>{addressLine2}</div>
+    <div>{addressLine3}</div>
   </address>
 );
 
@@ -161,13 +163,25 @@ const BusinessInfo = () => (
 );
 
 const Invoice = (props) => {
-  const { firstNameId, surnameId } = props;
+  const { 
+    firstNameId,
+    surnameId,
+    addressLine1Id,
+    addressLine2Id,
+    addressLine3Id,
+    invoiceId,
+  } = props;
   return (
     <div className={style.invoiceView}>
-      <InvoiceHeader />
+      <InvoiceHeader
+        invoiceId={invoiceId}
+      />
       <CustomerAddress
         firstName={firstNameId}
         surname={surnameId}
+        addressLine1={addressLine1Id}
+        addressLine2={addressLine2Id}
+        addressLine3={addressLine3Id}
       />
       <ItemsPurchased />
       <BusinessInfo />

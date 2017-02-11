@@ -20,30 +20,24 @@ function bijb_check_if_invoice_exists( $data ) {
 	$invoiceId = $data['invoiceId'];
 	$surname = $data['surname'];
 
-	// $posts = get_posts(array(
-	// 	'numberposts'	=> -1,
-	// 	'post_type'		=> 'post',
-	// 	'meta_query'	=> array(
-	// 		'relation'		=> 'AND',
-	// 		array(
-	// 			'key'	 	=> 'first-name-id',
-	// 			'value'	  	=> 'John'
-	// 			'compare' 	=> 'IN',
-	// 		),
-	// 		array(
-	// 			'key'	  	=> 'surname-id',
-	// 			'value'	  	=> 'Brennan',
-	// 			'compare' 	=> '=',
-	// 		),
-	// 	),
-	// ));
-
 	$args = array(
 		'numberposts'	=> -1,
 		'post_type'		=> 'invoice',
-		'meta_key'		=> 'surname-id',
-		'meta_value'	=> $surname
+		'meta_query' 	=> array(
+			'relation' => 'AND',
+			array(
+				'key' => 'invoice-id',
+				'value' => $invoiceId,
+				'compare' => '='
+			),
+			array(
+				'key' => 'surname-id',
+				'value' => $surname,
+				'compare' => '='
+			)
+		)
    );
+	
 	$query = new WP_Query( $args );
 	return json_encode(
 		array(
