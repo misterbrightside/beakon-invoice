@@ -4,6 +4,7 @@ import style from './invoice-view.css';
 import buttonStyle from '../Button/button.css';
 import InvoiceAPI from '../../api/InvoiceAPI';
 import LoadingIndicator from '../LoadingIndicator/';
+import IFrame from '../IFrame/';
 
 
 const RedirectToPaymentLoadingLayover = () => (
@@ -195,7 +196,9 @@ class InvoiceView extends Component {
     super(props);
     this.state = {
       displayPaymentRedirectLoading: false,
+      redirectToPaymentUrl: false,
       url: '',
+      paymentSuccessPayload: null,
     };
   }
 
@@ -205,11 +208,19 @@ class InvoiceView extends Component {
     InvoiceAPI.getURLForWorldNetPayment(invoiceId)
       .then(paymentDetails => {
         const url = InvoiceAPI.redirectToPaymentUrl(paymentDetails);
-        this.setState({ url });
+        this.setState({
+          url,
+          redirectToPaymentUrl: true,
+          paymentSuccessPayload: null,
+        });
       })
-      .catch(x => {
-        console.error(x, 'we failed captn');
-        this.setState({ displayPaymentRedirectLoading: false });
+      .catch(error => {
+        console.error(error, 'we failed captn');
+        this.setState({
+          displayPaymentRedirectLoading: false,
+          redirectToPaymentUrl: false,
+          paymentSuccessPayload: null,
+        });
       });
   }
 
@@ -229,7 +240,7 @@ class InvoiceView extends Component {
     );
   }
 
-  getInvoiceVoice() {
+  getInvoiceView() {
     const invoice = this.getInvoice();
     const { displayPaymentRedirectLoading } = this.state;
     const isBlurred = displayPaymentRedirectLoading ? style.blurred : '';
@@ -254,16 +265,45 @@ class InvoiceView extends Component {
   getPaymentScreen() {
     const { url } = this.state;
     return (
-      <iframe
+      <IFrame
         src={url}
-        frameBorder={'0'}
+        maybeOnLoad={this.onPaymentAttempt}
+        className={style.paymentIframe}
       />
     );
   }
 
+  getReceiptConfirmationScreen() {
+    const { paymentSuccessPayload } = this.state;
+    return (
+      <div>Thx this is paid { JSON.stringify(paymentSuccessPayload) }</div>
+    );
+  }
+
+  getResponseParameters(url) {
+    const params = url.slice(url.indexOf('?') + 1).split('&');
+    return Object.assign(...params.map((param) => {
+      const [key, value] = param.split('=');
+      return { [key]: value };
+    }));
+  }
+
+  onPaymentAttempt = (event) => {
+    const { href } = event.target.contentWindow.location;
+    this.setState({
+      paymentSuccessPayload: this.getResponseParameters(href),
+      displayPaymentRedirectLoading: false,
+      redirectToPaymentUrl: false,
+    });
+  }
+
   render() {
-    const { url } = this.state;
-    const view = url ? this.getPaymentScreen() : this.getInvoiceVoice();
+    const { redirectToPaymentUrl, paymentSuccessPayload } = this.state;
+    if (paymentSuccessPayload) {
+      return this.getReceiptConfirmationScreen();
+    }
+    const view = redirectToPaymentUrl && !paymentSuccessPayload ?
+      this.getPaymentScreen() : this.getInvoiceView();
     return (
       view
     );
