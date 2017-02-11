@@ -181,12 +181,22 @@ class InvoiceView extends Component {
     super(props);
     this.state = {
       displayPaymentRedirectLoading: false,
+      url: '',
     };
   }
 
   onPaymentButtonClick = () => {
+    const { invoiceId } = this.props;
     this.setState({ displayPaymentRedirectLoading: true });
-    InvoiceAPI.getURLForWorldNetPayment('hi!!').then(x => console.log(x));
+    InvoiceAPI.getURLForWorldNetPayment(invoiceId)
+      .then(paymentDetails => {
+        const url = InvoiceAPI.redirectToPaymentUrl(paymentDetails);
+        this.setState({ url });
+      })
+      .catch(x => {
+        console.error(x, 'we failed captn');
+        this.setState({ displayPaymentRedirectLoading: false });
+      });
   }
 
   getInvoice() {
@@ -205,7 +215,7 @@ class InvoiceView extends Component {
     );
   }
 
-  render() {
+  getInvoiceVoice() {
     const invoice = this.getInvoice();
     const { displayPaymentRedirectLoading } = this.state;
     const isBlurred = displayPaymentRedirectLoading ? style.blurred : '';
@@ -224,6 +234,24 @@ class InvoiceView extends Component {
         </div>
         { displayPaymentRedirectLoading ? <RedirectToPaymentLoadingLayover /> : null }
       </div>
+    );
+  }
+
+  getPaymentScreen() {
+    const { url } = this.state;
+    return (
+      <iframe
+        src={url}
+        frameBorder={'0'}
+      />
+    );
+  }
+
+  render() {
+    const { url } = this.state;
+    const view = url ? this.getPaymentScreen() : this.getInvoiceVoice();
+    return (
+      view
     );
   }
 }

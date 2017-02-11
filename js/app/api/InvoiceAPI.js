@@ -2,17 +2,23 @@ import { escape } from 'lodash';
 
 export default class InvoiceAPI {
 
-  static getInvoiceExistsForm(invoiceId, surname) {
+  static getInvoiceExistsForm(invoiceId, surname = '') {
     const form = new FormData();
     form.append('invoiceId', escape(invoiceId.trim()));
     form.append('surname', escape(surname.trim()));
     return form;
   }
 
-  static getInvoicePaymentForm(invoiceId) {
-    const form = new FormData();
-    form.append('invoiceId', escape(invoiceId.trim()));
-    return form;
+  static getPaymentFormString(paymentData) {
+    var esc = encodeURIComponent;
+    var query = Object.keys(paymentData)
+      .map(k => `${esc(k)}=${esc(paymentData[k])}`)
+      .join('&');
+    return `${paymentData.requestUrl}?${query}`;
+  }
+
+  static redirectToPaymentUrl(paymentData) {
+    return InvoiceAPI.getPaymentFormString(paymentData);
   }
 
   static checkWhetherInvoiceExists(invoiceId, surname) {
@@ -26,7 +32,7 @@ export default class InvoiceAPI {
   static getURLForWorldNetPayment(invoiceId) {
     return fetch('/wp-json/beakon-invoices/v1/pay-invoice', {
       method: 'POST',
-      body: this.getInvoicePaymentForm(invoiceId)
+      body: this.getInvoiceExistsForm(invoiceId),
     })
       .then(response => response.json())
       .then(json => JSON.parse(json));

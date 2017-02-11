@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../worldnet/world-net.php';
+
 add_action( 'rest_api_init', function () {
   register_rest_route( 'beakon-invoices/v1', 'invoice-exists', array(
     'methods' => 'POST',
@@ -56,15 +58,24 @@ function bijb_get_invoice($query) {
 		return NULL;
 	} else {
 		$id = $query->posts[0]->ID;
-		return get_post_custom($id);
+		return get_post_meta($id);
 	}
 }
 
 function bijb_get_details_to_pay_invoice ( $data ) {
   $invoiceId = $data['invoiceId'];
+  $date = bijb_request_date_time();
   return json_encode(
     array(
-      'invoiceId' => $invoiceId,
+      'ORDERID' => $invoiceId,
+      'DATETIME' => $date,
+      'requestUrl' => bijb_request_url('worldnet', true),
+      'TERMINALID' => bijb_get_terminal_id(),
+      'CURRENCY' => bijb_get_currency_code(),
+      'RECEIPTPAGEURL' => bijb_get_receipt_page_url(),
+      'AMOUNT' => '100.00',
+      'HASH' => bijb_auth_request_hash($invoiceId, '100.00', $date)
     )
   );
 }
+

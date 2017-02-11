@@ -9,6 +9,15 @@ function bijb_add_user_info_metabox() {
 		'normal',
 		'core'
 	);
+
+  add_meta_box(
+    'invoice-info-fields',
+    'Invoice Information',
+    'bijb_invoice_template',
+    'invoice',
+    'normal',
+    'core'
+  );
 }
 
 function bijb_get_input_tag( $id, $title, $input ) {
@@ -43,6 +52,17 @@ function bijb_get_first_name( $meta ) {
 			bijb_get_value( $meta, 'first-name-id' )
 		)
 	);
+}
+
+function bijb_get_invoice_id( $meta ) {
+  return bijb_get_input_tag(
+    'invoice-id',
+    'Invoice Reference',
+    bijb_get_text_input(
+      'invoice-id',
+      bijb_get_value( $meta, 'invoice-id' )
+    )
+  );
 }
 
 function bijb_get_surname( $meta ) {
@@ -91,6 +111,14 @@ function bijb_user_template( $invoice ) {
 		. '</div>';
 }
 
+function bijb_invoice_template( $invoice ) {
+  wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
+  $bijb_stored_meta = get_post_meta( $invoice -> ID );
+  echo '<div>'
+    . bijb_get_invoice_id( $bijb_stored_meta )
+    . '</div>';
+}
+
 function bijb_is_valid_nonce() {
 	return ( isset( $_POST['dijb_invoices_nonce'] ) && wp_verify_nonce( $_POST['dijb_invoices_nonce'], basename( __FILE__ ) ) ) ? 'true' : 'false';
 }
@@ -116,5 +144,20 @@ function bijb_save_user_metadata( $invoice_id ) {
 	bijb_save_field( $invoice_id, 'county-id' );
 }
 
-add_action( 'save_post', 'bijb_save_user_metadata' );
+function bijb_save_invoice_data( $invoice_id ) {
+  $is_autosave = wp_is_post_autosave( $invoice_id );
+  $is_revision = wp_is_post_revision( $invoice_id );
+  if ( $is_autosave || $is_revision || ! bijb_is_valid_nonce() ) {
+    return;
+  }
+
+  bijb_save_field( $invoice_id, 'invoice-id' );
+}
+
+function bijb_save_metadata( $invoice_id ) {
+  bijb_save_user_metadata( $invoice_id );
+  bijb_save_invoice_data( $invoice_id );
+}
+
+add_action( 'save_post', 'bijb_save_metadata' );
 add_action( 'add_meta_boxes', 'bijb_add_user_info_metabox' );
