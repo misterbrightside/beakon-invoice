@@ -15,6 +15,12 @@ add_action( 'rest_api_init', function () {
     ) );
 } );
 
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'update-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_update_invoice',
+    ) );
+} );
 
 function bijb_check_if_invoice_exists( $data ) {
 	$invoiceId = $data['invoiceId'];
@@ -73,3 +79,30 @@ function bijb_get_details_to_pay_invoice ( $data ) {
   );
 }
 
+function bijb_get_invoice_query($id) {
+	$args = array(
+		'numberposts'	=> -1,
+		'post_type'		=> 'invoice',
+		'meta_key'		=> 'invoice-id',
+		'meta_value'	=> $id
+	);
+	$query = new WP_Query( $args );
+	return $query;
+}
+
+function bijb_update_invoice( $data ) {
+	$invoiceIdByOrder = $data['ORDERID'];
+	$query = bijb_get_invoice_query($invoiceIdByOrder);
+	if ($query->have_posts()) {
+		$wpID = $query->posts[0]->ID;
+		$responseCode = $data['RESPONSECODE'];
+		update_post_meta( $wpID, 'invoice-status-id', sanitize_text_field( $responseCode ) );
+		return true;
+	}
+	// 
+	// $dateOfAttemptedPayment = $data['DATETIME'];
+	// $hash = $data['HASH'];
+	// $responseText = $data['RESPONSETEXT'];
+	// $paymentReference = $data['']
+	return false;
+}

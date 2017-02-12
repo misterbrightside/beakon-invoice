@@ -10,9 +10,9 @@ export default class InvoiceAPI {
   }
 
   static getPaymentFormString(paymentData) {
-    var esc = encodeURIComponent;
-    var query = Object.keys(paymentData)
-      .map(k => `${esc(k)}=${esc(paymentData[k])}`)
+    const encode = encodeURIComponent;
+    const query = Object.keys(paymentData)
+      .map(k => `${encode(k)}=${encode(paymentData[k])}`)
       .join('&');
     return `${paymentData.requestUrl}?${query}`;
   }
@@ -33,6 +33,24 @@ export default class InvoiceAPI {
     return fetch('/wp-json/beakon-invoices/v1/pay-invoice', {
       method: 'POST',
       body: this.getInvoiceExistsForm(invoiceId),
+    })
+      .then(response => response.json())
+      .then(json => JSON.parse(json));
+  }
+
+  static getUpdateInfoForSavingInvoice(payload) {
+    const form = new FormData();
+    Object.keys(payload).forEach((key) => {
+      const value = payload[key];
+      form.append(key, escape(value.trim()));
+    });
+    return form;
+  }
+
+  static updatePaymentStatusOfInvoice(payload) {
+    return fetch('/wp-json/beakon-invoices/v1/update-invoice', {
+      method: 'POST',
+      body: this.getUpdateInfoForSavingInvoice(payload),
     })
       .then(response => response.json())
       .then(json => JSON.parse(json));

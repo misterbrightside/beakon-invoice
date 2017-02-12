@@ -49,11 +49,8 @@ class InvoiceView extends Component {
       displayPaymentRedirectLoading: false,
       redirectToPaymentUrl: false,
     });
-    // check if approved, save to db. mark as such in state
-    if (payload.RESPONSECODE === 'A' && payload.RESPONSETEXT === 'APPROVAL') {
-      fetch();
-    }
-    // if not approved, mark as such in state.
+    InvoiceAPI.updatePaymentStatusOfInvoice(payload)
+      .then(data => console.log(data));
   }
 
   getResponseParameters = (url) => {

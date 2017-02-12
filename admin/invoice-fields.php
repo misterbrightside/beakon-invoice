@@ -65,6 +65,17 @@ function bijb_get_invoice_id( $meta ) {
   );
 }
 
+function bijb_get_invoice_status ( $meta ) {
+  return bijb_get_input_tag(
+    'invoice-status-id',
+    'Invoice Status',
+    bijb_get_text_input(
+      'invoice-status-id',
+      bijb_get_value( $meta, 'invoice-status-id' )
+    )
+  );
+}
+
 function bijb_get_surname( $meta ) {
 	return bijb_get_input_tag(
 		'surname-id',
@@ -116,6 +127,7 @@ function bijb_invoice_template( $invoice ) {
   $bijb_stored_meta = get_post_meta( $invoice -> ID );
   echo '<div>'
     . bijb_get_invoice_id( $bijb_stored_meta )
+    . bijb_get_invoice_status( $bijb_stored_meta )
     . '</div>';
 }
 
@@ -152,6 +164,7 @@ function bijb_save_invoice_data( $invoice_id ) {
   }
 
   bijb_save_field( $invoice_id, 'invoice-id' );
+  bijb_save_field( $invoice_id, 'invoice-status-id' );
 }
 
 function bijb_save_metadata( $invoice_id ) {
