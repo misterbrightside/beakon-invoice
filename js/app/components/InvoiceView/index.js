@@ -1,40 +1,68 @@
-import React from 'react';
+import React, { Component } from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import style from './invoice-view.css';
 import buttonStyle from '../Button/button.css';
+import InvoiceAPI from '../../api/InvoiceAPI';
+import LoadingIndicator from '../LoadingIndicator/';
+import IFrame from '../IFrame/';
+
+
+const RedirectToPaymentLoadingLayover = () => (
+  <div className={style.overlay}>
+    <LoadingIndicator />
+    <div>Loading Payment Gateway</div>
+    <div>Redirecting you to WorldNet...</div>
+  </div>
+);
 
 const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
-const PayButton = () => (<button className={buttonStyle.primary}>Pay now</button>);
-const LookupNewInvoiceButton = () => (<button className={buttonStyle.secondary}>Look up new invoice</button>);
+
+const PayButton = ({ onPaymentButtonClick }) => (
+  <button
+    className={buttonStyle.primary}
+    onClick={onPaymentButtonClick}
+  >
+    Pay now
+  </button>
+);
+
+const LookupNewInvoiceButton = () => (
+  <button className={buttonStyle.secondary}>Look up new invoice</button>
+);
 
 const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
-    { data.map((value, key) => (
+    { data.map(value => (
       <td
-        key={key}
+        key={`todo-${value}`}
         className={style.invoiceItemCell}
-      >{value}</td>)
+      >{value}</td>),
     ) }
   </tr>
 );
 
-const TopActionButtons = () => (
+const TopActionButtons = ({ onPaymentButtonClick }) => (
   <div className={buttonStyle.spaceBetween}>
     <div>
       <LookupNewInvoiceButton />
     </div>
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
-      <PayButton />
+      <PayButton
+        onPaymentButtonClick={onPaymentButtonClick}
+      />
     </div>
   </div>
 );
 
-const BottomActionButtons = () => (
+const BottomActionButtons = ({ onPaymentButtonClick }) => (
   <div className={buttonStyle.spaceBetween}>
     <div />
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
-      <PayButton />
+      <PayButton
+        onPaymentButtonClick={onPaymentButtonClick}
+      />
     </div>
   </div>
 );
@@ -61,32 +89,34 @@ const BusinessAddress = ({ inline, displayLogo }) => {
   );
 };
 
-const InvoiceMetaDetails = () => (
+const InvoiceMetaDetails = ({ invoiceId }) => (
   <div className={style.invoiceMetaDetails}>
     <h2 className={style.invoiceHeader}>Invoice</h2>
-    <div>Invoice # 293939</div>
+    <div>Invoice # { invoiceId }</div>
     <div>1 Janurary 2020</div>
   </div>
 );
 
-const InvoiceHeader = () => (
+const InvoiceHeader = ({ invoiceId }) => (
   <div className={style.invoiceViewHeader}>
     <BusinessAddress
       inline={false}
       displayLogo={true}
     />
-    <InvoiceMetaDetails />
+    <InvoiceMetaDetails
+      invoiceId={invoiceId}
+    />
   </div>
 );
 
-const CustomerAddress = () => (
+const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addressLine3 }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
-      <strong>Customer name</strong>
+      <strong>{firstName} {surname}</strong>
     </div>
-    <div>Address Line 1</div>
-    <div>Address Line 2</div>
-    <div>Address Line 3</div>
+    <div>{addressLine1}</div>
+    <div>{addressLine2}</div>
+    <div>{addressLine3}</div>
   </address>
 );
 
@@ -133,21 +163,151 @@ const BusinessInfo = () => (
   </div>
 );
 
-const Invoice = () => (
-  <div className={style.invoiceView}>
-    <InvoiceHeader />
-    <CustomerAddress />
-    <ItemsPurchased />
-    <BusinessInfo />
-  </div>
-);
+const Invoice = (props) => {
+  const { 
+    firstNameId,
+    surnameId,
+    addressLine1Id,
+    addressLine2Id,
+    addressLine3Id,
+    invoiceId,
+  } = props;
+  return (
+    <div className={style.invoiceView}>
+      <InvoiceHeader
+        invoiceId={invoiceId}
+      />
+      <CustomerAddress
+        firstName={firstNameId}
+        surname={surnameId}
+        addressLine1={addressLine1Id}
+        addressLine2={addressLine2Id}
+        addressLine3={addressLine3Id}
+      />
+      <ItemsPurchased />
+      <BusinessInfo />
+    </div>
+  );
+};
 
-const InvoiceView = () => (
-  <div className={style.invoicesViewContainer}>
-    <TopActionButtons />
-    <Invoice />
-    <BottomActionButtons />
-  </div>
-);
+class InvoiceView extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      displayPaymentRedirectLoading: false,
+      redirectToPaymentUrl: false,
+      url: '',
+      paymentSuccessPayload: null,
+    };
+  }
+
+  onPaymentButtonClick = () => {
+    const { invoiceId } = this.props;
+    this.setState({ displayPaymentRedirectLoading: true });
+    InvoiceAPI.getURLForWorldNetPayment(invoiceId)
+      .then(paymentDetails => {
+        const url = InvoiceAPI.redirectToPaymentUrl(paymentDetails);
+        this.setState({
+          url,
+          redirectToPaymentUrl: true,
+          paymentSuccessPayload: null,
+        });
+      })
+      .catch(error => {
+        console.error(error, 'we failed captn');
+        this.setState({
+          displayPaymentRedirectLoading: false,
+          redirectToPaymentUrl: false,
+          paymentSuccessPayload: null,
+        });
+      });
+  }
+
+  getInvoice() {
+    return (
+      <div className={style.invoicesViewContainer}>
+        <TopActionButtons
+          onPaymentButtonClick={this.onPaymentButtonClick}
+        />
+        <Invoice
+          {... this.props}
+        />
+        <BottomActionButtons
+          onPaymentButtonClick={this.onPaymentButtonClick}
+        />
+      </div>
+    );
+  }
+
+  getInvoiceView() {
+    const invoice = this.getInvoice();
+    const { displayPaymentRedirectLoading } = this.state;
+    const isBlurred = displayPaymentRedirectLoading ? style.blurred : '';
+    return (
+      <div>
+        <div className={isBlurred}>
+          <ReactCSSTransitionGroup
+            transitionName="displayInvoice"
+            transitionAppear={true}
+            transitionAppearTimeout={500}
+            transitionEnter={false}
+            transitionLeave={false}
+          >
+            { invoice }
+          </ReactCSSTransitionGroup>
+        </div>
+        { displayPaymentRedirectLoading ? <RedirectToPaymentLoadingLayover /> : null }
+      </div>
+    );
+  }
+
+  getPaymentScreen() {
+    const { url } = this.state;
+    return (
+      <IFrame
+        src={url}
+        maybeOnLoad={this.onPaymentAttempt}
+        className={style.paymentIframe}
+      />
+    );
+  }
+
+  getReceiptConfirmationScreen() {
+    const { paymentSuccessPayload } = this.state;
+    return (
+      <div>Thx this is paid { JSON.stringify(paymentSuccessPayload) }</div>
+    );
+  }
+
+  getResponseParameters(url) {
+    const params = url.slice(url.indexOf('?') + 1).split('&');
+    return Object.assign(...params.map((param) => {
+      const [key, value] = param.split('=');
+      return { [key]: value };
+    }));
+  }
+
+  onPaymentAttempt = (event) => {
+    const { href } = event.target.contentWindow.location;
+    this.setState({
+      paymentSuccessPayload: this.getResponseParameters(href),
+      displayPaymentRedirectLoading: false,
+      redirectToPaymentUrl: false,
+    });
+  }
+
+  render() {
+    const { redirectToPaymentUrl, paymentSuccessPayload } = this.state;
+    if (paymentSuccessPayload) {
+      return this.getReceiptConfirmationScreen();
+    }
+    const view = redirectToPaymentUrl && !paymentSuccessPayload ?
+      this.getPaymentScreen() : this.getInvoiceView();
+    return (
+      view
+    );
+  }
+}
 
 export default InvoiceView;
