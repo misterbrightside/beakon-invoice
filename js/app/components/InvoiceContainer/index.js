@@ -90,15 +90,15 @@ const BusinessAddress = ({ inline, displayLogo }) => {
   );
 };
 
-const InvoiceMetaDetails = ({ invoiceId }) => (
+const InvoiceMetaDetails = ({ invoiceId, invoiceIssueDate }) => (
   <div className={style.invoiceMetaDetails}>
     <h2 className={style.invoiceHeader}>Invoice</h2>
     <div>Invoice # { invoiceId }</div>
-    <div>1 Janurary 2020</div>
+    <div>{ invoiceIssueDate }</div>
   </div>
 );
 
-const InvoiceHeader = ({ invoiceId }) => (
+const InvoiceHeader = ({ invoiceId, invoiceIssueDate }) => (
   <div className={style.invoiceViewHeader}>
     <BusinessAddress
       inline={false}
@@ -106,6 +106,7 @@ const InvoiceHeader = ({ invoiceId }) => (
     />
     <InvoiceMetaDetails
       invoiceId={invoiceId}
+      invoiceIssueDate={invoiceIssueDate}
     />
   </div>
 );
@@ -173,18 +174,20 @@ const PaidNotification = () => (
 );
 
 const Invoice = (props) => {
-  const { 
+  const {
     firstNameId,
     surnameId,
     addressLine1Id,
     addressLine2Id,
     addressLine3Id,
     invoiceId,
+    invoiceIssueDate,
   } = props;
   return (
     <div className={style.invoiceView}>
       <InvoiceHeader
         invoiceId={invoiceId}
+        invoiceIssueDate={invoiceIssueDate}
       />
       <CustomerAddress
         firstName={firstNameId}
@@ -204,6 +207,7 @@ class InvoiceContainer extends Component {
   static propTypes = {
     isBlurred: PropTypes.bool,
     onPaymentButtonClick: PropTypes.func.isRequired,
+    disablePayButton: PropTypes.bool,
   };
 
   render() {

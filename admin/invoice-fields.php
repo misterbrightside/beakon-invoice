@@ -178,6 +178,7 @@ function bijb_save_invoice_data( $invoice_id ) {
 
   bijb_save_field( $invoice_id, 'invoice-id' );
   bijb_save_field( $invoice_id, 'invoice-status-id' );
+  bijb_save_field( $invoice_id, 'invoice-date-issued-id');
 }
 
 function bijb_save_metadata( $invoice_id ) {

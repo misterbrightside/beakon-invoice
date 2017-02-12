@@ -2,11 +2,17 @@ import React, { Component, PropTypes } from 'react';
 import InvoiceAPI from '../../api/InvoiceAPI';
 import InvoiceContainer from '../InvoiceContainer/';
 import IFrame from '../IFrame/';
+import moment from 'moment';
 
 class InvoiceView extends Component {
 
   static propTypes = {
     invoiceId: PropTypes.string.isRequired,
+    invoiceStatusId: PropTypes.string,
+  };
+
+  static defaultProps = {
+    invoiceStatusId: '',
   };
 
   constructor(props) {
@@ -80,13 +86,14 @@ class InvoiceView extends Component {
 
   getInvoiceView() {
     const { displayPaymentRedirectLoading } = this.state;
-    const { invoiceStatusId } = this.props;
+    const { invoiceStatusId, invoiceDateIssuedId } = this.props;
     return (
       <InvoiceContainer
         {...this.props}
         onPaymentButtonClick={this.onPaymentButtonClick}
         isBlurred={displayPaymentRedirectLoading}
         disablePayButton={invoiceStatusId === 'A'}
+        invoiceIssueDate={moment(invoiceDateIssuedId, 'DD-MM-YYYY').format('MMMM Do YYYY')}
       />
     );
   }
