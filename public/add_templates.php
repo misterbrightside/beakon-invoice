@@ -14,7 +14,7 @@ class PageTemplater {
 		}
 		add_filter( 'wp_insert_post_data', array( $this, 'register_project_templates' ) );
 		add_filter( 'template_include', array( $this, 'view_project_template') );
-		$this->templates = array( 'templates/test.php' => 'Beakon Invoices check Invoice' );
+		$this->templates = array( 'templates/frontend-app.php' => 'Beakon Invoices Frontend Application' );
 	}
 
 	public static function get_instance() {

@@ -4,22 +4,23 @@ const webpack = require('webpack');
 const isProduction = process.env.NODE_ENV === 'production';
 
 const buildPath = path.resolve(__dirname, 'build');
-const jsEntryPath = path.resolve(__dirname, 'app', 'index.js');
+const frontendEntryPath = path.resolve(__dirname, 'app', 'index.js');
+const adminEntryPath = path.resolve(__dirname, 'admin', 'index.js');
 
-const entry = isProduction ? [jsEntryPath] : [
-  jsEntryPath,
-];
+const entries = {
+  frontendBundle: frontendEntryPath,
+  adminBundle: adminEntryPath,
+};
 
-let plugins = [
+const pluginsUsed = [
   new webpack.optimize.UglifyJsPlugin(),
 ];
 
-plugins.push(
+pluginsUsed.push(
   new webpack.DefinePlugin({
     IS_PRODUCTION: JSON.stringify(isProduction),
     IS_DEVELOPMENT: JSON.stringify(!isProduction),
-  })
-);
+  }));
 
 const cssIdentifer = '[path][name]---[local]';
 
@@ -27,8 +28,8 @@ const cssLoader = ['style-loader', 'css-loader?localIdentName=' + cssIdentifer];
 
 const config = {
   devtool: 'eval-source-map',
-  entry: entry,
-  plugins: plugins,
+  entry: entries,
+  plugins: pluginsUsed,
   module: {
     loaders: [{
       test: /\.js$/,
@@ -62,7 +63,7 @@ const config = {
   output: {
     path: buildPath,
     publicPath: isProduction ? '/' : '/wp-content/plugins/beakon-invoice/js/build/',
-    filename: 'bundle.js',
+    filename: '[name].js',
   },
 };
 
