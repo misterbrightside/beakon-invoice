@@ -111,14 +111,15 @@ const InvoiceHeader = ({ invoiceId, invoiceIssueDate }) => (
   </div>
 );
 
-const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addressLine3 }) => (
+const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addressLine3, county }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
       <strong>{firstName} {surname}</strong>
     </div>
-    <div>{addressLine1}</div>
-    <div>{addressLine2}</div>
-    <div>{addressLine3}</div>
+    <div>{ addressLine1 },</div>
+    <div>{ addressLine2 },</div>
+    <div>{ addressLine3 },</div>
+    <div>County { county }</div>
   </address>
 );
 
@@ -180,6 +181,7 @@ const Invoice = (props) => {
     addressLine1Id,
     addressLine2Id,
     addressLine3Id,
+    countyId,
     invoiceId,
     invoiceIssueDate,
   } = props;
@@ -195,6 +197,7 @@ const Invoice = (props) => {
         addressLine1={addressLine1Id}
         addressLine2={addressLine2Id}
         addressLine3={addressLine3Id}
+        county={countyId}
       />
       <ItemsPurchased />
       <BusinessInfo />

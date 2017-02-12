@@ -18,6 +18,67 @@ function bijb_add_user_info_metabox() {
     'normal',
     'core'
   );
+
+  add_meta_box(
+  	'invoice-items-fields',
+  	'Items Purchased',
+  	'bijb_items_template',
+  	'invoice',
+  	'normal',
+  	'core'
+  );
+}
+
+function bijb_get_inline_input($heading, $index, $key, $value, $size) {
+	return "
+		<label>$heading:</label>
+		<input type='text' name='item_data[$index][$key]' size='$size' value={$value} />
+	";
+}
+
+function bijb_get_item_input( $index, $itemData ) {
+	if ($itemData == NULL) {
+		$nameOfItem = $quantityValue = $unitPrice = '';
+	} else {
+		$nameOfItem = $itemData['nameOfItem'];
+		$quantityValue = $itemData['quantity'];
+		$unitPrice = $itemData['unitPrice'];
+	}
+	$name = bijb_get_inline_input('Name', $index, 'nameOfItem', $nameOfItem, 50);
+	$price = bijb_get_inline_input('Unit Price', $index, 'unitPrice', $unitPrice, 10);
+	$quantity = bijb_get_inline_input('Quantity', $index, 'quantityValue', $quantityValue, 20);
+	return "
+		<li>
+			$name
+			$price
+			$quantity
+			<span class='remove'>Remove</span>
+		</li>
+	";
+} 
+
+function bijb_get_list_of_items( $meta ) {
+	$index = 0;
+	$items = '';
+    if (count($meta) > 0) {
+        foreach( (array) $meta as $item ) {
+            if ( isset( $item['nameOfItem'] ) || isset( $item['quantity'] ) || isset( $item['unitPrice'] ) ) {
+                $items .= bijb_get_item_input($index, $item);
+                $index += 1;
+            }
+        }
+    }
+    return $items;
+}
+
+function bijb_items_template( $invoice ) {
+  wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
+  $bijb_stored_meta = get_post_meta( $invoice -> ID, 'item_data');
+  $items = bijb_get_list_of_items( $bijb_stored_meta );
+  echo "<div><ul id='list-of-items'>"
+  	. $items
+    . '</ul>'
+    . ' <span class="add">Add Item</span></div>';
 }
 
 function bijb_get_input_tag( $id, $title, $input) {
