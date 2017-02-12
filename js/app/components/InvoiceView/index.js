@@ -80,11 +80,13 @@ class InvoiceView extends Component {
 
   getInvoiceView() {
     const { displayPaymentRedirectLoading } = this.state;
+    const { invoiceStatusId } = this.props;
     return (
       <InvoiceContainer
         {...this.props}
         onPaymentButtonClick={this.onPaymentButtonClick}
         isBlurred={displayPaymentRedirectLoading}
+        disablePayButton={invoiceStatusId === 'A'}
       />
     );
   }

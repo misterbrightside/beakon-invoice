@@ -1,0 +1,8 @@
+:local(.info) {
+	border-radius: 5px;
+	background: #e3f8ff;
+	border: 1px solid #8aacb8;
+    padding: 15px;
+    margin-top: 30px;
+    width: 100%;
+}

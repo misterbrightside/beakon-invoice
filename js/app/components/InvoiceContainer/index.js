@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import buttonStyle from '../Button/button.css';
 import LoadingIndicator from '../LoadingIndicator/';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import Alert from '../Alert/';
 import style from './invoice-view.css';
 
 const RedirectToPaymentLoadingLayover = () => (
@@ -14,10 +15,11 @@ const RedirectToPaymentLoadingLayover = () => (
 
 const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
 
-const PayButton = ({ onPaymentButtonClick }) => (
+const PayButton = ({ onPaymentButtonClick, disabled }) => (
   <button
     className={buttonStyle.primary}
     onClick={onPaymentButtonClick}
+    disabled={disabled}
   >
     Pay now
   </button>
@@ -38,7 +40,7 @@ const getRow = (index, data) => (
   </tr>
 );
 
-const TopActionButtons = ({ onPaymentButtonClick }) => (
+const TopActionButtons = ({ onPaymentButtonClick, disablePayButton }) => (
   <div className={buttonStyle.spaceBetween}>
     <div>
       <LookupNewInvoiceButton />
@@ -47,18 +49,20 @@ const TopActionButtons = ({ onPaymentButtonClick }) => (
       <PrintButton />
       <PayButton
         onPaymentButtonClick={onPaymentButtonClick}
+        disabled={disablePayButton}
       />
     </div>
   </div>
 );
 
-const BottomActionButtons = ({ onPaymentButtonClick }) => (
+const BottomActionButtons = ({ onPaymentButtonClick, disablePayButton }) => (
   <div className={buttonStyle.spaceBetween}>
     <div />
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
       <PayButton
         onPaymentButtonClick={onPaymentButtonClick}
+        disabled={disablePayButton}
       />
     </div>
   </div>
@@ -160,6 +164,14 @@ const BusinessInfo = () => (
   </div>
 );
 
+const PaidNotification = () => (
+  <div>
+    <Alert alertType={'info'}>
+      There was a payment attempt for this invoice at { new Date().toString() }.
+    </Alert>
+  </div>
+);
+
 const Invoice = (props) => {
   const { 
     firstNameId,
@@ -195,7 +207,7 @@ class InvoiceContainer extends Component {
   };
 
   render() {
-    const { isBlurred, onPaymentButtonClick } = this.props;
+    const { isBlurred, onPaymentButtonClick, disablePayButton } = this.props;
     const blurStyle = isBlurred ? style.blurred : '';
     return (
       <div>
@@ -210,12 +222,15 @@ class InvoiceContainer extends Component {
             <div className={style.invoicesViewContainer}>
               <TopActionButtons
                 onPaymentButtonClick={onPaymentButtonClick}
+                disablePayButton={disablePayButton}
               />
+              { disablePayButton ? <PaidNotification /> : null}
               <Invoice
-                {... this.props}
+                { ...this.props }
               />
               <BottomActionButtons
                 onPaymentButtonClick={onPaymentButtonClick}
+                disablePayButton={disablePayButton}
               />
             </div>
           </ReactCSSTransitionGroup>
