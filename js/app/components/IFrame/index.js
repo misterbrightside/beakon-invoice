@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
+import style from './iframe-css.css';
 
 export default class IFrame extends Component {
 
   static propTypes = {
     src: PropTypes.string.isRequired,
     maybeOnLoad: PropTypes.func.isRequired,
-    className: PropTypes.string,
   };
 
   maybeUseOnLoad = (event) => {
@@ -25,10 +25,10 @@ export default class IFrame extends Component {
   }
 
   render() {
-    const { src, className } = this.props;
+    const { src } = this.props;
     return (
       <iframe
-        className={className}
+        className={style.paymentIframe}
         ref={(iframeWindow) => { this.iframe = iframeWindow; }}
         src={src}
         onLoad={this.maybeUseOnLoad}

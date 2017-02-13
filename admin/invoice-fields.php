@@ -18,9 +18,23 @@ function bijb_add_user_info_metabox() {
     'normal',
     'core'
   );
+
+  add_meta_box(
+  	'invoice-items-fields',
+  	'Items Purchased',
+  	'bijb_items_template',
+  	'invoice',
+  	'normal',
+  	'core'
+  );
 }
 
-function bijb_get_input_tag( $id, $title, $input ) {
+function bijb_items_template( $invoice ) {
+  wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
+  echo "<div id='list-of-items'></div>";
+}
+
+function bijb_get_input_tag( $id, $title, $input) {
 	return "
 		<div class='meta-row'>
 			<div class='meta-th'>
@@ -31,8 +45,8 @@ function bijb_get_input_tag( $id, $title, $input ) {
 	";
 }
 
-function bijb_get_text_input( $id, $value ) {
-	return "<input type='text' name='$id' id='$id' value='$value' />";
+function bijb_get_text_input( $id, $value, $classes = '') {
+	return "<input type='text' name='$id' id='$id' value='$value' class='$classes' />";
 }
 
 function bijb_get_value( $meta, $id ) {
@@ -61,6 +75,29 @@ function bijb_get_invoice_id( $meta ) {
     bijb_get_text_input(
       'invoice-id',
       bijb_get_value( $meta, 'invoice-id' )
+    )
+  );
+}
+
+function bijb_get_invoice_status ( $meta ) {
+  return bijb_get_input_tag(
+    'invoice-status-id',
+    'Invoice Status',
+    bijb_get_text_input(
+      'invoice-status-id',
+      bijb_get_value( $meta, 'invoice-status-id' )
+    )
+  );
+}
+
+function bijb_get_invoice_date_issue( $meta ) {
+  return bijb_get_input_tag(
+    'invoice-date-issued-id',
+    'Invoice Issue Date',
+    bijb_get_text_input(
+      'invoice-date-issued-id',
+      bijb_get_value( $meta, 'invoice-date-issued-id' ),
+      'datepicker'
     )
   );
 }
@@ -116,6 +153,8 @@ function bijb_invoice_template( $invoice ) {
   $bijb_stored_meta = get_post_meta( $invoice -> ID );
   echo '<div>'
     . bijb_get_invoice_id( $bijb_stored_meta )
+    . bijb_get_invoice_status( $bijb_stored_meta )
+    . bijb_get_invoice_date_issue( $bijb_stored_meta )
     . '</div>';
 }
 
@@ -152,11 +191,28 @@ function bijb_save_invoice_data( $invoice_id ) {
   }
 
   bijb_save_field( $invoice_id, 'invoice-id' );
+  bijb_save_field( $invoice_id, 'invoice-status-id' );
+  bijb_save_field( $invoice_id, 'invoice-date-issued-id');
+}
+
+function bijb_save_items_data( $invoice_id ) {
+  $is_autosave = wp_is_post_autosave( $invoice_id );
+  $is_revision = wp_is_post_revision( $invoice_id );
+  if ( $is_autosave || $is_revision || ! bijb_is_valid_nonce() ) {
+    return;
+  }
+  if (isset($_POST['item_data'])){
+        $data = $_POST['item_data'];
+        update_post_meta($invoice_id, 'item_data', $data);
+    } else {
+        delete_post_meta($invoice_id, 'item_data');
+    }
 }
 
 function bijb_save_metadata( $invoice_id ) {
   bijb_save_user_metadata( $invoice_id );
   bijb_save_invoice_data( $invoice_id );
+  bijb_save_items_data( $invoice_id ); 
 }
 
 add_action( 'save_post', 'bijb_save_metadata' );

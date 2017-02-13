@@ -23,7 +23,8 @@ require_once plugin_dir_path( __FILE__ ) . '/public/api/invoice-endpoints.php';
 function bijb_admin_enqueue_scripts() {
 	global $pagenow, $typenow;
 	if ( ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) && $typenow == 'invoice' ) {
-		wp_enqueue_script( 'bijb_invoices_js', plugins_url('/admin/js/build/bundle.js', __FILE__), array(), '101010', true);
+		wp_enqueue_script( 'bijb_invoices_js', plugins_url('/js/build/adminBundle.js', __FILE__), array('jquery', 'jquery-ui-datepicker'), '', true);
+		wp_enqueue_style( 'jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css' );
 	}
 }
 
