@@ -29,56 +29,9 @@ function bijb_add_user_info_metabox() {
   );
 }
 
-function bijb_get_inline_input($heading, $index, $key, $value, $size) {
-	return "
-		<label>$heading:</label>
-		<input type='text' name='item_data[$index][$key]' size='$size' value={$value} />
-	";
-}
-
-function bijb_get_item_input( $index, $itemData ) {
-	if ($itemData == NULL) {
-		$nameOfItem = $quantityValue = $unitPrice = '';
-	} else {
-		$nameOfItem = $itemData['nameOfItem'];
-		$quantityValue = $itemData['quantity'];
-		$unitPrice = $itemData['unitPrice'];
-	}
-	$name = bijb_get_inline_input('Name', $index, 'nameOfItem', $nameOfItem, 50);
-	$price = bijb_get_inline_input('Unit Price', $index, 'unitPrice', $unitPrice, 10);
-	$quantity = bijb_get_inline_input('Quantity', $index, 'quantityValue', $quantityValue, 20);
-	return "
-		<li>
-			$name
-			$price
-			$quantity
-			<span class='remove'>Remove</span>
-		</li>
-	";
-} 
-
-function bijb_get_list_of_items( $meta ) {
-	$index = 0;
-	$items = '';
-    if (count($meta) > 0) {
-        foreach( (array) $meta as $item ) {
-            if ( isset( $item['nameOfItem'] ) || isset( $item['quantity'] ) || isset( $item['unitPrice'] ) ) {
-                $items .= bijb_get_item_input($index, $item);
-                $index += 1;
-            }
-        }
-    }
-    return $items;
-}
-
 function bijb_items_template( $invoice ) {
   wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
-  $bijb_stored_meta = get_post_meta( $invoice -> ID, 'item_data');
-  $items = bijb_get_list_of_items( $bijb_stored_meta );
-  echo "<div><ul id='list-of-items'>"
-  	. $items
-    . '</ul>'
-    . ' <span class="add">Add Item</span></div>';
+  echo "<div id='list-of-items'></div>";
 }
 
 function bijb_get_input_tag( $id, $title, $input) {
@@ -242,9 +195,24 @@ function bijb_save_invoice_data( $invoice_id ) {
   bijb_save_field( $invoice_id, 'invoice-date-issued-id');
 }
 
+function bijb_save_items_data( $invoice_id ) {
+  $is_autosave = wp_is_post_autosave( $invoice_id );
+  $is_revision = wp_is_post_revision( $invoice_id );
+  if ( $is_autosave || $is_revision || ! bijb_is_valid_nonce() ) {
+    return;
+  }
+  if (isset($_POST['item_data'])){
+        $data = $_POST['item_data'];
+        update_post_meta($invoice_id, 'item_data', $data);
+    } else {
+        delete_post_meta($invoice_id, 'item_data');
+    }
+}
+
 function bijb_save_metadata( $invoice_id ) {
   bijb_save_user_metadata( $invoice_id );
   bijb_save_invoice_data( $invoice_id );
+  bijb_save_items_data( $invoice_id ); 
 }
 
 add_action( 'save_post', 'bijb_save_metadata' );
