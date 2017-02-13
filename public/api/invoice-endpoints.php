@@ -52,26 +52,29 @@ function bijb_check_if_invoice_exists( $data ) {
    );
 	
 	$query = new WP_Query( $args );
+	$meta = bijb_get_invoice($query);
 	return json_encode(
 		array(
 			'invoiceExists' => $query->have_posts(),
-			'invoice' => bijb_get_invoice($query)
+			'invoice' => bijb_get_invoice($query),
+			'items' => bijb_get_items_from_metadata($meta),
       )
    );
 }
 
 function bijb_get_invoice_with_id( $data ) {
 	$invoiceData = get_posts( array( 'id' => $data['id'], 'post_type' => 'invoice' ) );
-	$invoiceMetaData = get_post_meta($data['id']);	
+	$invoiceMetaData = get_post_meta($data['id']);
+	$items = bijb_get_items_from_metadata( $invoiceMetaData );
 	$data = array( 
 		'invoiceData' => $invoiceData[0],
 		'metaData' => $invoiceMetaData,
-		'items' => bijb_get_items_from_metadata($data['id'], $invoiceMetaData),
+		'items' => $items
 	);
 	return new WP_REST_Response( $data );
 }
 
-function bijb_get_items_from_metadata( $id, $invoiceMetaData ) {
+function bijb_get_items_from_metadata( $invoiceMetaData ) {
 	if ( !isset($invoiceMetaData['item_data']) ) {
 		return array();
 	} else {

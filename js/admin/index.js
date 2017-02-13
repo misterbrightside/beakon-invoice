@@ -26,7 +26,7 @@ class InvoiceItems extends Component {
     $('.datepicker').datepicker({ dateFormat: 'dd-mm-yy' });
   }
 
-  getItems(items) {
+  getItems = (items) => {
     if (items.length === 0) return [{ name: '', price: '', quantity: '' }];
     return items.map(item => ({
       name: item.name,

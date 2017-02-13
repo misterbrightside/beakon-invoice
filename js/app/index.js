@@ -32,7 +32,7 @@ class PayInvoicesApplication extends Component {
     }));
   }
 
-  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice }) => (
+  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice, items }) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
@@ -40,6 +40,7 @@ class PayInvoicesApplication extends Component {
       }),
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceExists ? invoice : {},
+        items,
       }),
     }))
   )
@@ -60,6 +61,7 @@ class PayInvoicesApplication extends Component {
       },
       invoice: {
         payload: {},
+        items: [],
       },
     };
   }
@@ -139,6 +141,7 @@ class PayInvoicesApplication extends Component {
     const invoiceView = !isEmpty(invoice.payload) ? (
       <InvoiceView
         {... this.prepareInvoiceObject(invoice.payload) }
+        items={invoice.items}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

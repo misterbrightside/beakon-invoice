@@ -123,18 +123,17 @@ const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addre
   </address>
 );
 
-const ItemsTotal = () => (
+const ItemsTotal = ({ subTotal, VAT, total }) => (
   <tfoot className={style.invoicesFooter}>
-    { getRow(1, ['', 'Subtotal', '€349.47']) }
-    { getRow(2, ['', 'VAT', '€34.95']) }
-    { getRow(3, ['', 'Total', '€349.47']) }
+    { getRow(1, ['', 'Subtotal', `€${subTotal}`]) }
+    { getRow(2, ['', 'VAT', `€${VAT}`]) }
+    { getRow(3, ['', 'Total', `€${total}`]) }
   </tfoot>
 );
 
-const Items = () => (
+const Items = ({ items }) => (
   <tbody className={style.invoiceTableBody}>
-    { getRow(5, ['Kerosene', 500, '€349sss.47']) }
-    { getRow(10220, ['Kerosene', 500, '€34ssza9sss.47']) }
+    { items.map((item, index) => getRow(`'item-${index}`, [item.name, item.quantity, `€${item.quantity * item.price}`])) }
   </tbody>
 );
 
@@ -148,13 +147,28 @@ const TableHeader = () => (
   </thead>
 );
 
-const ItemsPurchased = () => (
-  <table className={style.invoiceItemsTable}>
-    <TableHeader />
-    <Items />
-    <ItemsTotal />
-  </table>
-);
+const ItemsPurchased = ({ items }) => {
+  const subTotal = Object.keys(items).reduce((previous, key) => {
+    const price = parseInt(items[key].price, 10);
+    const quantity = parseInt(items[key].quantity, 10);
+    return previous + (price * quantity);
+  }, 0);
+  const VAT = subTotal * .22;
+  const total = VAT + subTotal;
+  return (
+    <table className={style.invoiceItemsTable}>
+      <TableHeader />
+      <Items
+        items={items}
+      />
+      <ItemsTotal
+        subTotal={subTotal}
+        VAT={VAT}
+        total={total}
+      />
+    </table>
+  );
+}
 
 const BusinessInfo = () => (
   <div className={style.businessInfo}>
@@ -184,6 +198,7 @@ const Invoice = (props) => {
     countyId,
     invoiceId,
     invoiceIssueDate,
+    items,
   } = props;
   return (
     <div className={style.invoiceView}>
@@ -199,7 +214,9 @@ const Invoice = (props) => {
         addressLine3={addressLine3Id}
         county={countyId}
       />
-      <ItemsPurchased />
+      <ItemsPurchased
+        items={items}
+      />
       <BusinessInfo />
     </div>
   );
