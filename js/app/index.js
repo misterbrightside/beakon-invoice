@@ -32,7 +32,7 @@ class PayInvoicesApplication extends Component {
     }));
   }
 
-  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice, items }) => (
+  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice, items, customer }) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,

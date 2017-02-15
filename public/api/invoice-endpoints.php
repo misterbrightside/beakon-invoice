@@ -42,6 +42,7 @@ function bijb_add_invoice( $data ) {
 		'post_status' => 'publish',
 		'post_title' => bijb_get_post_title($data)
 	));
+	add_post_meta($postId, 'invoiceId', $data['salesDocument']['number']);
 	add_post_meta($postId, 'customer', $data['customer']);
 	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
 	add_post_meta($postId, 'invoice', $data['invoice']);
@@ -62,17 +63,18 @@ function bijb_check_if_invoice_exists( $data ) {
 		'numberposts'	=> -1,
 		'post_type'		=> 'invoice',
 		'meta_query' 	=> array(
-			'relation' => 'AND',
+			// 'relation' => 'AND',
 			array(
-				'key' => 'invoice-id',
+				'key' => 'invoiceId',
 				'value' => $invoiceId,
 				'compare' => '='
-			),
-			array(
-				'key' => 'surname-id',
-				'value' => $surname,
-				'compare' => '='
 			)
+			// ),
+			// array(
+			// 	'key' => 'surname-id',
+			// 	'value' => $surname,
+			// 	'compare' => '='
+			// )
 		)
    );
 	
@@ -81,7 +83,8 @@ function bijb_check_if_invoice_exists( $data ) {
 	return json_encode(
 		array(
 			'invoiceExists' => $query->have_posts(),
-			'invoice' => bijb_get_invoice($query),
+			'customer' => bijb_get_from_metadata($meta, 'customer'),
+			'invoice' => bijb_get_from_metadata($meta, 'salesDocument'),
 			'items' => bijb_get_from_metadata($meta, 'invoice'),
       )
    );

@@ -28,20 +28,6 @@ function bijb_add_invoice_metaboxes() {
     'normal',
     'core'
   );
-
-  add_meta_box(
-  	'invoice-items-fields',
-  	'Items Purchased',
-  	'bijb_items_template',
-  	'invoice',
-  	'normal',
-  	'core'
-  );
-}
-
-function bijb_items_template( $invoice ) {
-  wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
-  echo "<div id='list-of-items'></div>";
 }
 
 function bijb_get_input_tag( $id, $title, $input) {
@@ -124,6 +110,7 @@ function bijb_items_info_template( $invoice ) {
 		foreach ($item as $key => $value) {
 			echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
 		}
+    echo '<div><hr /></div>';
 	}
 }
 
