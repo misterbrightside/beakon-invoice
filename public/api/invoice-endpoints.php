@@ -29,6 +29,31 @@ add_action( 'rest_api_init', function () {
     ) );
 } );
 
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_add_invoice',
+    ) );
+} );
+
+function bijb_add_invoice( $data ) {
+	$postId = wp_insert_post(array(
+		'post_type' => 'invoice',
+		'post_status' => 'publish',
+		'post_title' => bijb_get_post_title($data)
+	));
+	add_post_meta($postId, 'customer', $data['customer']);
+	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
+	add_post_meta($postId, 'invoice', $data['invoice']);
+	return $postId;
+}
+
+function bijb_get_post_title($data) {
+	$name = $data['customer']['name'];
+	$dateOfInvoice = $data['salesDocument']['postDate'];
+	return "$name - $dateOfInvoice";
+}
+
 function bijb_check_if_invoice_exists( $data ) {
 	$invoiceId = $data['invoiceId'];
 	$surname = $data['surname'];
@@ -57,7 +82,7 @@ function bijb_check_if_invoice_exists( $data ) {
 		array(
 			'invoiceExists' => $query->have_posts(),
 			'invoice' => bijb_get_invoice($query),
-			'items' => bijb_get_items_from_metadata($meta),
+			'items' => bijb_get_from_metadata($meta, 'invoice'),
       )
    );
 }
@@ -65,20 +90,20 @@ function bijb_check_if_invoice_exists( $data ) {
 function bijb_get_invoice_with_id( $data ) {
 	$invoiceData = get_posts( array( 'id' => $data['id'], 'post_type' => 'invoice' ) );
 	$invoiceMetaData = get_post_meta($data['id']);
-	$items = bijb_get_items_from_metadata( $invoiceMetaData );
 	$data = array( 
 		'invoiceData' => $invoiceData[0],
-		'metaData' => $invoiceMetaData,
-		'items' => $items
+		'invoice' => bijb_get_from_metadata( $invoiceMetaData, 'invoice' ),
+		'customer' => bijb_get_from_metadata( $invoiceMetaData, 'customer' ),
+		'salesDocument' => bijb_get_from_metadata( $invoiceMetaData, 'salesDocument' )
 	);
 	return new WP_REST_Response( $data );
 }
 
-function bijb_get_items_from_metadata( $invoiceMetaData ) {
-	if ( !isset($invoiceMetaData['item_data']) ) {
+function bijb_get_from_metadata( $invoiceMetaData, $key ) {
+	if ( !isset($invoiceMetaData[$key]) ) {
 		return array();
 	} else {
-		return unserialize($invoiceMetaData['item_data'][0]);
+		return unserialize($invoiceMetaData[$key][0]);
 	}
 }
 
