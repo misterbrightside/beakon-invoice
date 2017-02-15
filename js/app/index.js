@@ -41,6 +41,7 @@ class PayInvoicesApplication extends Component {
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceExists ? invoice : {},
         items,
+        customer,
       }),
     }))
   )
@@ -120,7 +121,8 @@ class PayInvoicesApplication extends Component {
   }
 
   prepareInvoiceObject(invoiceData) {
-    return Object.assign(...this.santizeInvoiceObject(invoiceData));
+    // return Object.assign(...this.santizeInvoiceObject(invoiceData));
+    return invoiceData;
   }
 
   updateFieldValue = id => (event) => {
@@ -130,7 +132,7 @@ class PayInvoicesApplication extends Component {
   }
 
   render() {
-    const { loginForm, invoice } = this.state;
+    const { loginForm, invoice, customer } = this.state;
     const loginScreen = (
       <InvoiceLogin
         {... loginForm}
@@ -142,6 +144,7 @@ class PayInvoicesApplication extends Component {
       <InvoiceView
         {... this.prepareInvoiceObject(invoice.payload) }
         items={invoice.items}
+        customer={invoice.customer}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

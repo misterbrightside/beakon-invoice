@@ -95,7 +95,7 @@ function bijb_get_invoice_with_id( $data ) {
 	$invoiceMetaData = get_post_meta($data['id']);
 	$data = array( 
 		'invoiceData' => $invoiceData[0],
-		'invoice' => bijb_get_from_metadata( $invoiceMetaData, 'invoice' ),
+		'items' => bijb_get_from_metadata( $invoiceMetaData, 'invoice' ),
 		'customer' => bijb_get_from_metadata( $invoiceMetaData, 'customer' ),
 		'salesDocument' => bijb_get_from_metadata( $invoiceMetaData, 'salesDocument' )
 	);

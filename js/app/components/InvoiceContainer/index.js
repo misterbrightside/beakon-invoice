@@ -4,6 +4,7 @@ import LoadingIndicator from '../LoadingIndicator/';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Alert from '../Alert/';
 import style from './invoice-view.css';
+import { round } from 'lodash';
 
 const RedirectToPaymentLoadingLayover = () => (
   <div className={style.overlay}>
@@ -33,7 +34,7 @@ const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
     { data.map(value => (
       <td
-        key={`todo-${value}`}
+        key={`item-in-invoice-${value}`}
         className={style.invoiceItemCell}
       >{value}</td>),
     ) }
@@ -111,15 +112,17 @@ const InvoiceHeader = ({ invoiceId, invoiceIssueDate }) => (
   </div>
 );
 
-const CustomerAddress = ({ firstName, surname, addressLine1, addressLine2, addressLine3, county }) => (
+const CustomerAddress = ({ name, address1, address2, address3, address4, address5, address6 }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
-      <strong>{firstName} {surname}</strong>
+      <strong>{ name }</strong>
     </div>
-    <div>{ addressLine1 },</div>
-    <div>{ addressLine2 },</div>
-    <div>{ addressLine3 },</div>
-    <div>County { county }</div>
+    { address1 ? <div>{ address1 },</div> : null }
+    { address2 ? <div>{ address2 },</div> : null }
+    { address3 ? <div>{ address3 },</div> : null }
+    { address4 ? <div>{ address4 },</div> : null }
+    { address5 ? <div>{ address5 },</div> : null }
+    { address6 ? <div>{ address6 } </div> : null }
   </address>
 );
 
@@ -133,7 +136,7 @@ const ItemsTotal = ({ subTotal, VAT, total }) => (
 
 const Items = ({ items }) => (
   <tbody className={style.invoiceTableBody}>
-    { items.map((item, index) => getRow(`'item-${index}`, [item.name, item.quantity, `€${item.quantity * item.price}`])) }
+    { items.map((item, index) => getRow(`'item-${index}`, [item.name, round(item.qty, 2), `€${ round(item.qty * item.salePrice, 2) }`] )) }
   </tbody>
 );
 
@@ -149,12 +152,17 @@ const TableHeader = () => (
 
 const ItemsPurchased = ({ items }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
-    const price = parseInt(items[key].price, 10);
-    const quantity = parseInt(items[key].quantity, 10);
+    const price = parseFloat(items[key].salePrice, 10);
+    const quantity = parseFloat(items[key].qty, 10);
     return previous + (price * quantity);
   }, 0);
-  const VAT = subTotal * .22;
-  const total = VAT + subTotal;
+  const subTotalRounded = round(subTotal, 2);
+  const VAT = Object.keys(items).reduce((previous, key) => {
+    const vatAmount = parseFloat(items[key].vatAmount, 10);
+    return previous + vatAmount;
+  }, 0);
+
+  const total = round(VAT, 2) + subTotalRounded;
   return (
     <table className={style.invoiceItemsTable}>
       <TableHeader />
@@ -162,7 +170,7 @@ const ItemsPurchased = ({ items }) => {
         items={items}
       />
       <ItemsTotal
-        subTotal={subTotal}
+        subTotal={subTotalRounded}
         VAT={VAT}
         total={total}
       />
@@ -192,13 +200,10 @@ const Invoice = (props) => {
   const {
     firstNameId,
     surnameId,
-    addressLine1Id,
-    addressLine2Id,
-    addressLine3Id,
-    countyId,
-    invoiceId,
-    invoiceIssueDate,
+    number: invoiceId,
+    postDate: invoiceIssueDate,
     items,
+    customer,
   } = props;
   return (
     <div className={style.invoiceView}>
@@ -207,12 +212,7 @@ const Invoice = (props) => {
         invoiceIssueDate={invoiceIssueDate}
       />
       <CustomerAddress
-        firstName={firstNameId}
-        surname={surnameId}
-        addressLine1={addressLine1Id}
-        addressLine2={addressLine2Id}
-        addressLine3={addressLine3Id}
-        county={countyId}
+        {...customer}
       />
       <ItemsPurchased
         items={items}
