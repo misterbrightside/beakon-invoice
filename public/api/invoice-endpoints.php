@@ -121,6 +121,7 @@ function bijb_get_invoice($query) {
 
 function bijb_get_details_to_pay_invoice ( $data ) {
   $invoiceId = $data['invoiceId'];
+  $amount =  bijb_get_amount_to_pay($invoiceId);
   $date = bijb_request_date_time();
   return json_encode(
     array(
@@ -130,17 +131,28 @@ function bijb_get_details_to_pay_invoice ( $data ) {
       'TERMINALID' => bijb_get_terminal_id(),
       'CURRENCY' => bijb_get_currency_code(),
       'RECEIPTPAGEURL' => bijb_get_receipt_page_url(),
-      'AMOUNT' => '100.00',
-      'HASH' => bijb_auth_request_hash($invoiceId, '100.00', $date)
+      'AMOUNT' => $amount,
+      'HASH' => bijb_auth_request_hash($invoiceId, $amount, $date)
     )
   );
+}
+
+function bijb_get_amount_to_pay($id) {
+	$query = bijb_get_invoice_query($id);
+	$meta = bijb_get_invoice($query);
+	$items = bijb_get_from_metadata( $meta, 'invoice' );
+	$total = 0;
+	foreach ($items as $item) {
+		$total += $item['costAmount'];
+	}
+	return $total;
 }
 
 function bijb_get_invoice_query($id) {
 	$args = array(
 		'numberposts'	=> -1,
 		'post_type'		=> 'invoice',
-		'meta_key'		=> 'invoice-id',
+		'meta_key'		=> 'invoiceId',
 		'meta_value'	=> $id
 	);
 	$query = new WP_Query( $args );

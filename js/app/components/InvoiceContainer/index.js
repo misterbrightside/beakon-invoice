@@ -152,17 +152,20 @@ const TableHeader = () => (
 
 const ItemsPurchased = ({ items }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
-    const price = parseFloat(items[key].salePrice, 10);
-    const quantity = parseFloat(items[key].qty, 10);
-    return previous + (price * quantity);
+    const price = parseFloat(items[key].amountVatExc, 10);
+    return previous + price;
   }, 0);
   const subTotalRounded = round(subTotal, 2);
   const VAT = Object.keys(items).reduce((previous, key) => {
     const vatAmount = parseFloat(items[key].vatAmount, 10);
     return previous + vatAmount;
   }, 0);
-
-  const total = round(VAT, 2) + subTotalRounded;
+  const totalBmu = Object.keys(items).reduce((previous, key) => {
+    const quantity = parseFloat(items[key].qty, 10);
+    const bmu = parseFloat(items[key].costPriceBmu, 10);
+    return previous + (quantity * bmu);
+  }, 0);
+  const total = round(totalBmu, 2);
   return (
     <table className={style.invoiceItemsTable}>
       <TableHeader />
