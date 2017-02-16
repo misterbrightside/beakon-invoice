@@ -33,3 +33,26 @@
     display: flex;
     justify-content: space-around;
 }
+
+
+@media print {
+	:local(button.primary) {
+		display: none;
+	}
+
+	:local(button.primary:disabled) {
+		display: none;
+	}
+
+	:local(button.secondary) {
+		display: none;
+	}
+
+	:local(.spaceBetween) {
+		display: none;
+	}
+
+	:local(.spaceButtons) {
+		display: none;
+	}
+}

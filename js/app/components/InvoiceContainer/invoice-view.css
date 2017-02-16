@@ -142,3 +142,19 @@ tbody > tr:last-child > td:first-child {
     align-items: center;
     flex-direction: column;
 }
+
+@media print {
+	.site-header {
+		display: none;
+	}
+
+	.site-footer {
+		display: none;
+	}
+
+	:local(.invoiceView) {
+		width: 100%;
+		max-width: 900px;
+		background: #f1f1f2;
+	}
+}

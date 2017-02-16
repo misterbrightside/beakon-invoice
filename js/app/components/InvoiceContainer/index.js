@@ -14,7 +14,17 @@ const RedirectToPaymentLoadingLayover = () => (
   </div>
 );
 
-const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
+const printInvoice = () => {
+  window.print();
+};
+
+const PrintButton = () => (
+  <button
+    className={buttonStyle.secondary}
+    onClick={printInvoice}
+  >
+    Print Invoice
+  </button>);
 
 const PayButton = ({ onPaymentButtonClick, disabled }) => (
   <button
@@ -209,7 +219,7 @@ const Invoice = (props) => {
     customer,
   } = props;
   return (
-    <div className={style.invoiceView}>
+    <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
         invoiceId={invoiceId}
         invoiceIssueDate={invoiceIssueDate}
@@ -261,6 +271,7 @@ class InvoiceContainer extends Component {
               />
             </div>
           </ReactCSSTransitionGroup>
+          <iframe id="ifmcontentstoprint" style={{height: 0, width: 0, position: 'absolute'}} />
         </div>
         { isBlurred ? <RedirectToPaymentLoadingLayover /> : null }
       </div>
