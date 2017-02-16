@@ -8,7 +8,8 @@ module.exports = {
     ],
     "env": {
     	"browser": true,
-        "jquery": true
+        "jquery": true,
+        "XLSX": true
     },
     "rules": {
     	"react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],

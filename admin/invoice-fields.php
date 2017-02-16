@@ -1,15 +1,6 @@
 <?php
 
-function bijb_add_user_info_metabox() {
-	add_meta_box(
-		'user-info-fields',
-		'User Information',
-		'bijb_user_template',
-		'invoice',
-		'normal',
-		'core'
-	);
-
+function bijb_add_invoice_metaboxes() {
   add_meta_box(
     'invoice-info-fields',
     'Invoice Information',
@@ -19,19 +10,24 @@ function bijb_add_user_info_metabox() {
     'core'
   );
 
-  add_meta_box(
-  	'invoice-items-fields',
-  	'Items Purchased',
-  	'bijb_items_template',
-  	'invoice',
-  	'normal',
-  	'core'
+   add_meta_box(
+    'user-details-fields',
+    'Real User Information',
+    'bijb_user_info_template',
+    'invoice',
+    'normal',
+    'core'
   );
-}
 
-function bijb_items_template( $invoice ) {
-  wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
-  echo "<div id='list-of-items'></div>";
+
+   add_meta_box(
+    'items-details-fields',
+    'Real User Information',
+    'bijb_items_info_template',
+    'invoice',
+    'normal',
+    'core'
+  );
 }
 
 function bijb_get_input_tag( $id, $title, $input) {
@@ -57,15 +53,10 @@ function bijb_get_value( $meta, $id ) {
 	}
 }
 
-function bijb_get_first_name( $meta ) {
-	return bijb_get_input_tag(
-		'first-name-id',
-		'First Name',
-		bijb_get_text_input(
-			'first-name-id',
-			bijb_get_value( $meta, 'first-name-id' )
-		)
-	);
+function fromCamelCase($camelCaseString) {
+        $re = '/(?<=[a-z])(?=[A-Z])/x';
+        $a = preg_split($re, $camelCaseString);
+        return join($a, " " );
 }
 
 function bijb_get_invoice_id( $meta ) {
@@ -102,60 +93,42 @@ function bijb_get_invoice_date_issue( $meta ) {
   );
 }
 
-function bijb_get_surname( $meta ) {
-	return bijb_get_input_tag(
-		'surname-id',
-		'Surname',
-		bijb_get_text_input(
-			'surname-id',
-			bijb_get_value( $meta, 'surname-id' )
-		)
-	);
-}
-
-function bijb_get_address_line( $meta, $number ) {
-	return bijb_get_input_tag(
-		"address-line-$number-id",
-		"Address Line $number",
-		bijb_get_text_input(
-			"address-line-$number-id",
-			bijb_get_value( $meta, "address-line-$number-id" )
-		)
-	);
-}
-
-function bijb_get_county( $meta ) {
-	return bijb_get_input_tag(
-		'county-id',
-		'County',
-		bijb_get_text_input(
-			'county-id',
-			bijb_get_value( $meta, 'county-id' )
-		)
-	);
-}
-
-function bijb_user_template( $invoice ) {
+function bijb_user_info_template( $invoice ) {
 	wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
 	$bijb_stored_meta = get_post_meta( $invoice -> ID );
-	echo '<div>'
-		. bijb_get_first_name( $bijb_stored_meta )
-		. bijb_get_surname( $bijb_stored_meta )
-		. bijb_get_address_line( $bijb_stored_meta, '1' )
-		. bijb_get_address_line( $bijb_stored_meta, '2' )
-		. bijb_get_address_line( $bijb_stored_meta, '3' )
-		. bijb_get_county( $bijb_stored_meta )
-		. '</div>';
+	$userInfo = x($bijb_stored_meta, 'customer');
+	foreach ($userInfo as $key => $value) {
+		echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
+	}
+}
+
+function bijb_items_info_template( $invoice ) {
+	wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
+	$bijb_stored_meta = get_post_meta( $invoice -> ID );
+	$items = x($bijb_stored_meta, 'invoice');
+	foreach ($items as $item) {
+		foreach ($item as $key => $value) {
+			echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
+		}
+    echo '<div><hr /></div>';
+	}
+}
+
+function x( $invoiceMetaData, $key ) {
+	if ( !isset($invoiceMetaData[$key]) ) {
+		return array();
+	} else {
+		return unserialize($invoiceMetaData[$key][0]);
+	}
 }
 
 function bijb_invoice_template( $invoice ) {
   wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
   $bijb_stored_meta = get_post_meta( $invoice -> ID );
-  echo '<div>'
-    . bijb_get_invoice_id( $bijb_stored_meta )
-    . bijb_get_invoice_status( $bijb_stored_meta )
-    . bijb_get_invoice_date_issue( $bijb_stored_meta )
-    . '</div>';
+  $salesDocument = x($bijb_stored_meta, 'salesDocument');
+  foreach ($salesDocument as $key => $value) {
+  	echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
+  }
 }
 
 function bijb_is_valid_nonce() {
@@ -168,19 +141,24 @@ function bijb_save_field( $invoice_id, $id ) {
 	}
 }
 
-function bijb_save_user_metadata( $invoice_id ) {
+function save_array_values_to_meta( $invoice_id, $arrayKey, $values ) {
+	foreach ($values as $key => $value) {
+		if ( isset( $_POST[ $key ] ) ) {
+			$values[$key] = sanitize_text_field( $_POST[ $key ] );
+		}
+		update_post_meta( $invoice_id, $arrayKey, $values );
+	}
+}
+
+function bijb_save_all_metadata( $invoice_id, $key ) {
 	$is_autosave = wp_is_post_autosave( $invoice_id );
 	$is_revision = wp_is_post_revision( $invoice_id );
 	if ( $is_autosave || $is_revision || ! bijb_is_valid_nonce() ) {
 		return;
 	}
-
-	bijb_save_field( $invoice_id, 'first-name-id' );
-	bijb_save_field( $invoice_id, 'surname-id' );
-	bijb_save_field( $invoice_id, 'address-line-1-id' );
-	bijb_save_field( $invoice_id, 'address-line-2-id' );
-	bijb_save_field( $invoice_id, 'address-line-3-id' );
-	bijb_save_field( $invoice_id, 'county-id' );
+	$bijb_stored_meta = get_post_meta( $invoice_id );
+	$userInfo = x($bijb_stored_meta, $key);
+	save_array_values_to_meta($invoice_id, $key, $userInfo);
 }
 
 function bijb_save_invoice_data( $invoice_id ) {
@@ -190,9 +168,6 @@ function bijb_save_invoice_data( $invoice_id ) {
     return;
   }
 
-  bijb_save_field( $invoice_id, 'invoice-id' );
-  bijb_save_field( $invoice_id, 'invoice-status-id' );
-  bijb_save_field( $invoice_id, 'invoice-date-issued-id');
 }
 
 function bijb_save_items_data( $invoice_id ) {
@@ -210,10 +185,14 @@ function bijb_save_items_data( $invoice_id ) {
 }
 
 function bijb_save_metadata( $invoice_id ) {
-  bijb_save_user_metadata( $invoice_id );
-  bijb_save_invoice_data( $invoice_id );
-  bijb_save_items_data( $invoice_id ); 
+  bijb_save_all_metadata( $invoice_id, 'customer' );
+  bijb_save_all_metadata( $invoice_id, 'salesDocument' );
+  if (isset($_POST['number'])){
+    $data = $_POST['number'];
+    update_post_meta($invoice_id, 'invoiceId', $data);
+  }
+  // bijb_save_all_metadata( $invoice_id, 'customer' );
 }
 
 add_action( 'save_post', 'bijb_save_metadata' );
-add_action( 'add_meta_boxes', 'bijb_add_user_info_metabox' );
+add_action( 'add_meta_boxes', 'bijb_add_invoice_metaboxes' );

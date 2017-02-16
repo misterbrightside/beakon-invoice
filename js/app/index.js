@@ -32,7 +32,8 @@ class PayInvoicesApplication extends Component {
     }));
   }
 
-  setStateAfterCheckingWhetherInvoiceExists = ({ invoiceExists, invoice, items }) => (
+  setStateAfterCheckingWhetherInvoiceExists = 
+  ({ invoiceExists, invoice, items, customer, invoiceStatusId }) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
@@ -41,6 +42,8 @@ class PayInvoicesApplication extends Component {
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceExists ? invoice : {},
         items,
+        customer,
+        invoiceStatusId
       }),
     }))
   )
@@ -111,16 +114,8 @@ class PayInvoicesApplication extends Component {
     }));
   }
 
-  santizeInvoiceObject(invoiceData) {
-    return Object.keys(invoiceData).map((key) => {
-      const value = invoiceData[key];
-      const cleanAttribute = { [camelCase(key)]: value[0] };
-      return cleanAttribute;
-    });
-  }
-
   prepareInvoiceObject(invoiceData) {
-    return Object.assign(...this.santizeInvoiceObject(invoiceData));
+    return invoiceData;
   }
 
   updateFieldValue = id => (event) => {
@@ -130,7 +125,7 @@ class PayInvoicesApplication extends Component {
   }
 
   render() {
-    const { loginForm, invoice } = this.state;
+    const { loginForm, invoice, customer } = this.state;
     const loginScreen = (
       <InvoiceLogin
         {... loginForm}
@@ -142,6 +137,8 @@ class PayInvoicesApplication extends Component {
       <InvoiceView
         {... this.prepareInvoiceObject(invoice.payload) }
         items={invoice.items}
+        customer={invoice.customer}
+        invoiceStatusId={invoice.invoiceStatusId}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

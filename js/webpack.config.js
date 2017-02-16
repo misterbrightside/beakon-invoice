@@ -6,10 +6,12 @@ const isProduction = process.env.NODE_ENV === 'production';
 const buildPath = path.resolve(__dirname, 'build');
 const frontendEntryPath = path.resolve(__dirname, 'app', 'index.js');
 const adminEntryPath = path.resolve(__dirname, 'admin', 'index.js');
+const bulkImportEntryPath = path.resolve(__dirname, 'admin/BulkImport', 'index.js');
 
 const entries = {
   frontendBundle: frontendEntryPath,
   adminBundle: adminEntryPath,
+  bulkImportBundle: bulkImportEntryPath,
 };
 
 const pluginsUsed = [
