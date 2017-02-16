@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Dropzone from 'react-dropzone';
 import { isEmpty, camelCase } from 'lodash';
+import style from './bulk-import-styles.css'
 
 const getInvoices = (invoices) => {
   const form = new FormData();
@@ -47,13 +48,25 @@ const getFullDetailsOfAnInvoice = (salesDocItem, salesDocsBook, salesDocsItems, 
 };
 
 class BulkImport extends Component {
+
+  constructor() {
+    super();
+    this.state = {
+      customers: [],
+      customersName: '',
+      salesDoc: [],
+      salesDocName: '',
+      invoices: []
+    };
+  }
   
   openFile(file, type) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const data = event.target.result;
       this.setState({
-        [type]: workbookToJSON(XLSX.read(data, { type: 'binary' }))
+        [type]: workbookToJSON(XLSX.read(data, { type: 'binary' })),
+        [type + "Name"]: file.name
       });
     };
     reader.readAsBinaryString(file);
@@ -92,16 +105,41 @@ class BulkImport extends Component {
   }
 
   render() {
+    const joinDisabled = isEmpty(this.state.salesDoc) || isEmpty(this.state.customers);
+    const submitDisabled = !this.state.invoices.length > 0;
     return (
-      <div>
-        <button>
-          <Dropzone onDrop={this.onAddSalesDocs} style={{}}>Upload Sales Document</Dropzone>
-        </button>
-        <button>
-          <Dropzone onDrop={this.onAddCustomers} style={{}}>Add Customers document</Dropzone>
-        </button>
-        <button onClick={this.onSubmitDocsForJoin}>Compute joins of documents</button>
-        <button onClick={this.onSubmitDocsToWordPress}>Submit To database</button>
+      <div className={style.container}>
+        <div className={style.flex}>
+          <div>
+            <button className={style.button}>
+              <Dropzone onDrop={this.onAddSalesDocs} style={{}}>Upload Sales Document</Dropzone>
+            </button>
+            { this.state.salesDocName ? `Chosen ${this.state.salesDocName}!` : null }
+          </div>
+          <div>
+            <button className={style.button}>
+              <Dropzone onDrop={this.onAddCustomers} style={{}}>Add Customers document</Dropzone>
+            </button>
+            { this.state.customersName ? `Chosen ${this.state.customersName}!` : null }
+          </div>
+          <div>
+            <button
+              className={style.button}
+              onClick={this.onSubmitDocsForJoin}
+              disabled={joinDisabled}
+            >
+                Compute joins of documents
+            </button>
+            { this.state.invoices.length > 0 ? `${this.state.invoices.length} invoices selected for addition to the database.` : null}
+          </div>
+          <button
+            className={style.button} 
+            onClick={this.onSubmitDocsToWordPress}
+            disabled={submitDisabled}
+          >
+              Submit To database
+            </button>
+        </div>
       </div>
     );
   }
