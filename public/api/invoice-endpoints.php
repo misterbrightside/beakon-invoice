@@ -45,10 +45,9 @@ add_action( 'rest_api_init', function () {
 
 function bijb_bulk_add_invoices( $data) {
 	$invoices = json_decode($data['invoices'], true);
-	$slice = array_slice($invoices, 0, 10);
 	$response = array();
-	foreach ($slice as $invoice) {
-		if (! bijb_check_if_invoice_exists_bool( $invoice['salesDocument']['number']) ) {
+	foreach ($invoices as $invoice) {
+		if (! bijb_check_if_invoice_exists_bool( $invoice['salesDocument']['number']) && $invoice['customer'] != NULL) {
 			$id = bijb_add_invoice( $invoice );
 			array_push($response, (array('passed' => true, 'id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
 		}
@@ -85,13 +84,15 @@ function bijb_add_invoice( $data ) {
 	add_post_meta($postId, 'customer', $data['customer']);
 	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
 	add_post_meta($postId, 'invoice', $data['invoice']);
+	add_post_meta($postId, 'invoiceStatusId', 'NOT PAID');
 	return $postId;
 }
 
 function bijb_get_post_title($data) {
 	$name = $data['customer']['name'];
 	$dateOfInvoice = $data['salesDocument']['postDate'];
-	return "$name - $dateOfInvoice";
+	$id = $data['salesDocument']['number'];
+	return "$name - $dateOfInvoice - $id";
 }
 
 function bijb_check_if_invoice_exists( $data ) {
