@@ -34,7 +34,7 @@ function bijb_get_currency_code() {
 }
 
 function bijb_get_receipt_page_url() {
-  return 'http://localhost:8080/pay-invoices/';
+  return get_site_url();
 }
 
 function bijb_get_secret_for_payment() {

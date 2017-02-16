@@ -101,7 +101,9 @@ class BulkImport extends Component {
       body: getInvoices(this.state.invoices)
     })
       .then(response => response.json())
-      .then(json => console.log(JSON.parse(json)));
+      .then(json => this.setState({
+        invoicesSubmissionUploaded: true
+      }));
   }
 
   render() {
