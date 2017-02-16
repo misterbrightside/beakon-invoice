@@ -33,7 +33,7 @@ class PayInvoicesApplication extends Component {
   }
 
   setStateAfterCheckingWhetherInvoiceExists = 
-  ({ invoiceExists, invoice, items, customer, invoiceStatusId }) => (
+  ({ invoiceExists, invoice, items, customer, invoiceStatusId, dateOfAttemptedPayment }) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
@@ -43,7 +43,8 @@ class PayInvoicesApplication extends Component {
         payload: invoiceExists ? invoice : {},
         items,
         customer,
-        invoiceStatusId
+        invoiceStatusId,
+        dateOfAttemptedPayment
       }),
     }))
   )
@@ -144,6 +145,7 @@ class PayInvoicesApplication extends Component {
         items={invoice.items}
         customer={invoice.customer}
         invoiceStatusId={invoice.invoiceStatusId}
+        dateOfAttemptedPayment={invoice.dateOfAttemptedPayment}
         onClickClearState={this.onClickClearState}
       />
     ) : null;

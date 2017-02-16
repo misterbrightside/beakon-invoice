@@ -30,7 +30,7 @@ add_action( 'rest_api_init', function () {
 } );
 
 add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'update-invoice', array(
+  register_rest_route( 'beakon-invoices/v1', 'update-payment-status-of-invoice', array(
     'methods' => 'POST',
     'callback' => 'bijb_update_invoice',
     ) );
@@ -85,6 +85,7 @@ function bijb_add_invoice( $data ) {
 	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
 	add_post_meta($postId, 'invoice', $data['invoice']);
 	add_post_meta($postId, 'invoiceStatusId', 'NOT PAID');
+	add_post_meta($postId, 'dateOfAttemptedPayment', 'NEVER');
 	return $postId;
 }
 
@@ -126,7 +127,8 @@ function bijb_check_if_invoice_exists( $data ) {
 			'customer' => bijb_get_from_metadata($meta, 'customer'),
 			'invoice' => bijb_get_from_metadata($meta, 'salesDocument'),
 			'items' => bijb_get_from_metadata($meta, 'invoice'),
-			'invoiceStatusId' => $meta['invoiceStatusId'][0]
+			'invoiceStatusId' => $meta['invoiceStatusId'][0],
+			'dateOfAttemptedPayment' => $meta['dateOfAttemptedPayment'][0]
       )
    );
 }
@@ -139,7 +141,8 @@ function bijb_get_invoice_with_id( $data ) {
 		'items' => bijb_get_from_metadata( $invoiceMetaData, 'invoice' ),
 		'customer' => bijb_get_from_metadata( $invoiceMetaData, 'customer' ),
 		'salesDocument' => bijb_get_from_metadata( $invoiceMetaData, 'salesDocument' ),
-		'invoiceStatusId' => $invoiceMetaData['invoiceStatusId']
+		'invoiceStatusId' => $invoiceMetaData['invoiceStatusId'],
+		'dateOfAttemptedPayment' => $meta['dateOfAttemptedPayment'][0]
 	);
 	return new WP_REST_Response( $data );
 }
@@ -207,7 +210,9 @@ function bijb_update_invoice( $data ) {
 	if ($query->have_posts()) {
 		$wpID = $query->posts[0]->ID;
 		$responseCode = $data['RESPONSECODE'];
+		$dateOfAttemptedPayment = $data['DATETIME'];
 		update_post_meta( $wpID, 'invoiceStatusId', sanitize_text_field( $responseCode ) );
+		update_post_meta( $wpID, 'dateOfAttemptedPayment', sanitize_text_field( $dateOfAttemptedPayment ) );
 		return true;
 	}
 	// 

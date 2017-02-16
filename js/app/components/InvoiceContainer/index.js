@@ -208,10 +208,10 @@ const BusinessInfo = () => (
   </div>
 );
 
-const PaidNotification = () => (
+const PaidNotification = ({ text }) => (
   <div>
     <Alert alertType={'info'}>
-      There was a payment attempt for this invoice at { new Date().toString() }.
+      { text }
     </Alert>
   </div>
 );
@@ -251,7 +251,7 @@ class InvoiceContainer extends Component {
   };
 
   render() {
-    const { isBlurred, onPaymentButtonClick, disablePayButton, onClickClearState } = this.props;
+    const { isBlurred, onPaymentButtonClick, disablePayButton, onClickClearState, notificationText } = this.props;
     const blurStyle = isBlurred ? style.blurred : '';
     return (
       <div>
@@ -270,7 +270,7 @@ class InvoiceContainer extends Component {
                 disablePayButton={disablePayButton}
                 onClickClearState={onClickClearState}
               />
-              { disablePayButton ? <PaidNotification /> : null}
+              { disablePayButton ? <PaidNotification text={notificationText} /> : null}
               <Invoice
                 { ...this.props }
               />

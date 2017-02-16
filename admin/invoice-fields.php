@@ -142,12 +142,14 @@ function bijb_save_field( $invoice_id, $id ) {
 }
 
 function save_array_values_to_meta( $invoice_id, $arrayKey, $values ) {
-	foreach ($values as $key => $value) {
-		if ( isset( $_POST[ $key ] ) ) {
-			$values[$key] = sanitize_text_field( $_POST[ $key ] );
-		}
-		update_post_meta( $invoice_id, $arrayKey, $values );
-	}
+  if ($values != NULL) {
+  	foreach ($values as $key => $value) {
+  		if ( isset( $_POST[ $key ] ) ) {
+  			$values[$key] = sanitize_text_field( $_POST[ $key ] );
+  		}
+  		update_post_meta( $invoice_id, $arrayKey, $values );
+  	}
+  }
 }
 
 function bijb_save_all_metadata( $invoice_id, $key ) {

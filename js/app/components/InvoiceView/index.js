@@ -55,8 +55,7 @@ class InvoiceView extends Component {
       displayPaymentRedirectLoading: false,
       redirectToPaymentUrl: false,
     });
-    InvoiceAPI.updatePaymentStatusOfInvoice(payload)
-      .then(data => console.log(data));
+    InvoiceAPI.updatePaymentStatusOfInvoice(payload);
   }
 
   getResponseParameters = (url) => {
@@ -65,13 +64,6 @@ class InvoiceView extends Component {
       const [key, value] = param.split('=');
       return { [key]: value };
     }));
-  }
-
-  getReceiptConfirmationScreen() {
-    const { paymentSuccessPayload } = this.state;
-    return (
-      <div>Thx this is paid { JSON.stringify(paymentSuccessPayload) }</div>
-    );
   }
 
   getPaymentScreen() {
@@ -84,15 +76,25 @@ class InvoiceView extends Component {
     );
   }
 
+  getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {
+    if (!!paymentSuccessPayload && isPaymentConfirmationNotifiction) return `Success! You made a successful payment for this invoice ${moment(paymentSuccessPayload.DATETIME).format('LLLL')}.`;
+    else if (!!paymentSuccessPayload && paymentSuccessPayload.RESPONSECODE === 'D') return 'It seems there was an issue processing your payment. It may be an issue with your payment details.';
+    else if (invoiceStatusId === 'A') return `Success! There was a successful payment for this invoice ${moment(dateOfAttemptedPayment).format('LLLL')}.`
+    return '';
+  }
+
   getInvoiceView() {
     const { displayPaymentRedirectLoading } = this.state;
-    const { invoiceStatusId, invoiceDateIssuedId, onClickClearState } = this.props;
+    const { invoiceStatusId, invoiceDateIssuedId, onClickClearState, dateOfAttemptedPayment } = this.props;
+    const isPaymentConfirmationNotifiction = this.state.paymentSuccessPayload ? this.state.paymentSuccessPayload.RESPONSECODE === 'A' : false;
+    const notificationText = this.getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, this.state.paymentSuccessPayload, dateOfAttemptedPayment);
     return (
       <InvoiceContainer
         {...this.props}
         onPaymentButtonClick={this.onPaymentButtonClick}
         isBlurred={displayPaymentRedirectLoading}
-        disablePayButton={invoiceStatusId === 'A'}
+        disablePayButton={invoiceStatusId === 'A' || isPaymentConfirmationNotifiction }
+        notificationText={notificationText}
         invoiceIssueDate={moment(invoiceDateIssuedId, 'DD-MM-YYYY').format('MMMM Do YYYY')}
         onClickClearState={onClickClearState}
       />
@@ -101,9 +103,6 @@ class InvoiceView extends Component {
 
   render() {
     const { redirectToPaymentUrl, paymentSuccessPayload } = this.state;
-    if (paymentSuccessPayload) {
-      return this.getReceiptConfirmationScreen();
-    }
     const view = redirectToPaymentUrl && !paymentSuccessPayload ?
       this.getPaymentScreen() : this.getInvoiceView();
     return (

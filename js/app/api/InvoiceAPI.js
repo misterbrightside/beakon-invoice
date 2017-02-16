@@ -48,7 +48,7 @@ export default class InvoiceAPI {
   }
 
   static updatePaymentStatusOfInvoice(payload) {
-    return fetch('/wp-json/beakon-invoices/v1/update-invoice', {
+    return fetch('/wp-json/beakon-invoices/v1/update-payment-status-of-invoice', {
       method: 'POST',
       body: this.getUpdateInfoForSavingInvoice(payload),
     })
