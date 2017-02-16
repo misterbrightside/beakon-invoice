@@ -271,7 +271,6 @@ class InvoiceContainer extends Component {
               />
             </div>
           </ReactCSSTransitionGroup>
-          <iframe id="ifmcontentstoprint" style={{height: 0, width: 0, position: 'absolute'}} />
         </div>
         { isBlurred ? <RedirectToPaymentLoadingLayover /> : null }
       </div>

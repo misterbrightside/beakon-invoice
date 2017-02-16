@@ -155,6 +155,5 @@ tbody > tr:last-child > td:first-child {
 	:local(.invoiceView) {
 		width: 100%;
 		max-width: 900px;
-		background: #f1f1f2;
 	}
 }
