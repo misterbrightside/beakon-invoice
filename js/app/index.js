@@ -124,6 +124,11 @@ class PayInvoicesApplication extends Component {
     return this.setNewValue(id, value);
   }
 
+  onClickClearState = (event) => {
+    event.preventDefault();
+    this.setState(() => this.getInitialApplicationState());
+  }
+
   render() {
     const { loginForm, invoice, customer } = this.state;
     const loginScreen = (
@@ -139,6 +144,7 @@ class PayInvoicesApplication extends Component {
         items={invoice.items}
         customer={invoice.customer}
         invoiceStatusId={invoice.invoiceStatusId}
+        onClickClearState={this.onClickClearState}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

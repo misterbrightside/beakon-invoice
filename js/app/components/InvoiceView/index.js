@@ -86,7 +86,7 @@ class InvoiceView extends Component {
 
   getInvoiceView() {
     const { displayPaymentRedirectLoading } = this.state;
-    const { invoiceStatusId, invoiceDateIssuedId } = this.props;
+    const { invoiceStatusId, invoiceDateIssuedId, onClickClearState } = this.props;
     return (
       <InvoiceContainer
         {...this.props}
@@ -94,6 +94,7 @@ class InvoiceView extends Component {
         isBlurred={displayPaymentRedirectLoading}
         disablePayButton={invoiceStatusId === 'A'}
         invoiceIssueDate={moment(invoiceDateIssuedId, 'DD-MM-YYYY').format('MMMM Do YYYY')}
+        onClickClearState={onClickClearState}
       />
     );
   }
