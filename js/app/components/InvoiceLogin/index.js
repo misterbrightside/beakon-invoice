@@ -79,6 +79,7 @@ class InvoiceLogin extends Component {
             onUpdateInput={updateFieldValue('invoiceId')}
             errorMessage={<InputFieldError label={'You must enter a valid invoice reference.'} />}
             isValid={this.isValid('invoiceId')}
+            tooltipText={'This must be a valid invoice string which you have recieved!'}
           />
           <InvoiceLoginField
             label={'Surname'}
@@ -86,6 +87,7 @@ class InvoiceLogin extends Component {
             onUpdateInput={updateFieldValue('surname')}
             errorMessage={<InputFieldError label={'You must enter a valid surname.'} />}
             isValid={this.isValid('surname')}
+            tooltipText={'This is subject to change.'}
           />
           <CheckInvoiceButton />
           { invoiceErrorMessage ?
