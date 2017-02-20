@@ -7,7 +7,13 @@
   transition: opacity .5s ease-in;
 }
 
+#invoices-app {
+	font-family: "Open Sans", Arial, sans-serif;
+}
+
 :local(.invoicesViewContainer) {
+	margin-top: 50px;
+	margin-bottom: 50px;
 	min-height: 70vh;
 	display: flex;
 	justify-content: center;
@@ -24,6 +30,8 @@
 
 :local(address.invoiceAddress) {
 	font-style: normal;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 :local(.invoiceBusinessLogo) {

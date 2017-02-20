@@ -2,6 +2,9 @@
 	border-radius: 5px;
 	background: linear-gradient(to right, #e72128, #b32024);
 	text-transform: uppercase;
+	color: white;
+	font-weight: 700;
+	font-size: 1rem;
     padding: 15px 20px;
 }
 
@@ -17,6 +20,9 @@
     border: 1px solid #e72128;
     color: #b32024;
     background: white;
+    color: #e72128;
+	font-weight: 700;
+	font-size: 1rem;
     text-transform: uppercase;
     padding: 15px 20px;
 }
