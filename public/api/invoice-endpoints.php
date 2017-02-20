@@ -1,47 +1,47 @@
 <?php
 require_once __DIR__ . '/../worldnet/world-net.php';
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'beakon-invoices/v1', 'invoice-exists', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_check_if_invoice_exists',
-    ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( 'beakon-invoices/v1', 'invoice-exists', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_check_if_invoice_exists',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_bulk_add_invoices',
-    ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_bulk_add_invoices',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'beakon-invoices/v1', 'invoices/(?P<id>\d+)', array(
-    'methods' => 'GET',
-    'callback' => 'bijb_get_invoice_with_id',
-    ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( 'beakon-invoices/v1', 'invoices/(?P<id>\d+)', array(
+//     'methods' => 'GET',
+//     'callback' => 'bijb_get_invoice_with_id',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_get_details_to_pay_invoice',
-    ) );
-} );
+// add_action( 'rest_api_init', function () { 
+//   register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_get_details_to_pay_invoice',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'update-payment-status-of-invoice', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_update_invoice',
-    ) );
-} );
+// add_action( 'rest_api_init', function () { 
+//   register_rest_route( 'beakon-invoices/v1', 'update-payment-status-of-invoice', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_update_invoice',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_add_invoice',
-    ) );
-} );
+// add_action( 'rest_api_init', function () { 
+//   register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_add_invoice',
+//     ) );
+// } );
 
 function bijb_bulk_add_invoices( $data) {
 	$invoices = json_decode($data['invoices'], true);

@@ -20,6 +20,9 @@ require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-fields.php';
 require_once plugin_dir_path( __FILE__ ) . '/public/add_templates.php';
 require_once plugin_dir_path( __FILE__ ) . '/public/api/invoice-endpoints.php';
 
+require_once plugin_dir_path( __FILE__ ) . '/admin/controllers/InvoiceController.php';
+require_once plugin_dir_path( __FILE__ ) . '/admin/models/InvoiceModel.php';
+
 
 function bijb_admin_enqueue_scripts() {
 	global $pagenow, $typenow;
@@ -28,5 +31,8 @@ function bijb_admin_enqueue_scripts() {
 		wp_enqueue_style( 'jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css' );
 	}
 }
+
+$y = new InvoiceModel();
+$x = new InvoiceController($y);
 
 add_action( 'admin_enqueue_scripts', 'bijb_admin_enqueue_scripts' );
