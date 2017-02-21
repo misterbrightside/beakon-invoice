@@ -2,6 +2,7 @@
 
 class InvoiceController {
 	protected $invoiceModel;
+	protected $NAMESPACE = 'beakon-invoices/v1';
 
 	public function __construct( $model ) {
 		$this->invoiceModel = $model;
@@ -9,8 +10,11 @@ class InvoiceController {
 	}
 
 	function registerRoutes() {
-		$namespace = 'beakon-invoices/v1';
-		register_rest_route($namespace, 'invoice' . '/(?P<invoiceId>[A-Za-z0-9\-]+)',
+		$this->registerGetInvoiceRoute();
+	}
+
+	protected function registerGetInvoiceRoute() {
+		register_rest_route($this->NAMESPACE, 'invoice' . '/(?P<invoiceId>[A-Za-z0-9\-]+)',
 			array(
 				'methods' => 'GET',
 				'callback' => array($this, 'getInvoice')
@@ -20,8 +24,7 @@ class InvoiceController {
 
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
-		// $surname = $request['surname'];
-		$meta = $this->invoiceModel->getInvoiceMetaById($invoiceId);
-		return $meta;
+		$invoice = $this->invoiceModel->getInvoiceById($invoiceId);
+		return $invoice;
 	}
 }

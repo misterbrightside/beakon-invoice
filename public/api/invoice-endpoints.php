@@ -1,19 +1,12 @@
 <?php
 require_once __DIR__ . '/../worldnet/world-net.php';
 
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( 'beakon-invoices/v1', 'invoice-exists', array(
-//     'methods' => 'POST',
-//     'callback' => 'bijb_check_if_invoice_exists',
-//     ) );
-// } );
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
-//     'methods' => 'POST',
-//     'callback' => 'bijb_bulk_add_invoices',
-//     ) );
-// } );
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_bulk_add_invoices',
+    ) );
+} );
 
 // add_action( 'rest_api_init', function () {
 //   register_rest_route( 'beakon-invoices/v1', 'invoices/(?P<id>\d+)', array(
@@ -22,26 +15,26 @@ require_once __DIR__ . '/../worldnet/world-net.php';
 //     ) );
 // } );
 
-// add_action( 'rest_api_init', function () { 
-//   register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
-//     'methods' => 'POST',
-//     'callback' => 'bijb_get_details_to_pay_invoice',
-//     ) );
-// } );
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_get_details_to_pay_invoice',
+    ) );
+} );
 
-// add_action( 'rest_api_init', function () { 
-//   register_rest_route( 'beakon-invoices/v1', 'update-payment-status-of-invoice', array(
-//     'methods' => 'POST',
-//     'callback' => 'bijb_update_invoice',
-//     ) );
-// } );
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'update-payment-status-of-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_update_invoice',
+    ) );
+} );
 
-// add_action( 'rest_api_init', function () { 
-//   register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
-//     'methods' => 'POST',
-//     'callback' => 'bijb_add_invoice',
-//     ) );
-// } );
+add_action( 'rest_api_init', function () { 
+  register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
+    'methods' => 'POST',
+    'callback' => 'bijb_add_invoice',
+    ) );
+} );
 
 function bijb_bulk_add_invoices( $data) {
 	$invoices = json_decode($data['invoices'], true);
@@ -94,43 +87,6 @@ function bijb_get_post_title($data) {
 	$dateOfInvoice = $data['salesDocument']['postDate'];
 	$id = $data['salesDocument']['number'];
 	return "$name - $dateOfInvoice - $id";
-}
-
-function bijb_check_if_invoice_exists( $data ) {
-	$invoiceId = $data['invoiceId'];
-	$surname = $data['surname'];
-
-	$args = array(
-		'numberposts'	=> -1,
-		'post_type'		=> 'invoice',
-		'meta_query' 	=> array(
-			// 'relation' => 'AND',
-			array(
-				'key' => 'invoiceId',
-				'value' => $invoiceId,
-				'compare' => '='
-			)
-			// ),
-			// array(
-			// 	'key' => 'surname-id',
-			// 	'value' => $surname,
-			// 	'compare' => '='
-			// )
-		)
-   );
-	
-	$query = new WP_Query( $args );
-	$meta = bijb_get_invoice($query);
-	return json_encode(
-		array(
-			'invoiceExists' => $query->have_posts(),
-			'customer' => bijb_get_from_metadata($meta, 'customer'),
-			'invoice' => bijb_get_from_metadata($meta, 'salesDocument'),
-			'items' => bijb_get_from_metadata($meta, 'invoice'),
-			'invoiceStatusId' => $meta['invoiceStatusId'][0],
-			'dateOfAttemptedPayment' => $meta['dateOfAttemptedPayment'][0]
-      )
-   );
 }
 
 function bijb_get_invoice_with_id( $data ) {

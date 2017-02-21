@@ -1,8 +1,4 @@
 <?php
-// $currency = '978';
-// $secret = 'omgwtf';
-// $testAccount = true;
-
 function bijb_request_date_time() {
   return date('d-m-Y:H:i:s:000');
 }
@@ -46,7 +42,7 @@ function bijb_get_validation_url() {
 }
 
 function bijb_auth_request_hash($orderId, $amount, $date) {
-$terminalId = bijb_get_terminal_id();
+  $terminalId = bijb_get_terminal_id();
   $secret = bijb_get_secret_for_payment();
   $receiptPageURL = bijb_get_receipt_page_url();
   $validationURL = bijb_get_validation_url();

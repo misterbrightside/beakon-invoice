@@ -1,14 +1,24 @@
 <?php
 
 require_once __DIR__ . '/../utils/unseralize-utils.php';
+require_once 'InvoiceNotFound.php';
 
 
 class InvoiceModel {
 
-	public function getInvoiceMetaById( $id ) {
+	public function getInvoiceById( $id ) {
 		$query = $this->getInvoiceQueryByInvoiceId($id);
 		$seralizedMeta = $this->getInvoiceMetaFromQuery($query);
-		return SeralizeUtils::unserializeArrays($seralizedMeta);
+		if ($seralizedMeta !== NULL) {
+			return SeralizeUtils::unserializeArrays($seralizedMeta);
+		} else {
+			return InvoiceNotFound::getNotFoundObject();
+		}
+	}
+
+	public function checkIfInvoiceExists( $id ) {
+		$query = $this->getInvoiceQueryByInvoiceId($id);
+		return $this->queryHasAnInvoiceThatExists($query);
 	}
 
 	protected function getInvoiceQueryByInvoiceId( $id ) {

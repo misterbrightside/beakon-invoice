@@ -4,7 +4,6 @@ export default class InvoiceAPI {
 
   static getInvoiceExistsForm(invoiceId, surname = '') {
     const form = new FormData();
-    form.append('invoiceId', escape(invoiceId.trim()));
     form.append('surname', escape(surname.trim()));
     return form;
   }
@@ -22,11 +21,9 @@ export default class InvoiceAPI {
   }
 
   static checkWhetherInvoiceExists(invoiceId, surname) {
-    return fetch('/wp-json/beakon-invoices/v1/invoice-exists', {
-      method: 'POST',
-      body: this.getInvoiceExistsForm(invoiceId, surname),
-    }).then(response => response.json())
-      .then(json => JSON.parse(json));
+    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId}`, {
+      method: 'GET',
+    }).then(response => response.json());
   }
 
   static getURLForWorldNetPayment(invoiceId) {
