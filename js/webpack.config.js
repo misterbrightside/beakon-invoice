@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 // const autoprefixer = require('autoprefixer');
 const isProduction = process.env.NODE_ENV === 'production';
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const buildPath = path.resolve(__dirname, 'build');
 const frontendEntryPath = path.resolve(__dirname, 'app', 'index.js');
@@ -15,7 +16,8 @@ const entries = {
 };
 
 const pluginsUsed = [
-  new webpack.optimize.UglifyJsPlugin(),
+  // new webpack.optimize.UglifyJsPlugin(),
+  new ExtractTextPlugin("[name]-styles.css"),
 ];
 
 pluginsUsed.push(
@@ -26,10 +28,10 @@ pluginsUsed.push(
 
 const cssIdentifer = '[path][name]---[local]';
 
-const cssLoader = ['style-loader', 'css-loader?localIdentName=' + cssIdentifer];
+const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
 
 const config = {
-  devtool: 'eval-source-map',
+  devtool: '#source-maps',
   entry: entries,
   plugins: pluginsUsed,
   module: {

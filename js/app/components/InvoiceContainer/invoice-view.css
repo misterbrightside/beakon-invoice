@@ -7,7 +7,13 @@
   transition: opacity .5s ease-in;
 }
 
+#invoices-app {
+	font-family: "Open Sans", Arial, sans-serif;
+}
+
 :local(.invoicesViewContainer) {
+	margin-top: 50px;
+	margin-bottom: 50px;
 	min-height: 70vh;
 	display: flex;
 	justify-content: center;
@@ -24,6 +30,8 @@
 
 :local(address.invoiceAddress) {
 	font-style: normal;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 :local(.invoiceBusinessLogo) {
@@ -141,4 +149,19 @@ tbody > tr:last-child > td:first-child {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
+
+@media print {
+	.site-header {
+		display: none;
+	}
+
+	.site-footer {
+		display: none;
+	}
+
+	:local(.invoiceView) {
+		width: 100%;
+		max-width: 900px;
+	}
 }

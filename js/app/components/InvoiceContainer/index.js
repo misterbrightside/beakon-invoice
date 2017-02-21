@@ -14,7 +14,17 @@ const RedirectToPaymentLoadingLayover = () => (
   </div>
 );
 
-const PrintButton = () => (<button className={buttonStyle.secondary}>Print Invoice</button>);
+const printInvoice = () => {
+  window.print();
+};
+
+const PrintButton = () => (
+  <button
+    className={buttonStyle.secondary}
+    onClick={printInvoice}
+  >
+    Print Invoice
+  </button>);
 
 const PayButton = ({ onPaymentButtonClick, disabled }) => (
   <button
@@ -26,8 +36,13 @@ const PayButton = ({ onPaymentButtonClick, disabled }) => (
   </button>
 );
 
-const LookupNewInvoiceButton = () => (
-  <button className={buttonStyle.secondary}>Look up new invoice</button>
+const LookupNewInvoiceButton = ({ onClickClearState }) => (
+  <button
+    className={buttonStyle.secondary}
+    onClick={onClickClearState}
+  >
+    Look up new invoice
+  </button>
 );
 
 const getRow = (index, data) => (
@@ -41,10 +56,12 @@ const getRow = (index, data) => (
   </tr>
 );
 
-const TopActionButtons = ({ onPaymentButtonClick, disablePayButton }) => (
+const TopActionButtons = ({ onPaymentButtonClick, disablePayButton, onClickClearState }) => (
   <div className={buttonStyle.spaceBetween}>
     <div>
-      <LookupNewInvoiceButton />
+      <LookupNewInvoiceButton
+        onClickClearState={onClickClearState}
+      />
     </div>
     <div className={buttonStyle.spaceButtons}>
       <PrintButton />
@@ -191,10 +208,10 @@ const BusinessInfo = () => (
   </div>
 );
 
-const PaidNotification = () => (
+const PaidNotification = ({ text }) => (
   <div>
     <Alert alertType={'info'}>
-      There was a payment attempt for this invoice at { new Date().toString() }.
+      { text }
     </Alert>
   </div>
 );
@@ -209,7 +226,7 @@ const Invoice = (props) => {
     customer,
   } = props;
   return (
-    <div className={style.invoiceView}>
+    <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
         invoiceId={invoiceId}
         invoiceIssueDate={invoiceIssueDate}
@@ -234,7 +251,7 @@ class InvoiceContainer extends Component {
   };
 
   render() {
-    const { isBlurred, onPaymentButtonClick, disablePayButton } = this.props;
+    const { isBlurred, onPaymentButtonClick, disablePayButton, onClickClearState, notificationText } = this.props;
     const blurStyle = isBlurred ? style.blurred : '';
     return (
       <div>
@@ -243,15 +260,17 @@ class InvoiceContainer extends Component {
             transitionName="displayInvoice"
             transitionAppear
             transitionAppearTimeout={500}
+            transitionLeaveTimeout={500}
             transitionEnter={false}
-            transitionLeave={false}
+            transitionLeave
           >
             <div className={style.invoicesViewContainer}>
               <TopActionButtons
                 onPaymentButtonClick={onPaymentButtonClick}
                 disablePayButton={disablePayButton}
+                onClickClearState={onClickClearState}
               />
-              { disablePayButton ? <PaidNotification /> : null}
+              { disablePayButton ? <PaidNotification text={notificationText} /> : null}
               <Invoice
                 { ...this.props }
               />

@@ -1,0 +1,14 @@
+:local(.flex) {
+	display: flex;
+	flex-direction: column;
+	width: 80%;
+}
+
+:local(.button) {
+	width: 250px;
+	margin: 10px;
+}
+
+:local(.container) {
+	padding: 50px;
+}

@@ -4,7 +4,7 @@ import style from './iframe-css.css';
 export default class IFrame extends Component {
 
   static propTypes = {
-    src: PropTypes.string.isRequired,
+    src: PropTypes.string,
     maybeOnLoad: PropTypes.func.isRequired,
   };
 

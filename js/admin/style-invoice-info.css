@@ -1,0 +1,8 @@
+.meta-row {
+	display: flex;
+}
+
+.meta-th {
+	flex: 0 1 50%;
+	text-transform: capitalize;
+}

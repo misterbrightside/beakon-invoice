@@ -1,18 +1,22 @@
 import 'font-awesome/css/font-awesome.css';
 import React, { PropTypes } from 'react';
+import Tooltip from 'rc-tooltip';
 import style from './login-page.css';
+import 'rc-tooltip/assets/bootstrap.css';
 
-const InvoiceLoginField = ({ value, onUpdateInput, label, errorMessage, isValid, id }) => (
+const InvoiceLoginField = ({ value, onUpdateInput, label, errorMessage, isValid, id, tooltipText }) => (
   <div className={style.loginField}>
     <label
       className={style.fieldLabel}
       htmlFor={id}
     >
       { label }
-      <i
-        className={`fa fa-question-circle ${style.fieldLabelHelpIcon}`}
-        aria-hidden={'true'}
-      />
+      <Tooltip overlay={<span>{tooltipText}</span>}>
+        <i
+          className={`fa fa-question-circle ${style.fieldLabelHelpIcon}`}
+          aria-hidden={'true'}
+        />
+      </Tooltip>
     </label>
     <input
       className={style.fieldInput}
