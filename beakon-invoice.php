@@ -21,6 +21,7 @@ require_once plugin_dir_path( __FILE__ ) . '/public/add_templates.php';
 require_once plugin_dir_path( __FILE__ ) . '/public/api/invoice-endpoints.php';
 
 require_once plugin_dir_path( __FILE__ ) . '/admin/controllers/InvoiceController.php';
+require_once plugin_dir_path( __FILE__ ) . '/admin/controllers/WorldnetPaymentController.php';
 require_once plugin_dir_path( __FILE__ ) . '/admin/models/InvoiceModel.php';
 
 
@@ -33,6 +34,7 @@ function bijb_admin_enqueue_scripts() {
 }
 
 $y = new InvoiceModel();
-$x = new InvoiceController($y);
+$z = new WorldnetPaymentController();
+$x = new InvoiceController($y, $z);
 
 add_action( 'admin_enqueue_scripts', 'bijb_admin_enqueue_scripts' );

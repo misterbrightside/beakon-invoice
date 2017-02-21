@@ -1,24 +1,9 @@
 <?php
-require_once __DIR__ . '/../worldnet/world-net.php';
 
 add_action( 'rest_api_init', function () {
   register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
     'methods' => 'POST',
     'callback' => 'bijb_bulk_add_invoices',
-    ) );
-} );
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( 'beakon-invoices/v1', 'invoices/(?P<id>\d+)', array(
-//     'methods' => 'GET',
-//     'callback' => 'bijb_get_invoice_with_id',
-//     ) );
-// } );
-
-add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'pay-invoice', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_get_details_to_pay_invoice',
     ) );
 } );
 
@@ -89,20 +74,6 @@ function bijb_get_post_title($data) {
 	return "$name - $dateOfInvoice - $id";
 }
 
-function bijb_get_invoice_with_id( $data ) {
-	$invoiceData = get_posts( array( 'id' => $data['id'], 'post_type' => 'invoice' ) );
-	$invoiceMetaData = get_post_meta($data['id']);
-	$data = array( 
-		'invoiceData' => $invoiceData[0],
-		'items' => bijb_get_from_metadata( $invoiceMetaData, 'invoice' ),
-		'customer' => bijb_get_from_metadata( $invoiceMetaData, 'customer' ),
-		'salesDocument' => bijb_get_from_metadata( $invoiceMetaData, 'salesDocument' ),
-		'invoiceStatusId' => $invoiceMetaData['invoiceStatusId'],
-		'dateOfAttemptedPayment' => $meta['dateOfAttemptedPayment'][0]
-	);
-	return new WP_REST_Response( $data );
-}
-
 function bijb_get_from_metadata( $invoiceMetaData, $key ) {
 	if ( !isset($invoiceMetaData[$key]) ) {
 		return array();
@@ -118,35 +89,6 @@ function bijb_get_invoice($query) {
 		$id = $query->posts[0]->ID;
 		return get_post_meta($id);
 	}
-}
-
-function bijb_get_details_to_pay_invoice ( $data ) {
-  $invoiceId = $data['invoiceId'];
-  $amount =  bijb_get_amount_to_pay($invoiceId);
-  $date = bijb_request_date_time();
-  return json_encode(
-    array(
-      'ORDERID' => $invoiceId,
-      'DATETIME' => $date,
-      'requestUrl' => bijb_request_url('worldnet', true),
-      'TERMINALID' => bijb_get_terminal_id(),
-      'CURRENCY' => bijb_get_currency_code(),
-      'RECEIPTPAGEURL' => bijb_get_receipt_page_url(),
-      'AMOUNT' => $amount,
-      'HASH' => bijb_auth_request_hash($invoiceId, $amount, $date)
-    )
-  );
-}
-
-function bijb_get_amount_to_pay($id) {
-	$query = bijb_get_invoice_query($id);
-	$meta = bijb_get_invoice($query);
-	$items = bijb_get_from_metadata( $meta, 'invoice' );
-	$total = 0;
-	foreach ($items as $item) {
-		$total += $item['costAmount'];
-	}
-	return $total;
 }
 
 function bijb_get_invoice_query($id) {

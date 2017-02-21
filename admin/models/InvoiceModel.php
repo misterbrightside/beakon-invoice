@@ -21,6 +21,20 @@ class InvoiceModel {
 		return $this->queryHasAnInvoiceThatExists($query);
 	}
 
+	public function getItemsOfInvoice( $id ) {
+		$invoiceDoc = $this->getInvoiceById( $id );
+		return $invoiceDoc['invoice'];
+	}
+
+	function getTotalAmountToPay( $id ) {
+		$items = $this->getItemsOfInvoice($id);
+		$total = 0;
+		foreach ($items as $item) {
+			$total += $item['costAmount'];
+		}
+		return $total;
+	}
+
 	protected function getInvoiceQueryByInvoiceId( $id ) {
 		$args = array(
 			'numberposts'	=> -1,

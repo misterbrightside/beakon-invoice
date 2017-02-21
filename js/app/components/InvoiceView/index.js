@@ -29,8 +29,7 @@ class InvoiceView extends Component {
     const { number } = this.props;
     this.setState({ displayPaymentRedirectLoading: true });
     InvoiceAPI.getURLForWorldNetPayment(number)
-      .then((paymentDetails) => {
-        const url = InvoiceAPI.redirectToPaymentUrl(paymentDetails);
+      .then(({ url }) => {
         this.setState({
           url,
           redirectToPaymentUrl: true,
