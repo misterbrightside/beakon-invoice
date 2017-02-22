@@ -34,7 +34,7 @@ function bijb_admin_enqueue_scripts() {
 }
 
 $y = new InvoiceModel();
-$z = new WorldnetPaymentController();
+$z = new WorldnetPaymentController($y);
 $x = new InvoiceController($y, $z);
 
 add_action( 'admin_enqueue_scripts', 'bijb_admin_enqueue_scripts' );

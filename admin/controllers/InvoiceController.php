@@ -14,6 +14,7 @@ class InvoiceController {
 	function registerRoutes() {
 		$this->registerGetInvoiceRoute();
 		$this->registerGetWorldnetPaymentUrlRoute();
+		$this->registerPutWorldnetPaymentStatus();
 	}
 
 	protected function registerGetInvoiceRoute() {
@@ -34,6 +35,15 @@ class InvoiceController {
 		);		
 	}
 
+	protected function registerPutWorldnetPaymentStatus() {
+		register_rest_route($this->NAMESPACE, 'invoice' . '/(?P<invoiceId>[A-Za-z0-9\-]+)' . '/payment',
+			array(
+				'methods' => 'GET',
+				'callback' => array($this, 'updatePaymentStatus')
+			)
+		);			
+	}
+
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
 		$invoice = $this->invoiceModel->getInvoiceById($invoiceId);
@@ -42,7 +52,12 @@ class InvoiceController {
 
 	function getWorldnetPaymentUrl( $request ) {
 		$invoiceId = $request['invoiceId'];
-		$amount = $this->invoiceModel->getTotalAmountToPay($invoiceId);
-		return $this->worldnetController->getPaymentUrlOfInvoice($invoiceId, $amount);
+		$amount = $this->invoiceModel->getTotalAmountToPay( $invoiceId );
+		return $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount );
 	}
+
+	function updatePaymentStatus( $request ) {
+		$invoiceId = $request['invoiceId'];
+		return true;
+	} 
 }

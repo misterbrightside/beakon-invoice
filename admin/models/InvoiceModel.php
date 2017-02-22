@@ -7,8 +7,7 @@ require_once 'InvoiceNotFound.php';
 class InvoiceModel {
 
 	public function getInvoiceById( $id ) {
-		$query = $this->getInvoiceQueryByInvoiceId($id);
-		$seralizedMeta = $this->getInvoiceMetaFromQuery($query);
+		$seralizedMeta = $this->getMeta( $id );
 		if ($seralizedMeta !== NULL) {
 			return SeralizeUtils::unserializeArrays($seralizedMeta);
 		} else {
@@ -26,13 +25,28 @@ class InvoiceModel {
 		return $invoiceDoc['invoice'];
 	}
 
-	function getTotalAmountToPay( $id ) {
+	public function getTotalAmountToPay( $id ) {
 		$items = $this->getItemsOfInvoice($id);
 		$total = 0;
 		foreach ($items as $item) {
 			$total += $item['costAmount'];
 		}
 		return $total;
+	}
+
+	public function appendToInvoiceValue( $orderDetails, $invoiceId, $key ) {
+		$internalId = $this->getInternalWordPressId( $invoiceId );
+		$paymentAttempts = get_post_meta($internalId, $key, true);
+		if (!is_array($paymentAttempts)) {
+			$paymentAttempts = array();
+		}
+    	array_push($paymentAttempts, $orderDetails);
+		update_post_meta($internalId, $key, $paymentAttempts);
+	}
+
+	public function getMeta( $id ) {
+		$query = $this->getInvoiceQueryByInvoiceId($id);
+		return $this->getInvoiceMetaFromQuery($query);
 	}
 
 	protected function getInvoiceQueryByInvoiceId( $id ) {
@@ -57,6 +71,12 @@ class InvoiceModel {
 			$id = $query->posts[0]->ID;
 			return get_post_meta($id);
 		}
+	}
+
+	protected function getInternalWordPressId( $id ) {
+		$query = $this->getInvoiceQueryByInvoiceId($id);
+		if (!$this->queryHasAnInvoiceThatExists($query)) return NULL;
+		else return $query->posts[0]->ID;
 	}
 
 	protected function queryHasAnInvoiceThatExists( $query ) {
