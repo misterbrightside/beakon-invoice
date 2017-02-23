@@ -25,11 +25,12 @@ export default class InvoiceAPI {
   }
 
   static updatePaymentStatusOfInvoice(payload) {
-    return fetch('/wp-json/beakon-invoices/v1/update-payment-status-of-invoice', {
+    debugger;
+    const id = payload.ORDERID;
+    return fetch(`/wp-json/beakon-invoices/v1/invoice/${id}/payment`, {
       method: 'POST',
       body: this.getUpdateInfoForSavingInvoice(payload),
     })
-      .then(response => response.json())
-      .then(json => JSON.parse(json));
+      .then(response => response.json());
   }
 }

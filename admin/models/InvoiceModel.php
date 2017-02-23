@@ -1,10 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../utils/unseralize-utils.php';
+require_once __DIR__ . '/../controllers/WorldnetPaymentController.php';
 require_once 'InvoiceNotFound.php';
 
 
 class InvoiceModel {
+	protected $worldnetPaymentController;
+
+	public function __construct() {
+		$this->worldnetPaymentController = new WorldnetPaymentController();
+	}
 
 	public function getInvoiceById( $id ) {
 		$seralizedMeta = $this->getMeta( $id );
@@ -47,6 +53,33 @@ class InvoiceModel {
 	public function getMeta( $id ) {
 		$query = $this->getInvoiceQueryByInvoiceId($id);
 		return $this->getInvoiceMetaFromQuery($query);
+	}
+
+	public function addPaymentAttemptResponse( $request ) {
+		$paymentAttemptResponse = $this->getWorldnetPayLoad($request);
+		$id = $this->getInternalWordPressId($paymentAttemptResponse['ORDERID']);
+		if ($this->worldnetPaymentController->isValidPayload($paymentAttemptResponse)) {
+			$x = update_post_meta( $id, 'invoiceStatusId', sanitize_text_field( $paymentAttemptResponse['RESPONSECODE'] ) );
+			$y = update_post_meta( $id, 'dateOfAttemptedPayment', sanitize_text_field( $paymentAttemptResponse['DATETIME'] ) );
+		}
+		$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
+		return $paymentAttemptResponse;
+	}
+
+	protected function getWorldnetPayLoad( $request ) {
+		return array(
+			'RESPONSECODE' => $request['RESPONSECODE'],
+			'DATETIME' => $request['DATETIME'],
+			'RESPONSETEXT' => $request['RESPONSETEXT'],
+			'AMOUNT' => $request['AMOUNT'],
+			'APPROVALCODE' => $request['APPROVALCODE'],
+			'CVVRESPONSE' => $request['CVVRESPONSE'],
+			'EMAIL' => $request['EMAIL'],
+			'HASH' => $request['HASH'],
+			'ORDERID' => $request['ORDERID'],
+			'RESPONSETEXT' => $request['RESPONSETEXT'],
+			'UNIQUEREF' => $request['UNIQUEREF']
+		);
 	}
 
 	protected function getInvoiceQueryByInvoiceId( $id ) {

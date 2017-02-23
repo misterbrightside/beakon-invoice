@@ -1,13 +1,16 @@
 <?php
 
+require_once 'WorldnetPaymentController.php';
+require_once __DIR__ . '/../models/InvoiceModel.php';
+
 class InvoiceController {
 	protected $invoiceModel;
 	protected $NAMESPACE = 'beakon-invoices/v1';
 	protected $worldnetController;
 
-	public function __construct( $invoiceModel, $worldnetController ) {
-		$this->invoiceModel = $invoiceModel;
-		$this->worldnetController = $worldnetController;
+	public function __construct() {
+		$this->invoiceModel = new InvoiceModel();
+		$this->worldnetController = new WorldnetPaymentController();
 		add_action('rest_api_init', array($this, 'registerRoutes'));
 	}
 
@@ -38,7 +41,7 @@ class InvoiceController {
 	protected function registerPutWorldnetPaymentStatus() {
 		register_rest_route($this->NAMESPACE, 'invoice' . '/(?P<invoiceId>[A-Za-z0-9\-]+)' . '/payment',
 			array(
-				'methods' => 'GET',
+				'methods' => 'POST',
 				'callback' => array($this, 'updatePaymentStatus')
 			)
 		);			
@@ -53,11 +56,13 @@ class InvoiceController {
 	function getWorldnetPaymentUrl( $request ) {
 		$invoiceId = $request['invoiceId'];
 		$amount = $this->invoiceModel->getTotalAmountToPay( $invoiceId );
-		return $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount );
+		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount );
+		$this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
+		return $orderAttempt['url'];
 	}
 
 	function updatePaymentStatus( $request ) {
-		$invoiceId = $request['invoiceId'];
-		return true;
+		$result = $this->invoiceModel->addPaymentAttemptResponse( $request );
+		return $result;
 	} 
 }

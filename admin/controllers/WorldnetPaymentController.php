@@ -1,12 +1,6 @@
 <?php
 
 class WorldnetPaymentController {
-	protected $invoiceModel;
-
-	public function __construct( $invoiceModel ) {
-		$this->invoiceModel = $invoiceModel;
-	}
-
 	protected function getTerminalId() {
 		return '3125001';
 	}
@@ -58,12 +52,26 @@ class WorldnetPaymentController {
 
 	function processOrderAndGetUrlForPayment( $invoiceId, $amount ) {
 		$orderDetails = $this->getParamsForOrder( $invoiceId, $amount );
-		$this->saveOrderDetails( $orderDetails, $invoiceId );
-		return $this->getPaymentUrlOfInvoice( $orderDetails );
+		return array(
+			'url' => $this->getPaymentUrlOfInvoice( $orderDetails ),
+			'details' => $orderDetails,
+		);
 	}
 
-	function saveOrderDetails( $orderDetails, $invoiceId ) {
-		$this->invoiceModel->appendToInvoiceValue($orderDetails, $invoiceId, 'paymentAttempts');
+	function isValidPayload($args) {
+		return $args['HASH'] === $this->getResponseHash($args);
+	}
+
+	function getResponseHash($args) {
+		return md5(
+			$this->getTerminalId() . 	
+			$args['ORDERID'] .
+			$args['AMOUNT'] .
+			$args['DATETIME'] .
+			$args['RESPONSECODE'] .
+			$args['RESPONSETEXT'] .
+			$this->getSecret()
+		);
 	}
 
 	protected function getParamsForOrder( $id, $amount ) {
