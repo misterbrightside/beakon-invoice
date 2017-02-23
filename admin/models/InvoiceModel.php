@@ -59,10 +59,8 @@ class InvoiceModel {
 		$paymentAttemptResponse = $this->getWorldnetPayLoad($request);
 		$id = $this->getInternalWordPressId($paymentAttemptResponse['ORDERID']);
 		if ($this->worldnetPaymentController->isValidPayload($paymentAttemptResponse)) {
-			$x = update_post_meta( $id, 'invoiceStatusId', sanitize_text_field( $paymentAttemptResponse['RESPONSECODE'] ) );
-			$y = update_post_meta( $id, 'dateOfAttemptedPayment', sanitize_text_field( $paymentAttemptResponse['DATETIME'] ) );
+			$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		}
-		$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		return $paymentAttemptResponse;
 	}
 

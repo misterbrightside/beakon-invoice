@@ -55,8 +55,6 @@ function bijb_add_invoice( $data ) {
 	add_post_meta($postId, 'customer', $data['customer']);
 	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
 	add_post_meta($postId, 'invoice', $data['invoice']);
-	add_post_meta($postId, 'invoiceStatusId', 'NOT PAID');
-	add_post_meta($postId, 'dateOfAttemptedPayment', 'NEVER');
 	return $postId;
 }
 
