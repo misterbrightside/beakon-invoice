@@ -4,7 +4,7 @@ import LoadingIndicator from '../LoadingIndicator/';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import Alert from '../Alert/';
 import style from './invoice-view.css';
-import { round } from 'lodash';
+import { round, uniqueId } from 'lodash';
 
 const RedirectToPaymentLoadingLayover = () => (
   <div className={style.overlay}>
@@ -49,7 +49,7 @@ const getRow = (index, data) => (
   <tr key={index} className={style.invoiceItemTableRow}>
     { data.map(value => (
       <td
-        key={`item-in-invoice-${value}`}
+        key={uniqueId()}
         className={style.invoiceItemCell}
       >{value}</td>),
     ) }
@@ -129,27 +129,25 @@ const InvoiceHeader = ({ invoiceId, invoiceIssueDate }) => (
   </div>
 );
 
-const CustomerAddress = ({ name, address1, address2, address3, address4, address5, address6 }) => (
+const CustomerAddress = ({ name, ...address }) => (
   <address className={`${style.invoiceAddress} ${style.customerAddress}`}>
     <div>
       <strong>{ name }</strong>
     </div>
-    { address1 ? <div>{ address1 },</div> : null }
-    { address2 ? <div>{ address2 },</div> : null }
-    { address3 ? <div>{ address3 },</div> : null }
-    { address4 ? <div>{ address4 },</div> : null }
-    { address5 ? <div>{ address5 },</div> : null }
-    { address6 ? <div>{ address6 } </div> : null }
+    { Object.keys(address).map(addressKey => address[addressKey] ? <div>{ address[addressKey] }</div> : null) }
   </address>
 );
 
-const ItemsTotal = ({ subTotal, VAT, total }) => (
-  <tfoot className={style.invoicesFooter}>
-    { getRow(1, ['', 'Subtotal', `€${subTotal}`]) }
-    { getRow(2, ['', 'VAT', `€${VAT}`]) }
-    { getRow(3, ['', 'Total', `€${total}`]) }
-  </tfoot>
-);
+const ItemsTotal = ({ subTotal, VAT, total }) => {
+  const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
+  return (
+    <tfoot className={style.invoicesFooter}>
+      { getRow(1, ['', 'Subtotal', `€${subTotal}`]) }
+      { getRow(2, ['', 'VAT', `€${VAT}`]) }
+      { getRow(3, ['', <span className={style.totalString}>Total</span>, totalCost]) }
+    </tfoot>
+  );
+};
 
 const Items = ({ items }) => (
   <tbody className={style.invoiceTableBody}>
@@ -232,7 +230,14 @@ const Invoice = (props) => {
         invoiceIssueDate={invoiceIssueDate}
       />
       <CustomerAddress
-        {...customer}
+        name={customer.name}
+        address1={customer.address1}
+        address2={customer.address2}
+        address3={customer.address3}
+        address4={customer.address4}
+        address5={customer.address5}
+        address5={customer.address5}
+        address6={customer.address6}
       />
       <ItemsPurchased
         items={items}

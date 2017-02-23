@@ -17,7 +17,7 @@ const entries = {
 
 const pluginsUsed = [
   // new webpack.optimize.UglifyJsPlugin(),
-  new ExtractTextPlugin("[name]-styles.css"),
+  // new ExtractTextPlugin("[name]-styles.css"),
 ];
 
 pluginsUsed.push(
@@ -28,7 +28,8 @@ pluginsUsed.push(
 
 const cssIdentifer = '[path][name]---[local]';
 
-const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
+// const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
+const cssLoader = [ 'style-loader', 'css-loader?localIdentName=' + cssIdentifer ];
 
 const config = {
   devtool: '#source-maps',

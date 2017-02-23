@@ -1,5 +1,6 @@
 :local(button.primary) {
 	border-radius: 5px;
+	border: none;
 	background: linear-gradient(to right, #e72128, #b32024);
 	text-transform: uppercase;
 	color: white;

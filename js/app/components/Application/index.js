@@ -41,7 +41,7 @@ export default class PayInvoicesApplication extends Component {
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceId ? salesDocument : {},
         items: invoice,
-        paymentResponse: paymentResponse[paymentResponse.length - 1],
+        paymentResponse: paymentResponse ? paymentResponse[paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
         customer
       }),
     }))

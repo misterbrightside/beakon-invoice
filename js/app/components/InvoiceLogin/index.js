@@ -1,10 +1,14 @@
 import React, { Component, PropTypes } from 'react';
 import InvoiceLoginField from './InvoiceLoginField';
 import style from './login-page.css';
+import buttonStyle from '../Button/button.css';
 
 const CheckInvoiceButton = () => (
   <div className={style.findInvoiceButtonContainer}>
-    <button type={'submit'}>
+    <button
+      type={'submit'}
+      className={buttonStyle.primary}
+      >
       Find my invoice ➔
     </button>
   </div>
