@@ -12,13 +12,36 @@ class InvoiceModel {
 		$this->worldnetPaymentController = new WorldnetPaymentController();
 	}
 
-	public function getInvoiceById( $id ) {
-		$seralizedMeta = $this->getMeta( $id );
+	public function getInvoiceByID( $id, $key ) {
+		$seralizedMeta = $this->getMeta( $id, $key );
 		if ($seralizedMeta !== NULL) {
 			return SeralizeUtils::unserializeArrays($seralizedMeta);
 		} else {
 			return InvoiceNotFound::getNotFoundObject();
 		}
+	}
+
+	public function addInvoice( $invoice ) {
+		$postId = wp_insert_post(
+			array(
+				'post_type' => 'invoice',
+				'post_status' => 'publish',
+				'post_title' => $this->getInvoiceTitle($invoice)
+			)
+		);
+		add_post_meta($postId, 'invoiceId', $invoice['salesDocument']['number']);
+		add_post_meta($postId, 'workingOrder', $invoice['salesDocument']['remarks']);
+		add_post_meta($postId, 'customer', $invoice['customer']);
+		add_post_meta($postId, 'salesDocument', $invoice['salesDocument']);
+		add_post_meta($postId, 'invoice', $invoice['invoice']);
+		return $postId;
+	}
+
+	protected function getInvoiceTitle( $data ) {
+		$name = $data['customer']['name'];
+		$dateOfInvoice = $data['salesDocument']['postDate'];
+		$id = $data['salesDocument']['number'];
+		return "$name - $dateOfInvoice - $id";
 	}
 
 	public function checkIfInvoiceExists( $id ) {
@@ -27,7 +50,7 @@ class InvoiceModel {
 	}
 
 	public function getItemsOfInvoice( $id ) {
-		$invoiceDoc = $this->getInvoiceById( $id );
+		$invoiceDoc = $this->getInvoiceByID( $id );
 		return $invoiceDoc['invoice'];
 	}
 
@@ -50,8 +73,8 @@ class InvoiceModel {
 		update_post_meta($internalId, $key, $paymentAttempts);
 	}
 
-	public function getMeta( $id ) {
-		$query = $this->getInvoiceQueryByInvoiceId($id);
+	public function getMeta( $id, $key = 'invoiceId' ) {
+		$query = $this->getInvoiceQueryByInvoiceId($id, $key);
 		return $this->getInvoiceMetaFromQuery($query);
 	}
 
@@ -80,13 +103,13 @@ class InvoiceModel {
 		);
 	}
 
-	protected function getInvoiceQueryByInvoiceId( $id ) {
+	protected function getInvoiceQueryByInvoiceId( $id, $key ) {
 		$args = array(
 			'numberposts'	=> -1,
 			'post_type'		=> 'invoice',
 			'meta_query' 	=> array(
 				array(
-					'key' 		=> 'invoiceId',
+					'key' 		=> $key,
 					'value' 	=> $id,
 					'compare' 	=> '='
 				)

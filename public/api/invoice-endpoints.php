@@ -1,33 +1,33 @@
 <?php
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_bulk_add_invoices',
-    ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( 'beakon-invoices/v1', 'add-invoices', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_bulk_add_invoices',
+//     ) );
+// } );
 
-add_action( 'rest_api_init', function () { 
-  register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
-    'methods' => 'POST',
-    'callback' => 'bijb_add_invoice',
-    ) );
-} );
+// add_action( 'rest_api_init', function () { 
+//   register_rest_route( 'beakon-invoices/v1', 'add-invoice', array(
+//     'methods' => 'POST',
+//     'callback' => 'bijb_add_invoice',
+//     ) );
+// } );
 
-function bijb_bulk_add_invoices( $data) {
-	$invoices = json_decode($data['invoices'], true);
-	$response = array();
-	foreach ($invoices as $invoice) {
-		if (! bijb_check_if_invoice_exists_bool( $invoice['salesDocument']['number']) && $invoice['customer'] != NULL) {
-			$id = bijb_add_invoice( $invoice );
-			array_push($response, (array('passed' => true, 'id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
-		}
-		else {
-			array_push($response, (array('passed' => false, 'salesInvoice' => $invoice['salesDocument']['number'])));
-		}
-	}
-	return json_encode($response);
-}
+// function bijb_bulk_add_invoices( $data) {
+// 	$invoices = json_decode($data['invoices'], true);
+// 	$response = array();
+// 	foreach ($invoices as $invoice) {
+// 		if (! bijb_check_if_invoice_exists_bool( $invoice['salesDocument']['number']) && $invoice['customer'] != NULL) {
+// 			$id = bijb_add_invoice( $invoice );
+// 			array_push($response, (array('passed' => true, 'id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
+// 		}
+// 		else {
+// 			array_push($response, (array('passed' => false, 'salesInvoice' => $invoice['salesDocument']['number'])));
+// 		}
+// 	}
+// 	return json_encode($response);
+// }
 
 function bijb_check_if_invoice_exists_bool( $invoiceId ) {
 	$args = array(
@@ -45,25 +45,25 @@ function bijb_check_if_invoice_exists_bool( $invoiceId ) {
 	return $query->have_posts();
 }
 
-function bijb_add_invoice( $data ) {
-	$postId = wp_insert_post(array(
-		'post_type' => 'invoice',
-		'post_status' => 'publish',
-		'post_title' => bijb_get_post_title($data)
-	));
-	add_post_meta($postId, 'invoiceId', $data['salesDocument']['number']);
-	add_post_meta($postId, 'customer', $data['customer']);
-	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
-	add_post_meta($postId, 'invoice', $data['invoice']);
-	return $postId;
-}
+// function bijb_add_invoice( $data ) {
+// 	$postId = wp_insert_post(array(
+// 		'post_type' => 'invoice',
+// 		'post_status' => 'publish',
+// 		'post_title' => bijb_get_post_title($data)
+// 	));
+// 	add_post_meta($postId, 'invoiceId', $data['salesDocument']['number']);
+// 	add_post_meta($postId, 'customer', $data['customer']);
+// 	add_post_meta($postId, 'salesDocument', $data['salesDocument']);
+// 	add_post_meta($postId, 'invoice', $data['invoice']);
+// 	return $postId;
+// }
 
-function bijb_get_post_title($data) {
-	$name = $data['customer']['name'];
-	$dateOfInvoice = $data['salesDocument']['postDate'];
-	$id = $data['salesDocument']['number'];
-	return "$name - $dateOfInvoice - $id";
-}
+// function bijb_get_post_title($data) {
+// 	$name = $data['customer']['name'];
+// 	$dateOfInvoice = $data['salesDocument']['postDate'];
+// 	$id = $data['salesDocument']['number'];
+// 	return "$name - $dateOfInvoice - $id";
+// }
 
 function bijb_get_from_metadata( $invoiceMetaData, $key ) {
 	if ( !isset($invoiceMetaData[$key]) ) {

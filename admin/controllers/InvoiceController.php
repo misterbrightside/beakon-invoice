@@ -15,9 +15,19 @@ class InvoiceController {
 	}
 
 	function registerRoutes() {
+		$this->registerPostAddInvoices();
 		$this->registerGetInvoiceRoute();
 		$this->registerGetWorldnetPaymentUrlRoute();
 		$this->registerPutWorldnetPaymentStatus();
+	}
+
+	protected function registerPostAddInvoices() {
+		register_rest_route($this->NAMESPACE, 'invoice',
+			array(
+				'methods' => 'POST',
+				'callback' => array($this, 'addInvoices')
+			)
+		);		
 	}
 
 	protected function registerGetInvoiceRoute() {
@@ -47,9 +57,20 @@ class InvoiceController {
 		);			
 	}
 
+	function addInvoices( $request ) {
+		$invoices = json_decode($request['invoices'], true);
+		$response = array();
+		foreach ($invoices as $invoice) {
+			$id = $this->invoiceModel->addInvoice( $invoice );
+			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
+		}
+		return json_encode($response);
+	}
+
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
-		$invoice = $this->invoiceModel->getInvoiceById($invoiceId);
+		if (substr( $invoiceId, 0, 3 ) === "SI-") $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
+		else $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
 		return $invoice;
 	}
 
