@@ -11,7 +11,7 @@ const InvoiceLoginField = ({ value, onUpdateInput, label, errorMessage, isValid,
       htmlFor={id}
     >
       { label }
-      <Tooltip overlay={<span>{tooltipText}</span>}>
+      <Tooltip overlay={<span className={style.tooltipText}>{tooltipText}</span>}>
         <i
           className={`fa fa-question-circle ${style.fieldLabelHelpIcon}`}
           aria-hidden={'true'}

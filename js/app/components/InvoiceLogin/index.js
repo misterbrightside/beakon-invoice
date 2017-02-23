@@ -44,7 +44,7 @@ class InvoiceLogin extends Component {
       valid: PropTypes.bool.isRequired,
       touched: PropTypes.bool.isRequired,
     }),
-    surname: PropTypes.shape({
+    accountCode: PropTypes.shape({
       value: PropTypes.string.isRequired,
       valid: PropTypes.bool.isRequired,
       touched: PropTypes.bool.isRequired,
@@ -59,10 +59,15 @@ class InvoiceLogin extends Component {
     this.props[field].valid || !this.props[field].touched
   )
 
+  isValidInvoiceNumber = field => {
+    const value = this.props[field].value;
+    return (value.startsWith('SI-') || value.startsWith('WO-') || !this.props[field].touched) && this.isValid(field);
+  }
+
   render() {
     const {
       invoiceId,
-      surname,
+      accountCode,
       isSearchingForInvoice,
       invoiceErrorMessage,
       onSubmitForm,
@@ -81,17 +86,17 @@ class InvoiceLogin extends Component {
             label={'Invoice Number'}
             value={invoiceId.value}
             onUpdateInput={updateFieldValue('invoiceId')}
-            errorMessage={<InputFieldError label={'You must enter a valid invoice reference.'} />}
-            isValid={this.isValid('invoiceId')}
-            tooltipText={'This must be a valid invoice string which you have recieved!'}
+            errorMessage={<InputFieldError label={'You must enter a valid invoice reference. Ensure input stats with SI- or WO-'} />}
+            isValid={this.isValidInvoiceNumber('invoiceId')}
+            tooltipText={'This must be a valid SI number or WO number which you have recieved!'}
           />
           <InvoiceLoginField
-            label={'Surname'}
-            value={surname.value}
-            onUpdateInput={updateFieldValue('surname')}
-            errorMessage={<InputFieldError label={'You must enter a valid surname.'} />}
-            isValid={this.isValid('surname')}
-            tooltipText={'This is subject to change.'}
+            label={'Account Code'}
+            value={accountCode.value}
+            onUpdateInput={updateFieldValue('accountCode')}
+            errorMessage={<InputFieldError label={'You must enter a valid accountCode. i.e. NAME01'} />}
+            isValid={this.isValid('accountCode')}
+            tooltipText={'The account number provided on your invoice. i.e. NAME01'}
           />
           <CheckInvoiceButton />
           { invoiceErrorMessage ?
