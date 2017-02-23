@@ -1,7 +1,6 @@
 <?php
 
 class WorldnetPaymentController {
-
 	protected function getTerminalId() {
 		return '3125001';
 	}
@@ -51,7 +50,31 @@ class WorldnetPaymentController {
 		);
 	}
 
-	protected function getParamsForOrderUrl( $id, $amount ) {
+	function processOrderAndGetUrlForPayment( $invoiceId, $amount ) {
+		$orderDetails = $this->getParamsForOrder( $invoiceId, $amount );
+		return array(
+			'url' => $this->getPaymentUrlOfInvoice( $orderDetails ),
+			'details' => $orderDetails,
+		);
+	}
+
+	function isValidPayload($args) {
+		return $args['HASH'] === $this->getResponseHash($args);
+	}
+
+	function getResponseHash($args) {
+		return md5(
+			$this->getTerminalId() . 	
+			$args['ORDERID'] .
+			$args['AMOUNT'] .
+			$args['DATETIME'] .
+			$args['RESPONSECODE'] .
+			$args['RESPONSETEXT'] .
+			$this->getSecret()
+		);
+	}
+
+	protected function getParamsForOrder( $id, $amount ) {
 		$date = $this->getDate();
 		return array(
 			'ORDERID' => $id,
@@ -64,9 +87,8 @@ class WorldnetPaymentController {
 		);
 	}
 
-	public function getPaymentUrlOfInvoice( $id, $amount ) {
+	protected function getPaymentUrlOfInvoice( $orderArgs ) {
 		$requestUrl = $this->getRequestUrl('worldnet', true);
-		$params = $this->getParamsForOrderUrl( $id, $amount );
-		return array('url' => $requestUrl . '?' . http_build_query($params));
+		return array('url' => $requestUrl . '?' . http_build_query($orderArgs));
 	}
 }
