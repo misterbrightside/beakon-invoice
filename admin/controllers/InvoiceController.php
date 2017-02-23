@@ -2,6 +2,8 @@
 
 require_once 'WorldnetPaymentController.php';
 require_once __DIR__ . '/../models/InvoiceModel.php';
+require_once __DIR__ . '/../models/InvoiceNotFound.php';
+
 
 class InvoiceController {
 	protected $invoiceModel;
@@ -69,9 +71,14 @@ class InvoiceController {
 
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
+		$accountCode = $request['accountCode'];
 		if (substr( $invoiceId, 0, 3 ) === "SI-") $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
 		else $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
-		return $invoice;
+		if ($invoice['salesDocument']['customerCode'] === $accountCode) {
+			return $invoice;
+		} else {
+			return InvoiceNotFound::getNotFoundObject();
+		}
 	}
 
 	function getWorldnetPaymentUrl( $request ) {

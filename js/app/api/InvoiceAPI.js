@@ -2,8 +2,8 @@ import { escape } from 'lodash';
 
 export default class InvoiceAPI {
 
-  static checkWhetherInvoiceExists(invoiceId, surname) {
-    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId}`, {
+  static checkWhetherInvoiceExists(invoiceId, accountCode) {
+    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId}?accountCode=${accountCode}`, {
       method: 'GET',
     }).then(response => response.json());
   }
