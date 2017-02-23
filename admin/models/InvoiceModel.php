@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/../utils/unseralize-utils.php';
 require_once __DIR__ . '/../controllers/WorldnetPaymentController.php';
-require_once 'InvoiceNotFound.php';
-
 
 class InvoiceModel {
 	protected $worldnetPaymentController;
@@ -17,7 +15,7 @@ class InvoiceModel {
 		if ($seralizedMeta !== NULL) {
 			return SeralizeUtils::unserializeArrays($seralizedMeta);
 		} else {
-			return InvoiceNotFound::getNotFoundObject();
+			return $seralizedMeta;
 		}
 	}
 

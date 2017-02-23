@@ -3,13 +3,14 @@ import InvoiceLoginField from './InvoiceLoginField';
 import style from './login-page.css';
 import buttonStyle from '../Button/button.css';
 
-const CheckInvoiceButton = () => (
+const CheckInvoiceButton = ({ disabled }) => (
   <div className={style.findInvoiceButtonContainer}>
     <button
       type={'submit'}
       className={buttonStyle.primary}
-      >
-      Find my invoice ➔
+      disabled={disabled}
+    >
+      Find my invoice
     </button>
   </div>
 );
@@ -86,7 +87,7 @@ class InvoiceLogin extends Component {
             label={'Invoice Number'}
             value={invoiceId.value}
             onUpdateInput={updateFieldValue('invoiceId')}
-            errorMessage={<InputFieldError label={'You must enter a valid invoice reference. Ensure input stats with SI- or WO-'} />}
+            errorMessage={<InputFieldError label={'‘Your invoice number does not match the correct format. It should take the form “SI-“ or “WO-“ followed by 6 digits.'} />}
             isValid={this.isValidInvoiceNumber('invoiceId')}
             tooltipText={'This must be a valid SI number or WO number which you have recieved!'}
           />
@@ -98,7 +99,7 @@ class InvoiceLogin extends Component {
             isValid={this.isValid('accountCode')}
             tooltipText={'The account number provided on your invoice. i.e. NAME01'}
           />
-          <CheckInvoiceButton />
+          <CheckInvoiceButton disabled={!(this.isValid('accountCode') && this.isValidInvoiceNumber('invoiceId'))} />
           { invoiceErrorMessage ?
             <InvoiceAPISearchIndicator
               invoiceErrorMessage={invoiceErrorMessage}

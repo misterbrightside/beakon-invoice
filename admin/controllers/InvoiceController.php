@@ -74,7 +74,7 @@ class InvoiceController {
 		$accountCode = $request['accountCode'];
 		if (substr( $invoiceId, 0, 3 ) === "SI-") $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
 		else $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
-		if ($invoice['salesDocument']['customerCode'] === $accountCode) {
+		if ( $invoice !== NULL && $invoice['salesDocument']['customerCode'] === $accountCode) {
 			return $invoice;
 		} else {
 			return InvoiceNotFound::getNotFoundObject();

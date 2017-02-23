@@ -36,7 +36,7 @@ export default class PayInvoicesApplication extends Component {
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
-        invoiceErrorMessage: !invoiceId ? 'No invoice found!' : '',
+        invoiceErrorMessage: !invoiceId ? 'The invoice number and reference number you provided did not match. Please ensure you have entered both correctly.' : '',
       }),
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceId ? salesDocument : {},
