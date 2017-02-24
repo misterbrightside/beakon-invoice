@@ -92,7 +92,7 @@ const Logo = () => (
   </div>
 );
 
-const BusinessAddress = ({ inline, displayLogo }) => {
+const BusinessAddress = ({ inline, displayLogo, children }) => {
   const address = ['Dundalk Oil Products Limited,', 'Brewer Business Park,', 'Ardee Road, Co. Louth.'];
   return (
     <div className={style.businessAddress}>
@@ -104,26 +104,31 @@ const BusinessAddress = ({ inline, displayLogo }) => {
             address.map(addressLine => <div>{ addressLine }</div>)
         }
       </address>
+      { children }
     </div>
   );
 };
 
-const InvoiceMetaDetails = ({ invoiceId, invoiceIssueDate }) => (
+const InvoiceMetaDetails = ({ invoiceId, remarks, invoiceIssueDate }) => (
   <div className={style.invoiceMetaDetails}>
     <h2 className={style.invoiceHeader}>Invoice</h2>
     <div>Invoice # { invoiceId }</div>
-    <div>{ invoiceIssueDate }</div>
+    <div>{ remarks }</div>
+    <div>Invoice Date - { invoiceIssueDate }</div>
   </div>
 );
 
-const InvoiceHeader = ({ invoiceId, invoiceIssueDate }) => (
+const InvoiceHeader = ({ invoiceId, remarks, invoiceIssueDate }) => (
   <div className={style.invoiceViewHeader}>
     <BusinessAddress
       inline={false}
       displayLogo={true}
-    />
+    >
+       <strong>Licence Number</strong> AFTL DK058C MFTL 1005057
+    </BusinessAddress>
     <InvoiceMetaDetails
       invoiceId={invoiceId}
+      remarks={remarks}
       invoiceIssueDate={invoiceIssueDate}
     />
   </div>
@@ -142,25 +147,32 @@ const ItemsTotal = ({ subTotal, VAT, total }) => {
   const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
   return (
     <tfoot className={style.invoicesFooter}>
-      { getRow(1, ['', 'Subtotal', `€${subTotal}`]) }
-      { getRow(2, ['', 'VAT', `€${VAT}`]) }
-      { getRow(3, ['', <span className={style.totalString}>Total</span>, totalCost]) }
+      { getRow(1, ['', '', '', '', 'Subtotal', `€${subTotal}`]) }
+      { getRow(2, ['', '', '', '', 'VAT', `€${VAT}`]) }
+      { getRow(3, ['', '', '', '', <span className={style.totalString}>Total</span>, totalCost]) }
+      { getRow(4, ['', '', '', '', <span className={style.totalString}>Paid</span>, `€0`]) }
+      { getRow(5, ['', '', '', '', <span className={style.totalString}>Outstanding</span>, `€0`])}
     </tfoot>
   );
 };
 
-const Items = ({ items }) => (
-  <tbody className={style.invoiceTableBody}>
-    { items.map((item, index) => getRow(`'item-${index}`, [item.name, round(item.qty, 2), `€${ round(item.qty * item.salePrice, 2) }`] )) }
-  </tbody>
-);
+const Items = ({ items }) => {
+  return (
+    <tbody className={style.invoiceTableBody}>
+      { items.map((item, index) => getRow(`'item-${index}`, [item.name, item.qty, `€${item.salePrice}`, `€${item.amountVatExc}`, `€${item.vatAmount}`, `€${round(parseFloat(item.qty, 10) * parseFloat(item.salePriceVatInclusive, 10), 2)}`] )) }
+    </tbody>
+  )
+};
 
 const TableHeader = () => (
   <thead>
     <tr className={style.invoiceItemTableRow}>
-      <th className={style.invoiceItemCell}>Line Items</th>
+      <th className={style.invoiceItemCell}>Name/Description</th>
       <th className={style.invoiceItemCell}>Quantity</th>
-      <th className={style.invoiceItemCell}>Amount</th>
+      <th className={style.invoiceItemCell}>Price per unit (Ex. VAT)</th>
+      <th className={style.invoiceItemCell}>Price (Ex. VAT)</th>
+      <th className={style.invoiceItemCell}>VAT</th>
+      <th className={style.invoiceItemCell}>Price (Inc. VAT)</th>
     </tr>
   </thead>
 );
@@ -222,12 +234,14 @@ const Invoice = (props) => {
     postDate: invoiceIssueDate,
     items,
     customer,
+    remarks
   } = props;
   return (
     <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
         invoiceId={invoiceId}
         invoiceIssueDate={invoiceIssueDate}
+        remarks={remarks}
       />
       <CustomerAddress
         name={customer.name}

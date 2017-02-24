@@ -3,7 +3,7 @@ import { escape } from 'lodash';
 export default class InvoiceAPI {
 
   static checkWhetherInvoiceExists(invoiceId, accountCode) {
-    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId}?accountCode=${accountCode}`, {
+    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId.toUpperCase()}?accountCode=${accountCode.toUpperCase()}`, {
       method: 'GET',
     }).then(response => response.json());
   }

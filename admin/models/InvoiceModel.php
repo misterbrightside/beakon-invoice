@@ -20,13 +20,18 @@ class InvoiceModel {
 	}
 
 	public function addInvoice( $invoice ) {
-		$postId = wp_insert_post(
-			array(
-				'post_type' => 'invoice',
-				'post_status' => 'publish',
-				'post_title' => $this->getInvoiceTitle($invoice)
-			)
-		);
+		$invoiceId = $invoice['salesDocument']['number'];
+		if ($this->getInvoiceByID($invoiceId, 'invoiceId') === NULL) {  
+			$postId = wp_insert_post(
+				array(
+					'post_type' => 'invoice',
+					'post_status' => 'publish',
+					'post_title' => $this->getInvoiceTitle($invoice)
+				)
+			);
+		} else {
+			$postId = $this->getInternalWordPressId($invoiceId);
+		}
 		add_post_meta($postId, 'invoiceId', $invoice['salesDocument']['number']);
 		add_post_meta($postId, 'workingOrder', $invoice['salesDocument']['remarks']);
 		add_post_meta($postId, 'customer', $invoice['customer']);
