@@ -48,7 +48,7 @@ class InvoiceModel {
 	}
 
 	public function getItemsOfInvoice( $id ) {
-		$invoiceDoc = $this->getInvoiceByID( $id );
+		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
 		return $invoiceDoc['invoice'];
 	}
 
@@ -126,7 +126,7 @@ class InvoiceModel {
 	}
 
 	protected function getInternalWordPressId( $id ) {
-		$query = $this->getInvoiceQueryByInvoiceId($id);
+		$query = $this->getInvoiceQueryByInvoiceId($id, 'invoiceId');
 		if (!$this->queryHasAnInvoiceThatExists($query)) return NULL;
 		else return $query->posts[0]->ID;
 	}
