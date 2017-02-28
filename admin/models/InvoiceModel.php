@@ -61,7 +61,7 @@ class InvoiceModel {
 		$items = $this->getItemsOfInvoice($id);
 		$total = 0;
 		foreach ($items as $item) {
-			$total += $item['costAmount'];
+			$total += $item['vatAmount'] + $item['amountVatExc'];
 		}
 		return $total;
 	}

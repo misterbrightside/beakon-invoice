@@ -60,6 +60,7 @@ export default class PayInvoicesApplication extends Component {
         invoiceErrorMessage: '',
         invoiceId: this.getInitialInputState(),
         accountCode: this.getInitialInputState(),
+        emailAddress: this.getInitialInputState(),
       },
       invoice: {
         payload: {},
@@ -144,6 +145,7 @@ export default class PayInvoicesApplication extends Component {
         customer={invoice.customer}
         paymentResponse={invoice.paymentResponse}
         onClickClearState={this.onClickClearState}
+        emailOfUser={loginForm.emailAddress.value}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

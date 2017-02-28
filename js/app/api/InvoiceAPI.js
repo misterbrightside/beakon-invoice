@@ -3,13 +3,14 @@ import { escape } from 'lodash';
 export default class InvoiceAPI {
 
   static checkWhetherInvoiceExists(invoiceId, accountCode) {
-    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId.toUpperCase()}?accountCode=${accountCode.toUpperCase()}`, {
+    console.log();
+    return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/invoice/${invoiceId.toUpperCase()}?accountCode=${accountCode.toUpperCase()}`, {
       method: 'GET',
     }).then(response => response.json());
   }
 
-  static getURLForWorldNetPayment(invoiceId) {
-    return fetch(`/wp-json/beakon-invoices/v1/invoice/${invoiceId}/worldnet-payment-url`, {
+  static getURLForWorldNetPayment(invoiceId, emailAddress) {
+    return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/invoice/${invoiceId}/worldnet-payment-url?EMAIL=${emailAddress}`, {
       method: 'GET',
     })
       .then(response => response.json());
@@ -27,7 +28,7 @@ export default class InvoiceAPI {
   static updatePaymentStatusOfInvoice(payload) {
     debugger;
     const id = payload.ORDERID;
-    return fetch(`/wp-json/beakon-invoices/v1/invoice/${id}/payment`, {
+    return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/invoice/${id}/payment`, {
       method: 'POST',
       body: this.getUpdateInfoForSavingInvoice(payload),
     })

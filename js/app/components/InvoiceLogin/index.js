@@ -69,6 +69,7 @@ class InvoiceLogin extends Component {
     const {
       invoiceId,
       accountCode,
+      emailAddress,
       isSearchingForInvoice,
       invoiceErrorMessage,
       onSubmitForm,
@@ -82,6 +83,14 @@ class InvoiceLogin extends Component {
           onSubmit={onSubmitForm}
         >
           <h1 className={style.invoicesLoginHeader}>Pay a Bill</h1>
+          <InvoiceLoginField
+            label={'Email Address'}
+            value={emailAddress.value}
+            onUpdateInput={updateFieldValue('emailAddress')}
+            errorMessage={<InputFieldError label={'This is not a valid email address.'} />}
+            isValid={this.isValid('emailAddress')}
+            tooltipText={'This is an email address which we will send a reciept on payment of the invoice.'}
+          />
           <InvoiceLoginField
             id={'invoiceId'}
             label={'Invoice Number'}

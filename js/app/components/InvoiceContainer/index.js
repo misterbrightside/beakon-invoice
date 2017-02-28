@@ -6,6 +6,8 @@ import Alert from '../Alert/';
 import style from './invoice-view.css';
 import { round, uniqueId } from 'lodash';
 
+import ReactDOMServer from 'react-dom/server';
+
 const RedirectToPaymentLoadingLayover = () => (
   <div className={style.overlay}>
     <LoadingIndicator />
@@ -18,7 +20,7 @@ const printInvoice = () => {
   window.print();
 };
 
-const PrintButton = () => (
+const PrintButton = ({ onClickPrint }) => (
   <button
     className={buttonStyle.secondary}
     onClick={printInvoice}
@@ -56,7 +58,7 @@ const getRow = (index, data) => (
   </tr>
 );
 
-const TopActionButtons = ({ onPaymentButtonClick, disablePayButton, onClickClearState }) => (
+const TopActionButtons = ({ onPaymentButtonClick, disablePayButton, onClickPrint, onClickClearState }) => (
   <div className={buttonStyle.spaceBetween}>
     <div>
       <LookupNewInvoiceButton
@@ -64,7 +66,9 @@ const TopActionButtons = ({ onPaymentButtonClick, disablePayButton, onClickClear
       />
     </div>
     <div className={buttonStyle.spaceButtons}>
-      <PrintButton />
+      <PrintButton
+        onClickPrint={onClickPrint}
+      />
       <PayButton
         onPaymentButtonClick={onPaymentButtonClick}
         disabled={disablePayButton}
@@ -97,28 +101,29 @@ const BusinessAddress = ({ inline, displayLogo, children }) => {
   return (
     <div className={style.businessAddress}>
       { displayLogo ? <Logo /> : null }
-      <address className={style.invoiceAddress}>
+      <address className={`${style.invoiceAddress} ${inline ? '' : style.blockAddress}`}>
         {
           inline ?
             address.map(addressLine => <span>{ addressLine }</span>) :
             address.map(addressLine => <div>{ addressLine }</div>)
         }
+        { children }
       </address>
-      { children }
     </div>
   );
 };
 
-const InvoiceMetaDetails = ({ invoiceId, remarks, invoiceIssueDate }) => (
+const InvoiceMetaDetails = ({ invoiceId, remark, reference, invoiceIssueDate }) => (
   <div className={style.invoiceMetaDetails}>
     <h2 className={style.invoiceHeader}>Invoice</h2>
-    <div>Invoice # { invoiceId }</div>
-    <div>{ remarks }</div>
+    <div>Invoice Number - { invoiceId }</div>
+    { remark ? <div>{ remark }</div> : null }
+    { reference ? <div>Reference - {reference}</div> : null }
     <div>Invoice Date - { invoiceIssueDate }</div>
   </div>
 );
 
-const InvoiceHeader = ({ invoiceId, remarks, invoiceIssueDate }) => (
+const InvoiceHeader = ({ invoiceId, remark, reference, invoiceIssueDate }) => (
   <div className={style.invoiceViewHeader}>
     <BusinessAddress
       inline={false}
@@ -128,7 +133,8 @@ const InvoiceHeader = ({ invoiceId, remarks, invoiceIssueDate }) => (
     </BusinessAddress>
     <InvoiceMetaDetails
       invoiceId={invoiceId}
-      remarks={remarks}
+      remark={remark}
+      reference={reference}
       invoiceIssueDate={invoiceIssueDate}
     />
   </div>
@@ -188,9 +194,9 @@ const ItemsPurchased = ({ items }) => {
     return previous + vatAmount;
   }, 0);
   const totalBmu = Object.keys(items).reduce((previous, key) => {
-    const quantity = parseFloat(items[key].qty, 10);
-    const bmu = parseFloat(items[key].costPriceBmu, 10);
-    return previous + (quantity * bmu);
+    const vatAmount = parseFloat(items[key].vatAmount, 10);
+    const price = parseFloat(items[key].amountVatExc, 10);
+    return previous + (vatAmount + price);
   }, 0);
   const total = round(totalBmu, 2);
   return (
@@ -210,11 +216,14 @@ const ItemsPurchased = ({ items }) => {
 
 const BusinessInfo = () => (
   <div className={style.businessInfo}>
-    <div className={style.companyInfo}>Company Registration Number: 123456P | VAT No. 1234567</div>
+    <div className={style.companyInfo}>Company Registration Number: 171780 | VAT No. IE 6571780U</div>
     <BusinessAddress
       inline={true}
       displayLogo={false}
     />
+    <div>Email: <a href='mailto:sales@dundalkoil.com'>sales@dundalkoil.com</a>  | Phone: 042 933 4081 | Web: <a href='http://www.dundalkoil.ie'>dundalkoil.ie</a></div>
+    <div>Dundalk Oil Products deliver only the highest quality Texaco fuels.</div>
+    <div><img className={style.smallImage} src='http://dundalkoil.beakon.ie/wp-content/uploads/2017/02/texaco-logo-1.png' /></div>
   </div>
 );
 
@@ -234,14 +243,16 @@ const Invoice = (props) => {
     postDate: invoiceIssueDate,
     items,
     customer,
-    remarks
+    remark,
+    reference
   } = props;
   return (
     <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
         invoiceId={invoiceId}
         invoiceIssueDate={invoiceIssueDate}
-        remarks={remarks}
+        remark={remark}
+        reference={reference}
       />
       <CustomerAddress
         name={customer.name}
@@ -269,6 +280,10 @@ class InvoiceContainer extends Component {
     disablePayButton: PropTypes.bool,
   };
 
+  onClickPrint = () => {
+    const markup = ReactDOMServer.renderToStaticMarkup(<Invoice {...this.props} />);
+  }
+
   render() {
     const { isBlurred, onPaymentButtonClick, disablePayButton, onClickClearState, notificationText } = this.props;
     const blurStyle = isBlurred ? style.blurred : '';
@@ -286,6 +301,7 @@ class InvoiceContainer extends Component {
             <div className={style.invoicesViewContainer}>
               <TopActionButtons
                 onPaymentButtonClick={onPaymentButtonClick}
+                onClickPrint={this.onClickPrint}
                 disablePayButton={disablePayButton}
                 onClickClearState={onClickClearState}
               />

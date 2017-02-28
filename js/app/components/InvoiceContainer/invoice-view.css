@@ -30,11 +30,18 @@
 
 :local(address.invoiceAddress) {
 	font-style: normal;
-	margin: 20px 0;
 }
 
 :local(address.invoiceAddress > div) {
 	margin: 5px 0;
+}
+
+:local(address.invoiceAddress > span) {
+	margin: 0 1px;
+}
+
+:local(.blockAddress) {
+	margin: 20px 0;
 }
 
 :local(.invoiceBusinessLogo) {
@@ -139,8 +146,12 @@ tbody > tr:last-child > td:first-child {
 	padding: 30px 0;
 }
 
-:local(.companyInfo) {
-	padding-bottom: 10px;
+:local(.businessInfo > div) {
+	margin: 5px 0;
+}
+
+:local(.smallImage) {
+	width: 20%;
 }
 
 :local(.customerAddress) {

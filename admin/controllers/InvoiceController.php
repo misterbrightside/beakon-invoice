@@ -83,8 +83,9 @@ class InvoiceController {
 
 	function getWorldnetPaymentUrl( $request ) {
 		$invoiceId = $request['invoiceId'];
+		$email = $request['EMAIL'];
 		$amount = $this->invoiceModel->getTotalAmountToPay( $invoiceId );
-		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount );
+		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount, $email );
 		$this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
 		return $orderAttempt['url'];
 	}

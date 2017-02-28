@@ -6,10 +6,6 @@ import moment from 'moment';
 
 class InvoiceView extends Component {
 
-  static propTypes = {
-    invoiceId: PropTypes.string.isRequired,
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -21,9 +17,9 @@ class InvoiceView extends Component {
   }
 
   onPaymentButtonClick = () =>  {
-    const { number } = this.props;
+    const { number, emailOfUser } = this.props;
     this.setState({ displayPaymentRedirectLoading: true });
-    InvoiceAPI.getURLForWorldNetPayment(number)
+    InvoiceAPI.getURLForWorldNetPayment(number, emailOfUser)
       .then(({ url }) => {
         this.setState({
           url,
