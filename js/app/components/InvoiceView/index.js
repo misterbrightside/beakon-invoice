@@ -1,7 +1,9 @@
 import React, { Component, PropTypes } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import InvoiceAPI from '../../api/InvoiceAPI';
 import InvoiceContainer from '../InvoiceContainer/';
 import IFrame from '../IFrame/';
+import Invoice from '../InvoiceContainer/Invoice';
 import moment from 'moment';
 
 class InvoiceView extends Component {
@@ -52,7 +54,7 @@ class InvoiceView extends Component {
     return Object.assign(...params.map((param) => {
       const [key, value] = param.split('=');
       return { [key]: value };
-    }));
+    }), { MARKUP: this.getInvoiceMarkup() });
   }
 
   getPaymentScreen() {
@@ -63,6 +65,10 @@ class InvoiceView extends Component {
         maybeOnLoad={this.onPaymentAttempt}
       />
     );
+  }
+
+  getInvoiceMarkup = () => {
+    return ReactDOMServer.renderToStaticMarkup(<Invoice {...this.props} />);
   }
 
   getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {
@@ -81,6 +87,7 @@ class InvoiceView extends Component {
       <InvoiceContainer
         {...this.props}
         onPaymentButtonClick={this.onPaymentButtonClick}
+        getInvoiceMarkup={this.getInvoiceMarkup}
         isBlurred={displayPaymentRedirectLoading}
         disablePayButton={paymentResponse.RESPONSECODE === 'A' || isPaymentConfirmationNotifiction }
         notificationText={notificationText}

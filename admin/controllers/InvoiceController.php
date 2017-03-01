@@ -3,16 +3,19 @@
 require_once 'WorldnetPaymentController.php';
 require_once __DIR__ . '/../models/InvoiceModel.php';
 require_once __DIR__ . '/../models/InvoiceNotFound.php';
+require_once 'EmailController.php';
 
 
 class InvoiceController {
 	protected $invoiceModel;
 	protected $NAMESPACE = 'beakon-invoices/v1';
 	protected $worldnetController;
+	protected $emailController;
 
 	public function __construct() {
 		$this->invoiceModel = new InvoiceModel();
 		$this->worldnetController = new WorldnetPaymentController();
+		$this->emailController = new EmailController();
 		add_action('rest_api_init', array($this, 'registerRoutes'));
 	}
 
@@ -91,7 +94,12 @@ class InvoiceController {
 	}
 
 	function updatePaymentStatus( $request ) {
-		$result = $this->invoiceModel->addPaymentAttemptResponse( $request );
-		return $result;
+		$markup = $request['MARKUP'];
+		// $result = $this->invoiceModel->addPaymentAttemptResponse( $request );
+		return $this->sendPaymentRecieptEmail($request, $markup);
+	} 
+
+	function sendPaymentRecieptEmail( $request, $markup ) {
+		return $this->emailController->sendEmail($markup);
 	} 
 }
