@@ -4,6 +4,7 @@ import InvoiceAPI from '../../api/InvoiceAPI';
 import InvoiceContainer from '../InvoiceContainer/';
 import IFrame from '../IFrame/';
 import Invoice from '../InvoiceContainer/Invoice';
+import EmailInvoice from './EmailInvoice';
 import moment from 'moment';
 
 class InvoiceView extends Component {
@@ -68,7 +69,7 @@ class InvoiceView extends Component {
   }
 
   getInvoiceMarkup = () => {
-    return ReactDOMServer.renderToStaticMarkup(<Invoice {...this.props} />);
+    return ReactDOMServer.renderToStaticMarkup(<EmailInvoice {...this.props} />);
   }
 
   getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {

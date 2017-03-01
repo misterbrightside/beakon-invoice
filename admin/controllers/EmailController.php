@@ -9,8 +9,7 @@ class EmailController {
 	function sendEmail($markup) {
 		if ($this->wooCommerceIsDownloaded()) {
 		    $emails = WC_Emails::instance();
-		    $message = $emails->wrap_message('Order {order_number} details', $markup);
-		    return $emails->send('jgabrennan@gmail.com', 'testing john brennan', $message);
+		    return $emails->send('jgabrennan@gmail.com', 'Order', html_entity_decode($markup));
 		}
 		return 'no...';
 	}
