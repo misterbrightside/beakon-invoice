@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Dropzone from 'react-dropzone';
-import { isEmpty, camelCase } from 'lodash';
+import { isEmpty, camelCase, uniqueId } from 'lodash';
 import style from './bulk-import-styles.css'
 
 const getInvoices = (invoices) => {
@@ -106,6 +106,17 @@ class BulkImport extends Component {
       }));
   }
 
+  printInvoices() {
+    const { invoices } = this.state;
+    return (
+      invoices.map(invoice => <tr key={uniqueId()}>
+        <td key={uniqueId()}>{invoice.salesDocument ? invoice.salesDocument.customerCode : null}</td>
+        <td key={uniqueId()}>{invoice.customer ? invoice.customer.name : null}</td>
+        <td key={uniqueId()}>{invoice.salesDocument ? invoice.salesDocument.number : null}</td>
+      </tr>)
+    );
+  }
+
   render() {
     const joinDisabled = isEmpty(this.state.salesDoc) || isEmpty(this.state.customers);
     const submitDisabled = !this.state.invoices.length > 0;
@@ -142,6 +153,11 @@ class BulkImport extends Component {
               Submit To database
             </button>
         </div>
+        <table className="widefat fixed" cellSpacing="0">
+          <tbody>
+            { this.printInvoices() }
+          </tbody>
+        </table>
       </div>
     );
   }
