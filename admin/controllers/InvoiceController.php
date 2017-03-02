@@ -16,7 +16,14 @@ class InvoiceController {
 		$this->invoiceModel = new InvoiceModel();
 		$this->worldnetController = new WorldnetPaymentController();
 		$this->emailController = new EmailController();
+
+		add_action( 'init', array($this, 'registerInvoiceType' ));
 		add_action('rest_api_init', array($this, 'registerRoutes'));
+	}
+
+	function registerInvoiceType() {
+		$args = $this->invoiceModel->getArgsForPostType();
+		register_post_type( 'invoice', $args );
 	}
 
 	function registerRoutes() {
