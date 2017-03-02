@@ -94,12 +94,11 @@ class InvoiceController {
 	}
 
 	function updatePaymentStatus( $request ) {
-		$markup = $request['MARKUP'];
-		// $result = $this->invoiceModel->addPaymentAttemptResponse( $request );
-		return $this->sendPaymentRecieptEmail($request, $markup);
+		$result = $this->invoiceModel->addPaymentAttemptResponse( $request );
+		return $this->sendPaymentRecieptEmail($request);
 	} 
 
-	function sendPaymentRecieptEmail( $request, $markup ) {
-		return $this->emailController->sendEmail($markup);
+	function sendPaymentRecieptEmail( $request ) {
+		return $this->emailController->sendEmail($request);
 	} 
 }
