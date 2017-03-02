@@ -2,7 +2,7 @@
 
 class WorldnetPaymentController {
 	protected function getTerminalId() {
-		return '3125001';
+		return esc_attr( get_option('terminalId') );
 	}
 
 	protected function getDate() {
@@ -31,7 +31,7 @@ class WorldnetPaymentController {
 	}
 
 	protected function getSecret() {
-		return 'hellohello';
+		return esc_attr( get_option('worldnetSecret') );
 	}
 
 	protected function getValidationUrl() {
@@ -89,7 +89,7 @@ class WorldnetPaymentController {
 	}
 
 	protected function getPaymentUrlOfInvoice( $orderArgs ) {
-		$requestUrl = $this->getRequestUrl('worldnet', true);
+		$requestUrl = $this->getRequestUrl('worldnet', checked( '1', get_option( 'isTestEnv' )));
 		return array('url' => $requestUrl . '?' . urldecode(http_build_query($orderArgs)));
 	}
 }
