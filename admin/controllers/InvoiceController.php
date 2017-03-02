@@ -5,7 +5,6 @@ require_once __DIR__ . '/../models/InvoiceModel.php';
 require_once __DIR__ . '/../models/InvoiceNotFound.php';
 require_once 'EmailController.php';
 
-
 class InvoiceController {
 	protected $invoiceModel;
 	protected $NAMESPACE = 'beakon-invoices/v1';
