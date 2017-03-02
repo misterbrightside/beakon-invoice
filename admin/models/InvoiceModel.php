@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/../utils/unseralize-utils.php';
 require_once __DIR__ . '/../controllers/WorldnetPaymentController.php';
-require_once 'InvoiceNotFound.php';
-
 
 class InvoiceModel {
 	protected $worldnetPaymentController;
@@ -12,13 +10,41 @@ class InvoiceModel {
 		$this->worldnetPaymentController = new WorldnetPaymentController();
 	}
 
-	public function getInvoiceById( $id ) {
-		$seralizedMeta = $this->getMeta( $id );
+	public function getInvoiceByID( $id, $key ) {
+		$seralizedMeta = $this->getMeta( $id, $key );
 		if ($seralizedMeta !== NULL) {
 			return SeralizeUtils::unserializeArrays($seralizedMeta);
 		} else {
-			return InvoiceNotFound::getNotFoundObject();
+			return $seralizedMeta;
 		}
+	}
+
+	public function addInvoice( $invoice ) {
+		$invoiceId = $invoice['salesDocument']['number'];
+		if ($this->getInvoiceByID($invoiceId, 'invoiceId') === NULL) {  
+			$postId = wp_insert_post(
+				array(
+					'post_type' => 'invoice',
+					'post_status' => 'publish',
+					'post_title' => $this->getInvoiceTitle($invoice)
+				)
+			);
+		} else {
+			$postId = $this->getInternalWordPressId($invoiceId);
+		}
+		add_post_meta($postId, 'invoiceId', $invoice['salesDocument']['number']);
+		add_post_meta($postId, 'workingOrder', $invoice['salesDocument']['remarks']);
+		add_post_meta($postId, 'customer', $invoice['customer']);
+		add_post_meta($postId, 'salesDocument', $invoice['salesDocument']);
+		add_post_meta($postId, 'invoice', $invoice['invoice']);
+		return $postId;
+	}
+
+	protected function getInvoiceTitle( $data ) {
+		$name = $data['customer']['name'];
+		$dateOfInvoice = $data['salesDocument']['postDate'];
+		$id = $data['salesDocument']['number'];
+		return "$name - $dateOfInvoice - $id";
 	}
 
 	public function checkIfInvoiceExists( $id ) {
@@ -27,7 +53,7 @@ class InvoiceModel {
 	}
 
 	public function getItemsOfInvoice( $id ) {
-		$invoiceDoc = $this->getInvoiceById( $id );
+		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
 		return $invoiceDoc['invoice'];
 	}
 
@@ -35,7 +61,7 @@ class InvoiceModel {
 		$items = $this->getItemsOfInvoice($id);
 		$total = 0;
 		foreach ($items as $item) {
-			$total += $item['costAmount'];
+			$total += $item['vatAmount'] + $item['amountVatExc'];
 		}
 		return $total;
 	}
@@ -50,8 +76,8 @@ class InvoiceModel {
 		update_post_meta($internalId, $key, $paymentAttempts);
 	}
 
-	public function getMeta( $id ) {
-		$query = $this->getInvoiceQueryByInvoiceId($id);
+	public function getMeta( $id, $key = 'invoiceId' ) {
+		$query = $this->getInvoiceQueryByInvoiceId($id, $key);
 		return $this->getInvoiceMetaFromQuery($query);
 	}
 
@@ -59,10 +85,8 @@ class InvoiceModel {
 		$paymentAttemptResponse = $this->getWorldnetPayLoad($request);
 		$id = $this->getInternalWordPressId($paymentAttemptResponse['ORDERID']);
 		if ($this->worldnetPaymentController->isValidPayload($paymentAttemptResponse)) {
-			$x = update_post_meta( $id, 'invoiceStatusId', sanitize_text_field( $paymentAttemptResponse['RESPONSECODE'] ) );
-			$y = update_post_meta( $id, 'dateOfAttemptedPayment', sanitize_text_field( $paymentAttemptResponse['DATETIME'] ) );
+			$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		}
-		$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		return $paymentAttemptResponse;
 	}
 
@@ -82,13 +106,13 @@ class InvoiceModel {
 		);
 	}
 
-	protected function getInvoiceQueryByInvoiceId( $id ) {
+	protected function getInvoiceQueryByInvoiceId( $id, $key ) {
 		$args = array(
 			'numberposts'	=> -1,
 			'post_type'		=> 'invoice',
 			'meta_query' 	=> array(
 				array(
-					'key' 		=> 'invoiceId',
+					'key' 		=> $key,
 					'value' 	=> $id,
 					'compare' 	=> '='
 				)
@@ -107,7 +131,7 @@ class InvoiceModel {
 	}
 
 	protected function getInternalWordPressId( $id ) {
-		$query = $this->getInvoiceQueryByInvoiceId($id);
+		$query = $this->getInvoiceQueryByInvoiceId($id, 'invoiceId');
 		if (!$this->queryHasAnInvoiceThatExists($query)) return NULL;
 		else return $query->posts[0]->ID;
 	}

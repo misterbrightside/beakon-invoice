@@ -14,10 +14,10 @@ export default class PayInvoicesApplication extends Component {
   }
 
   onSubmitForm(event) {
-    const { invoiceId, surname } = this.state.loginForm;
+    const { invoiceId, accountCode } = this.state.loginForm;
     event.preventDefault();
-    if (this.formValid(invoiceId, surname)) {
-      this.checkWhetherInvoiceExists(invoiceId, surname);
+    if (this.formValid(invoiceId, accountCode)) {
+      this.checkWhetherInvoiceExists(invoiceId, accountCode);
     } else {
       this.tellUserToFillInAllInfo();
     }
@@ -32,18 +32,17 @@ export default class PayInvoicesApplication extends Component {
   }
 
   setStateAfterCheckingWhetherInvoiceExists = 
-  ({ invoiceId, invoice, customer, salesDocument, invoiceStatusId, dateOfAttemptedPayment }) => (
+  ({ invoiceId, invoice, customer, salesDocument, paymentResponse }) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
-        invoiceErrorMessage: !invoiceId ? 'No invoice found!' : '',
+        invoiceErrorMessage: !invoiceId ? 'The invoice number and reference number you provided did not match. Please ensure you have entered both correctly.' : '',
       }),
       invoice: Object.assign({}, previousState.invoice, {
         payload: invoiceId ? salesDocument : {},
         items: invoice,
-        customer,
-        invoiceStatusId,
-        dateOfAttemptedPayment
+        paymentResponse: paymentResponse ? paymentResponse[paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
+        customer
       }),
     }))
   )
@@ -60,7 +59,8 @@ export default class PayInvoicesApplication extends Component {
         isSearchingForInvoice: false,
         invoiceErrorMessage: '',
         invoiceId: this.getInitialInputState(),
-        surname: this.getInitialInputState(),
+        accountCode: this.getInitialInputState(),
+        emailAddress: this.getInitialInputState(),
       },
       invoice: {
         payload: {},
@@ -90,13 +90,13 @@ export default class PayInvoicesApplication extends Component {
     }))
   )
 
-  formValid(invoiceId, surname) {
-    return this.fieldValid(invoiceId) && this.fieldValid(surname);
+  formValid(invoiceId, accountCode) {
+    return this.fieldValid(invoiceId) && this.fieldValid(accountCode);
   }
 
-  checkWhetherInvoiceExists(invoiceId, surname) {
+  checkWhetherInvoiceExists(invoiceId, accountCode) {
     this.setLoadingState();
-    InvoiceAPI.checkWhetherInvoiceExists(invoiceId.value, surname.value)
+    InvoiceAPI.checkWhetherInvoiceExists(invoiceId.value, accountCode.value)
       .then(this.setStateAfterCheckingWhetherInvoiceExists)
       .catch(this.setStateAfterCheckingInvoiceExistsFailed);
   }
@@ -143,9 +143,9 @@ export default class PayInvoicesApplication extends Component {
         {... this.prepareInvoiceObject(invoice.payload) }
         items={invoice.items}
         customer={invoice.customer}
-        invoiceStatusId={invoice.invoiceStatusId}
-        dateOfAttemptedPayment={invoice.dateOfAttemptedPayment}
+        paymentResponse={invoice.paymentResponse}
         onClickClearState={this.onClickClearState}
+        emailOfUser={loginForm.emailAddress.value}
       />
     ) : null;
     return !isEmpty(invoice.payload) ? invoiceView : loginScreen;

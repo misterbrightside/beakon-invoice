@@ -96,7 +96,7 @@ class BulkImport extends Component {
 
   onSubmitDocsToWordPress = (event) => {
     event.preventDefault();
-    fetch('/wp-json/beakon-invoices/v1/add-invoices', {
+    fetch('/wp-json/beakon-invoices/v1/invoice', {
       method: 'POST',
       body: getInvoices(this.state.invoices)
     })

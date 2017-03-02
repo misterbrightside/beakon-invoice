@@ -18,7 +18,6 @@ require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-custom-post-type.php'
 require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-bulk-import.php';
 require_once plugin_dir_path( __FILE__ ) . '/admin/invoice-fields.php';
 require_once plugin_dir_path( __FILE__ ) . '/public/add_templates.php';
-require_once plugin_dir_path( __FILE__ ) . '/public/api/invoice-endpoints.php';
 
 require_once plugin_dir_path( __FILE__ ) . '/admin/controllers/InvoiceController.php';
 require_once plugin_dir_path( __FILE__ ) . '/admin/controllers/WorldnetPaymentController.php';

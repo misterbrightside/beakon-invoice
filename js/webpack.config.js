@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 // const autoprefixer = require('autoprefixer');
 const isProduction = process.env.NODE_ENV === 'production';
+const ipAddress = process.env.IP_ADDRESS && !isProduction ? process.env.IP_ADDRESS : '';
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const buildPath = path.resolve(__dirname, 'build');
@@ -17,18 +18,20 @@ const entries = {
 
 const pluginsUsed = [
   // new webpack.optimize.UglifyJsPlugin(),
-  new ExtractTextPlugin("[name]-styles.css"),
+  // new ExtractTextPlugin("[name]-styles.css"),
 ];
 
 pluginsUsed.push(
   new webpack.DefinePlugin({
     IS_PRODUCTION: JSON.stringify(isProduction),
     IS_DEVELOPMENT: JSON.stringify(!isProduction),
+    IP_ADDRESS: JSON.stringify(ipAddress),
   }));
 
 const cssIdentifer = '[path][name]---[local]';
 
-const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
+// const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
+const cssLoader = [ 'style-loader', 'css-loader?localIdentName=' + cssIdentifer ];
 
 const config = {
   devtool: '#source-maps',

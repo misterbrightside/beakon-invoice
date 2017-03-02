@@ -50,8 +50,8 @@ class WorldnetPaymentController {
 		);
 	}
 
-	function processOrderAndGetUrlForPayment( $invoiceId, $amount ) {
-		$orderDetails = $this->getParamsForOrder( $invoiceId, $amount );
+	function processOrderAndGetUrlForPayment( $invoiceId, $amount, $email ) {
+		$orderDetails = $this->getParamsForOrder( $invoiceId, $amount, $email );
 		return array(
 			'url' => $this->getPaymentUrlOfInvoice( $orderDetails ),
 			'details' => $orderDetails,
@@ -74,11 +74,12 @@ class WorldnetPaymentController {
 		);
 	}
 
-	protected function getParamsForOrder( $id, $amount ) {
+	protected function getParamsForOrder( $id, $amount, $email ) {
 		$date = $this->getDate();
 		return array(
 			'ORDERID' => $id,
 			'DATETIME' => $date,
+			'EMAIL' => $email,
 			'TERMINALID' => $this->getTerminalId(),
 			'CURRENCY' => $this->getCurrency(),
 			'RECEIPTPAGEURL' => $this->getReceiptPageUrl(),
@@ -89,6 +90,6 @@ class WorldnetPaymentController {
 
 	protected function getPaymentUrlOfInvoice( $orderArgs ) {
 		$requestUrl = $this->getRequestUrl('worldnet', true);
-		return array('url' => $requestUrl . '?' . http_build_query($orderArgs));
+		return array('url' => $requestUrl . '?' . urldecode(http_build_query($orderArgs)));
 	}
 }

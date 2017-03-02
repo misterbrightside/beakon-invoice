@@ -12,6 +12,8 @@
 	background: #f1f1f2;
 	margin: 2em;
 	padding: 2em;
+	max-width: 400px;
+	max-height: 450px;
 	flex: 0 1 50%;
 	display: flex;
 	justify-content: center;
@@ -45,6 +47,10 @@
 
 :local(.findInvoiceButtonContainer) {
 	padding: 5px;
+}
+
+:local(.tooltipText) {
+	font-family: "Open Sans", Arial, sans-serif;
 }
 
 :local(.findInvoiceButtonContainer button) {
