@@ -26,7 +26,6 @@ export default class InvoiceAPI {
   }
 
   static updatePaymentStatusOfInvoice(payload) {
-    debugger;
     const id = payload.ORDERID;
     return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/invoice/${id}/payment`, {
       method: 'POST',

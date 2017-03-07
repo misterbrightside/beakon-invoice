@@ -89,7 +89,8 @@ class WorldnetPaymentController {
 	}
 
 	protected function getPaymentUrlOfInvoice( $orderArgs ) {
-		$requestUrl = $this->getRequestUrl('worldnet', checked( '1', get_option( 'isTestEnv' )));
+		$isTest = '1' === esc_attr(get_option( 'isTestEnv' ));
+		$requestUrl = $this->getRequestUrl('worldnet', $isTest);
 		return array('url' => $requestUrl . '?' . urldecode(http_build_query($orderArgs)));
 	}
 }

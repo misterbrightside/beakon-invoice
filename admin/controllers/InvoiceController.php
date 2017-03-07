@@ -95,8 +95,9 @@ class InvoiceController {
 		$email = $request['EMAIL'];
 		$amount = $this->invoiceModel->getTotalAmountToPay( $invoiceId );
 		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount, $email );
-		$this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
+		// $this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
 		return $orderAttempt['url'];
+		// return array('url' =>  "https://testpayments.worldnettps.com/merchant/paymentpage?ORDERID=SI-102705&DATETIME=07-03-2017:15:09:49:000&EMAIL=jgabrennan@gmail.com&TERMINALID=3125001&CURRENCY=EUR&RECEIPTPAGEURL=http://192.168.99.100:8080&AMOUNT=623&HASH=5131bedafdbdc215ad5c309b81e2e201");
 	}
 
 	function updatePaymentStatus( $request ) {

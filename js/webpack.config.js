@@ -20,7 +20,6 @@ const entries = {
 
 const pluginsUsed = [
   // new webpack.optimize.UglifyJsPlugin(),
-  // new ExtractTextPlugin("[name]-styles.css"),
 ];
 
 pluginsUsed.push(
