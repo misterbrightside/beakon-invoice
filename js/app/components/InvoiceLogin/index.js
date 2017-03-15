@@ -62,7 +62,7 @@ class InvoiceLogin extends Component {
 
   isValidInvoiceNumber = field => {
     const value = this.props[field].value;
-    return (value.startsWith('SI-') || value.startsWith('WO-') || !this.props[field].touched) && this.isValid(field);
+    return (value.startsWith('SI-') || value.startsWith('SO-') || value.startsWith('WO-') || !this.props[field].touched) && this.isValid(field);
   }
 
   render() {

@@ -48,6 +48,10 @@
 	margin-bottom: 30px;
 }
 
+:local(.invoiceBusinessLogo > img) {
+	width: 100%;
+}
+
 :local(.invoiceView) {
 	width: 80%;
 	max-width: 900px;
@@ -188,5 +192,55 @@ tbody > tr:last-child > td:first-child {
 	:local(.invoiceView) {
 		width: 100%;
 		max-width: 900px;
+	}
+}
+
+@media screen and (max-width: 425px) {
+	:local(.alertRegion) {
+		display: flex;
+	    justify-content: center;
+	    align-items: center;
+	    margin: .5em;
+	}
+
+	:local(.invoiceMetaDetails) {
+		flex: 0 1 100%;
+		text-align: center;
+		margin: 0px 10px 10px 10px;
+	}
+
+	:local(.invoiceHeader) {
+		font-size: 1em;
+		color: #e52025;
+		text-transform: uppercase;
+		font-weight: 900;
+	}
+
+	:local(address.invoiceAddress) {
+		text-align: center;
+	}
+
+	:local(.invoiceBusinessLogo) {
+		margin-bottom: 10px;
+	}
+
+	:local(.invoiceItemsTable) {
+		width: 800px;
+	}
+
+	:local(.tableWrapper) {
+		overflow-x: scroll;
+	}
+
+	:local(.invoiceBusinessLogo > img) {
+		width: 100%;
+	}
+
+	:local(.invoiceView) {
+		margin: 2px;
+	}
+
+	:local(.invoiceViewHeader) {
+		flex-direction: column;
 	}
 }

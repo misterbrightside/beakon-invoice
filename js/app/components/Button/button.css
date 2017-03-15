@@ -63,3 +63,28 @@
 		display: none;
 	}
 }
+
+@media screen and (max-width: 425px) {
+	:local(.spaceBetween) {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	:local(.spaceBetween > *) {
+		width: 80%;
+	}
+
+	:local(button.secondary) {
+		width: 100%;
+	}
+
+	:local(.spaceButtons) {
+		flex: 0 1 100%;
+	    display: flex;
+	    width: 80%;
+	    flex-direction: column;
+	    justify-content: space-around;
+	}
+}

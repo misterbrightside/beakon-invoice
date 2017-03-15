@@ -71,7 +71,7 @@ class InvoiceModel {
 	}
 
 	public function addInvoice( $invoice ) {
-		$invoiceId = $invoice['salesDocument']['number'];
+		$invoiceId = $invoice['saleDoc']['NUMBER'];
 		if ($this->getInvoiceByID($invoiceId, 'invoiceId') === NULL) {  
 			$postId = wp_insert_post(
 				array(
@@ -83,18 +83,24 @@ class InvoiceModel {
 		} else {
 			$postId = $this->getInternalWordPressId($invoiceId);
 		}
-		add_post_meta($postId, 'invoiceId', $invoice['salesDocument']['number']);
-		add_post_meta($postId, 'workingOrder', $invoice['salesDocument']['remarks']);
+		add_post_meta($postId, 'invoiceId', $invoice['saleDoc']['NUMBER']);
+		add_post_meta($postId, 'workingOrder', $invoice['saleDoc']['REMARKS']);
 		add_post_meta($postId, 'customer', $invoice['customer']);
-		add_post_meta($postId, 'salesDocument', $invoice['salesDocument']);
-		add_post_meta($postId, 'invoice', $invoice['invoice']);
+		add_post_meta($postId, 'saleDoc', $invoice['saleDoc']);
+		add_post_meta($postId, 'saleDocItems', $invoice['saleDocItems']);
+		add_post_meta($postId, 'debtorAlloc', $invoice['debtorAlloc']);
+		add_post_meta($postId, 'debtorEntry', $invoice['debtorEntry']);
+		add_post_meta($postId, 'total', $invoice['total']);
+		add_post_meta($postId, 'paid', $invoice['paid']);
+		add_post_meta($postId, 'leftToPay', $invoice['leftToPay']);
+		add_post_meta($postId, 'amountFree', $invoice['amountFree']);
 		return $postId;
 	}
 
 	protected function getInvoiceTitle( $data ) {
-		$name = $data['customer']['name'];
-		$dateOfInvoice = $data['salesDocument']['postDate'];
-		$id = $data['salesDocument']['number'];
+		$name = $data['customer']['NAME'];
+		$dateOfInvoice = $data['saleDoc']['POSTDATE'];
+		$id = $data['saleDoc']['NUMBER'];
 		return "$name - $dateOfInvoice - $id";
 	}
 
@@ -103,18 +109,9 @@ class InvoiceModel {
 		return $this->queryHasAnInvoiceThatExists($query);
 	}
 
-	public function getItemsOfInvoice( $id ) {
-		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
-		return $invoiceDoc['invoice'];
-	}
-
 	public function getTotalAmountToPay( $id ) {
-		$items = $this->getItemsOfInvoice($id);
-		$total = 0;
-		foreach ($items as $item) {
-			$total += $item['vatAmount'] + $item['amountVatExc'];
-		}
-		return $total;
+		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
+		return $invoiceDoc['leftToPay'];		
 	}
 
 	public function appendToInvoiceValue( $orderDetails, $invoiceId, $key ) {

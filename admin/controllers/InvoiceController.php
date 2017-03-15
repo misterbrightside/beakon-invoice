@@ -30,6 +30,16 @@ class InvoiceController {
 		$this->registerGetInvoiceRoute();
 		$this->registerGetWorldnetPaymentUrlRoute();
 		$this->registerPutWorldnetPaymentStatus();
+		$this->registerBulkUploadFromCLI();
+	}
+
+	protected function registerBulkUploadFromCLI() {
+		register_rest_route($this->NAMESPACE, 'invoices',
+			array(
+				'methods' => 'POST',
+				'callback' => array($this, 'addInvoicesFromCLI')
+			)
+		);			
 	}
 
 	protected function registerPostAddInvoices() {
@@ -73,7 +83,7 @@ class InvoiceController {
 		$response = array();
 		foreach ($invoices as $invoice) {
 			$id = $this->invoiceModel->addInvoice( $invoice );
-			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
+			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDoc']['NUMBER'])));
 		}
 		return json_encode($response);
 	}
@@ -81,9 +91,12 @@ class InvoiceController {
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
 		$accountCode = $request['accountCode'];
-		if (substr( $invoiceId, 0, 3 ) === "SI-") $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
-		else $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
-		if ( $invoice !== NULL && $invoice['salesDocument']['customerCode'] === $accountCode) {
+		if (substr( $invoiceId, 0, 3 ) === "SI-" || substr( $invoiceId, 0, 3 ) === "SO-") {
+			$invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
+		} else {
+			$invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
+		}
+		if ( $invoice !== NULL && $invoice['customer']['CODE'] === $accountCode) {
 			return $invoice;
 		} else {
 			return InvoiceNotFound::getNotFoundObject();
@@ -95,9 +108,8 @@ class InvoiceController {
 		$email = $request['EMAIL'];
 		$amount = $this->invoiceModel->getTotalAmountToPay( $invoiceId );
 		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment( $invoiceId, $amount, $email );
-		// $this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
+		$this->invoiceModel->appendToInvoiceValue($orderAttempt['details'], $invoiceId, 'paymentAttempts');
 		return $orderAttempt['url'];
-		// return array('url' =>  "https://testpayments.worldnettps.com/merchant/paymentpage?ORDERID=SI-102705&DATETIME=07-03-2017:15:09:49:000&EMAIL=jgabrennan@gmail.com&TERMINALID=3125001&CURRENCY=EUR&RECEIPTPAGEURL=http://192.168.99.100:8080&AMOUNT=623&HASH=5131bedafdbdc215ad5c309b81e2e201");
 	}
 
 	function updatePaymentStatus( $request ) {
@@ -108,4 +120,10 @@ class InvoiceController {
 	function sendPaymentRecieptEmail( $request ) {
 		return $this->emailController->sendEmail($request);
 	} 
+
+	function addInvoicesFromCLI( $request ) {
+		$invoice = $request->get_json_params()[1];
+		$id = $this->invoiceModel->addInvoice( $invoice );
+		return $invoice;
+	}
 }

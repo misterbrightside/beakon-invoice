@@ -79,7 +79,7 @@ const BottomActionButtons = ({ onPaymentButtonClick, disablePayButton }) => (
 );
 
 const PaidNotification = ({ text }) => (
-  <div>
+  <div className={style.alertRegion}>
     <Alert alertType={'info'}>
       { text }
     </Alert>

@@ -31,18 +31,20 @@ export default class PayInvoicesApplication extends Component {
     }));
   }
 
-  setStateAfterCheckingWhetherInvoiceExists = 
-  ({ invoiceId, invoice, customer, salesDocument, paymentResponse }) => (
+  setStateAfterCheckingWhetherInvoiceExists = (payload) => (
     this.setState(previousState => ({
       loginForm: Object.assign({}, previousState.loginForm, {
         isSearchingForInvoice: false,
-        invoiceErrorMessage: !invoiceId ? 'The invoice number and reference number you provided did not match. Please ensure you have entered both correctly.' : '',
+        invoiceErrorMessage: !payload.invoiceId ? 'The invoice number and reference number you provided did not match. Please ensure you have entered both correctly.' : '',
       }),
-      invoice: Object.assign({}, previousState.invoice, {
-        payload: invoiceId ? salesDocument : {},
-        items: invoice,
-        paymentResponse: paymentResponse ? paymentResponse[paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
-        customer
+      invoice: Object.assign({}, previousState.saleDocItems, {
+        invoiceDoc: payload.invoiceId ? payload.saleDoc : {},
+        items: payload.saleDocItems,
+        paymentResponse: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
+        customer: payload.customer,
+        leftToPay: payload.leftToPay,
+        total: payload.total,
+        paid: payload.paid
       }),
     }))
   )
@@ -63,7 +65,7 @@ export default class PayInvoicesApplication extends Component {
         emailAddress: this.getInitialInputState(),
       },
       invoice: {
-        payload: {},
+        invoiceDoc: {},
         items: [],
       },
     };
@@ -114,10 +116,6 @@ export default class PayInvoicesApplication extends Component {
     }));
   }
 
-  prepareInvoiceObject(invoiceData) {
-    return invoiceData;
-  }
-
   updateFieldValue = id => (event) => {
     event.preventDefault();
     const { value } = event.target;
@@ -138,9 +136,12 @@ export default class PayInvoicesApplication extends Component {
         onSubmitForm={this.onSubmitForm}
       />
     );
-    const invoiceView = !isEmpty(invoice.payload) ? (
+    const invoiceView = !isEmpty(invoice.invoiceDoc) ? (
       <InvoiceView
-        {... this.prepareInvoiceObject(invoice.payload) }
+        saleDoc={invoice.invoiceDoc}
+        leftToPay={invoice.leftToPay}
+        paid={invoice.paid}
+        total={invoice.total}
         items={invoice.items}
         customer={invoice.customer}
         paymentResponse={invoice.paymentResponse}
@@ -148,6 +149,6 @@ export default class PayInvoicesApplication extends Component {
         emailOfUser={loginForm.emailAddress.value}
       />
     ) : null;
-    return !isEmpty(invoice.payload) ? invoiceView : loginScreen;
+    return !isEmpty(invoice.invoiceDoc) ? invoiceView : loginScreen;
   }
 }
