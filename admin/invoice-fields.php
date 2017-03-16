@@ -105,7 +105,7 @@ function bijb_user_info_template( $invoice ) {
 function bijb_items_info_template( $invoice ) {
 	wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
 	$bijb_stored_meta = get_post_meta( $invoice -> ID );
-	$items = x($bijb_stored_meta, 'invoice');
+	$items = x($bijb_stored_meta, 'saleDocItems');
 	foreach ($items as $item) {
 		foreach ($item as $key => $value) {
 			echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
@@ -125,7 +125,7 @@ function x( $invoiceMetaData, $key ) {
 function bijb_invoice_template( $invoice ) {
   wp_nonce_field( basename( __FILE__ ), 'dijb_invoices_nonce' );
   $bijb_stored_meta = get_post_meta( $invoice -> ID );
-  $salesDocument = x($bijb_stored_meta, 'salesDocument');
+  $salesDocument = x($bijb_stored_meta, 'saleDoc');
   foreach ($salesDocument as $key => $value) {
   	echo bijb_get_input_tag($key, fromCamelCase($key), bijb_get_text_input($key, $value));
   }
