@@ -42,9 +42,9 @@ export default class PayInvoicesApplication extends Component {
         items: payload.saleDocItems,
         paymentResponse: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
         customer: payload.customer,
-        leftToPay: payload.leftToPay,
+        leftToPay: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1].AMOUNT - payload.leftToPay : payload.leftToPay,
         total: payload.total,
-        paid: payload.paid
+        paid: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1].AMOUNT : payload.paid,
       }),
     }))
   )

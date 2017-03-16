@@ -20,9 +20,9 @@ class InvoiceView extends Component {
   }
 
   onPaymentButtonClick = () =>  {
-    const { number, emailOfUser } = this.props;
+    const { saleDoc, emailOfUser } = this.props;
     this.setState({ displayPaymentRedirectLoading: true });
-    InvoiceAPI.getURLForWorldNetPayment(number, emailOfUser)
+    InvoiceAPI.getURLForWorldNetPayment(saleDoc.NUMBER, emailOfUser)
       .then(({ url }) => {
         this.setState({
           url,

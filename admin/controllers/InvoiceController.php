@@ -122,7 +122,7 @@ class InvoiceController {
 	} 
 
 	function addInvoicesFromCLI( $request ) {
-		$invoice = $request->get_json_params()[1];
+		$invoice = $request->get_json_params()[6];
 		$id = $this->invoiceModel->addInvoice( $invoice );
 		return $invoice;
 	}
