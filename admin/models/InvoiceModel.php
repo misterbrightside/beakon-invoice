@@ -138,6 +138,18 @@ class InvoiceModel {
 		return $paymentAttemptResponse;
 	}
 
+	public function createNewOrder( $request ) {
+		$postId = wp_insert_post(
+			array(
+				'post_type' => 'invoice',
+				'post_status' => 'publish',
+			)
+		);
+		$orderId = "OO-" . str_pad($postId, 6, "0", STR_PAD_LEFT);
+		add_post_meta($postId, 'invoiceId', $orderId);
+		return $orderId;		
+	}
+
 	protected function getWorldnetPayLoad( $request ) {
 		return array(
 			'RESPONSECODE' => $request['RESPONSECODE'],

@@ -31,6 +31,7 @@ class InvoiceController {
 		$this->registerGetWorldnetPaymentUrlRoute();
 		$this->registerPutWorldnetPaymentStatus();
 		$this->registerBulkUploadFromCLI();
+		$this->registerNewOrderRoute();
 	}
 
 	protected function registerBulkUploadFromCLI() {
@@ -49,6 +50,15 @@ class InvoiceController {
 				'callback' => array($this, 'addInvoices')
 			)
 		);		
+	}
+
+	protected function registerNewOrderRoute() {
+		register_rest_route($this->NAMESPACE, 'order',
+			array(
+				'methods' => 'POST',
+				'callback' => array($this, 'newOrder')
+			)
+		);			
 	}
 
 	protected function registerGetInvoiceRoute() {
@@ -101,6 +111,14 @@ class InvoiceController {
 		} else {
 			return InvoiceNotFound::getNotFoundObject();
 		}
+	}
+	
+	function newOrder($request) {
+		$amount = $request['budget'];
+		$email = $request['email'];
+		$order = $this->invoiceModel->createNewOrder($request);
+		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment($order, $amount, $email );
+		return $orderAttempt['url'];
 	}
 
 	function getWorldnetPaymentUrl( $request ) {

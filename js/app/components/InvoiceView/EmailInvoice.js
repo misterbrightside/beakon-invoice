@@ -211,8 +211,6 @@ const ItemsPurchased = ({ items }) => {
 class EmailInvoice extends Component {
 	render() {
   const {
-    firstNameId,
-    surnameId,
     saleDoc,
     items,
     customer,
