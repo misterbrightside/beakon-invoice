@@ -1,2 +1,5 @@
 js/node_modules
 js/build
+backend/tmp
+backend/out.nex
+backend/tmp/nexe/nodejs/6.10.0/node-v6.10.0/out/Release/libv8_base.a
