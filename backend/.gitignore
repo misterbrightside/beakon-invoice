@@ -1,0 +1,9 @@
+node_modules/
+npm-debug.log
+app/files/
+app/invoices.json
+
+
+.vscode/launch.json
+
+invoices.json
