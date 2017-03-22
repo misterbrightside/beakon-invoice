@@ -3,10 +3,32 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
   </head>
   <body>
-    <h1>Select folder to upload</h1>
-    <button id='uploadFiles'>Select directory for upload</button>
+    <div class="header">
+      <h1>Select folder to upload</h1>
+      <button class="waves-effect waves-light btn" id='uploadFiles'>Select directory for upload</button>
+    </div>
+    <div class='formPart'>
+      <span><button id='skipFiles' class="waves-effect waves-light btn">List of invoices to skip.</button></span>
+      <input id='skipFilesValue' type="text" readonly />
+    </div>
+
+    <div class='formPart'>
+      <span>URL to upload to: </span>
+      <input id='webAddress' type="text" />
+    </div>
+
+    <div class="progressShow hide">
+      <div id='progressOutput'></div>
+      <div class="progress">
+        <div class="determinate" style="width: 70%"></div>
+      </div>
+    </div>
+
   </body>
   <script>
     var ipc = require('electron').ipcRenderer;
@@ -16,11 +38,38 @@
             console.log(response);
         });
 
+        ipc.on('actionReplyTest', (event, response) => {
+          console.log(response);
+        })
+
         ipc.on('uploadEvent', (event, response) => {
           console.log(response);
         })
 
-        ipc.send('openDialog');
+        ipc.send('openDialog', {
+        skips: localStorage.getItem('skipsFile'),
+        address: localStorage.getItem('webAddress')
+      });
     });
+
+    var skipsButton = document.getElementById('skipFiles');
+    var skipsValue = document.getElementById('skipFilesValue');
+    skipsValue.value = localStorage.getItem('skipsFile');
+    skipsButton.addEventListener('click', () => {
+      ipc.send('openSkipsDialog');
+
+      ipc.once('actionReply', (event, response) => {
+          localStorage.setItem("skipsFile", response);
+          skipsValue.value = response;
+      });
+    });
+
+    var webAddress = document.getElementById('webAddress');
+    webAddress.value = localStorage.getItem('webAddress');
+    webAddress.addEventListener('change', (event) => {
+      localStorage.setItem("webAddress", event.target.value);
+    })
   </script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
 </html>

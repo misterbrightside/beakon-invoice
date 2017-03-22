@@ -2,7 +2,6 @@ const promisify = require("promisify-node");
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
-
 const readDir = promisify(fs.readdir);
 
 const directoryOfExcelFiles = (args) => args[args.length - 1];

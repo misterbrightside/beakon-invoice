@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { requireTaskPool } = require('electron-remote');
 const path = require('path');
 const upload = require('./app/index').upload;
 const url = require('url')
@@ -50,16 +51,25 @@ app.on('activate', () => {
   }
 })
 
-const processFiles = (files, event) => {
-  const skipsPath = '/Users/John/src/wordpress/wp-content/plugins/beakon-invoice/backend/skips.txt';
-  const site = 'http://192.168.99.100:8080/';
-  upload(files[0] + "/", skipsPath, site, ipcMain, () => {
-      event.sender.send('actionReply', 'done');
-  });
+async function processFiles(files, event, data) {
+  const module = requireTaskPool(require.resolve('./app/index'));
+  const skipsPath = data.skips;
+  const site = data.address
+  // await module.upload(files[0] + "/", skipsPath, site);
+  upload(files[0] + "/", skipsPath, site);
 }
 
-ipcMain.on('openDialog', (event, data) => {
+ipcMain.once('openDialog', (event, data) => {
     dialog.showOpenDialog({ properties: ['openDirectory'] }, (files) => {
-      processFiles(files, event);
+      if (files) {
+        processFiles(files, event, data);
+      }
+      event.sender.send('actionReplyTest', 'hi')
     });
 });
+
+ipcMain.on('openSkipsDialog', (event, data) => {
+  dialog.showOpenDialog({ properties: ['openFile'] }, (files) => {
+    if (files) event.sender.send('actionReply', files[0]);
+  });
+})

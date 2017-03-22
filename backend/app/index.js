@@ -1,25 +1,22 @@
-	require('es6-promise').polyfill();
-	require('isomorphic-fetch');
-	const files = require('./files');
-	const moment = require('moment');
-	const fs = require('fs');
-	const path = require('path');
-	const _ = require('lodash');
-	const skips = require('./readSkips');
-	var ProgressBar = require('progress');
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
+const files = require('./files');
+const moment = require('moment');
+const fs = require('fs');
+const path = require('path');
+const _ = require('lodash');
+const skips = require('./readSkips');
+var ipc = require('electron').ipcRenderer;
 
 
-function uploadFiles(path, skipsFilePath, uploadPath, ipc, callback) {
-
-	ipc.send('uploadEvent', 'Starting to load files.');
+function uploadFiles(path, skipsFilePath, uploadPath, event) {
 	const excelDataPromise = files.getFiles(path)
 		.then(files.loadExcelFiles);
 
 	const skipPromise = skips.getSkipsObject(skipsFilePath);
 
-	let func = (skipList, data, id, size, position, bar) => {
+	let func = (skipList, data, id, size, position) => {
 		if (skipList[id] !== undefined) {
-			ipc.send('uploadEvent', (_.round((position/size)*100) + '% of invoices'));
 			return null;
 		}
 		const saleDoc = data['SaleDoc'][id];
@@ -39,7 +36,6 @@ function uploadFiles(path, skipsFilePath, uploadPath, ipc, callback) {
 		const leftToPay = _.round(total, 2) - _.round(paid, 2);
 		const isPaidByCredit = _.round(Math.abs(amountAllocated), 2) === _.round(total, 2) || _.round(amountFree, 2) === _.round(total, 2);
 		if (leftToPay === 0 || isPaidByCredit) return { [id]: 'skip', skip: true };
-		ipc.send('uploadEvent', (_.round((position/size)*100) + '% of invoices'));
 		return {
 			saleDocItems: saleDocItems,
 			customer: customer,
@@ -54,8 +50,7 @@ function uploadFiles(path, skipsFilePath, uploadPath, ipc, callback) {
 	}
 
 	var filtered = (arr1, arr2) => arr1.filter(function(e){return this.indexOf(e)<0;},arr2);
-
-	Promise.all([excelDataPromise, skipPromise])
+ 	Promise.all([excelDataPromise, skipPromise])
 		.then(([excelData, skipData]) => {
 			console.log('Files loaded..');
 			let slice = excelData['SaleDoc'].map(i => i.ID);
@@ -64,16 +59,10 @@ function uploadFiles(path, skipsFilePath, uploadPath, ipc, callback) {
 			const arrayToDo = filtered(slice, idsToSkip);
 			
 			console.log('starting to process');
-			console.log("\n\n");
-			  var bar = new ProgressBar('  joining... [:bar] :rate :percent :etas', {
-				complete: '=',
-				incomplete: ' ',
-				total: arrayToDo.length
-			});
-			const processed = arrayToDo.map((i, index, arr) => func(skipData, trimmedData, i, arr.length, index, bar));
+			const processed = arrayToDo.map((i, index, arr) => func(skipData, trimmedData, i, arr.length, index));
 			const newSkips = processed.filter(item => item !== null).filter(item => item.skip === true);
 			const todo = processed.filter(item => item !== null).filter(item => !item.skip);
-			skips.printSkipsToFile(newSkips, skipData, 'logtest.txt');
+			skips.printSkipsToFile(newSkips, skipData, skipsFilePath);
 			return todo;
 		})
 		.then(invoices => {
@@ -92,7 +81,6 @@ function uploadFiles(path, skipsFilePath, uploadPath, ipc, callback) {
 				})
 				.then(json => {
 					console.log('Finished posting invoices to web application.');
-					callback();
 				})
 				.catch(res => {
 					console.log(res);
