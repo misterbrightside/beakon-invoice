@@ -9,12 +9,13 @@ const skips = require('./readSkips');
 var ipc = require('electron').ipcRenderer;
 
 
-function uploadFiles(path, skipsFilePath, uploadPath, event) {
+function uploadFiles(path, skipsFilePath, uploadPath, callback) {
 	const excelDataPromise = files.getFiles(path)
 		.then(files.loadExcelFiles);
 
 	const skipPromise = skips.getSkipsObject(skipsFilePath);
 
+	console.log('hi i is here.');
 	let func = (skipList, data, id, size, position) => {
 		if (skipList[id] !== undefined) {
 			return null;
@@ -50,7 +51,8 @@ function uploadFiles(path, skipsFilePath, uploadPath, event) {
 	}
 
 	var filtered = (arr1, arr2) => arr1.filter(function(e){return this.indexOf(e)<0;},arr2);
- 	Promise.all([excelDataPromise, skipPromise])
+ 	return new Promise((resolve, reject) => {
+		 Promise.all([excelDataPromise, skipPromise])
 		.then(([excelData, skipData]) => {
 			console.log('Files loaded..');
 			let slice = excelData['SaleDoc'].map(i => i.ID);
@@ -81,11 +83,13 @@ function uploadFiles(path, skipsFilePath, uploadPath, event) {
 				})
 				.then(json => {
 					console.log('Finished posting invoices to web application.');
+					callback();
 				})
 				.catch(res => {
 					console.log(res);
 				});
-		})
+		});
+	 });
 };
 
 module.exports = {
