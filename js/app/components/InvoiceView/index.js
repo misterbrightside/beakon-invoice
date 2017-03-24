@@ -6,7 +6,6 @@ import IFrame from '../IFrame/';
 import Invoice from '../InvoiceContainer/Invoice';
 import EmailInvoice from './EmailInvoice';
 import moment from 'moment';
-import { unescape } from 'lodash';
 
 class InvoiceView extends Component {
 
@@ -74,7 +73,11 @@ class InvoiceView extends Component {
   }
 
   getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {
-    if (!!paymentSuccessPayload && isPaymentConfirmationNotifiction) return `Success! You made a successful payment for this invoice ${moment(unescape(paymentSuccessPayload.DATETIME)).format('LLLL')}.`;
+    if (!!paymentSuccessPayload && isPaymentConfirmationNotifiction) {
+      const dateString = unescape(paymentSuccessPayload.DATETIME);
+      const date = moment(dateString).format('LLLL');
+      return `Success! You made a successful payment for this invoice: ${date}.`;
+    }
     else if (!!paymentSuccessPayload && (paymentSuccessPayload.RESPONSECODE === 'D' || paymentSuccessPayload.RESPONSECODE === 'R')) return 'It seems there was an issue processing your payment. It may be an issue with your payment details. Please try again or contact support.';
     else if (invoiceStatusId === 'A') return `Success! There was a successful payment for this invoice ${moment(dateOfAttemptedPayment).format('LLLL')}.`
     return '';
