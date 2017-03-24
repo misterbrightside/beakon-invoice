@@ -6,6 +6,7 @@ import IFrame from '../IFrame/';
 import Invoice from '../InvoiceContainer/Invoice';
 import EmailInvoice from './EmailInvoice';
 import moment from 'moment';
+import { unescape } from 'lodash';
 
 class InvoiceView extends Component {
 
@@ -73,7 +74,7 @@ class InvoiceView extends Component {
   }
 
   getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {
-    if (!!paymentSuccessPayload && isPaymentConfirmationNotifiction) return `Success! You made a successful payment for this invoice ${moment(paymentSuccessPayload.DATETIME).format('LLLL')}.`;
+    if (!!paymentSuccessPayload && isPaymentConfirmationNotifiction) return `Success! You made a successful payment for this invoice ${moment(unescape(paymentSuccessPayload.DATETIME)).format('LLLL')}.`;
     else if (!!paymentSuccessPayload && (paymentSuccessPayload.RESPONSECODE === 'D' || paymentSuccessPayload.RESPONSECODE === 'R')) return 'It seems there was an issue processing your payment. It may be an issue with your payment details. Please try again or contact support.';
     else if (invoiceStatusId === 'A') return `Success! There was a successful payment for this invoice ${moment(dateOfAttemptedPayment).format('LLLL')}.`
     return '';
@@ -83,7 +84,7 @@ class InvoiceView extends Component {
     const { displayPaymentRedirectLoading } = this.state;
     const { paymentResponse, onClickClearState, dateOfAttemptedPayment } = this.props;
     const isPaymentConfirmationNotifiction = this.state.paymentSuccessPayload ? this.state.paymentSuccessPayload.RESPONSECODE === 'A' : false;
-    const notificationText = this.getNotificationtext(isPaymentConfirmationNotifiction, paymentResponse.RESPONSECODE, this.state.paymentSuccessPayload, paymentResponse.DATETIME);
+    const notificationText = this.getNotificationtext(isPaymentConfirmationNotifiction, paymentResponse.RESPONSECODE, this.state.paymentSuccessPayload, unescape(paymentResponse.DATETIME));
     return (
       <InvoiceContainer
         {...this.props}
@@ -93,7 +94,7 @@ class InvoiceView extends Component {
         isBlurred={displayPaymentRedirectLoading}
         disablePayButton={paymentResponse.RESPONSECODE === 'A' || isPaymentConfirmationNotifiction }
         notificationText={notificationText}
-        invoiceIssueDate={moment(paymentResponse.DATETIME, 'DD-MM-YYYY').format('MMMM Do YYYY')}
+        invoiceIssueDate={moment(unescape(paymentResponse.DATETIME), 'DD-MM-YYYY').format('MMMM Do YYYY')}
         onClickClearState={onClickClearState}
       />
     );

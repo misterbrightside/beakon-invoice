@@ -20,7 +20,9 @@ export default class InvoiceAPI {
     const form = new FormData();
     Object.keys(payload).forEach((key) => {
       const value = payload[key];
-      form.append(key, escape(value.trim()));
+      if (value) {
+        form.append(key, escape(value.trim()));
+      }
     });
     return form;
   }
