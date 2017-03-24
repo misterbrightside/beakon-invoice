@@ -87,6 +87,7 @@ class InvoiceView extends Component {
     return (
       <InvoiceContainer
         {...this.props}
+        paymentSuccessPayload={this.state.paymentSuccessPayload}
         onPaymentButtonClick={this.onPaymentButtonClick}
         getInvoiceMarkup={this.getInvoiceMarkup}
         isBlurred={displayPaymentRedirectLoading}

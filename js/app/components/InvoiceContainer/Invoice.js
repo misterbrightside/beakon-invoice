@@ -126,6 +126,7 @@ const ItemsPurchased = ({ items, paid, outstanding }) => {
   }, 0);
   const VATRounded = round(VAT, 2);
   const total = round(subTotal + VAT, 2);
+  const totalPaid = outstanding === 0 ? total : paid;
   return (
     <div className={style.tableWrapper}>
       <table className={style.invoiceItemsTable}>
@@ -137,7 +138,7 @@ const ItemsPurchased = ({ items, paid, outstanding }) => {
           subTotal={subTotalRounded}
           VAT={VATRounded}
           total={total}
-          paid={paid}
+          paid={totalPaid}
           outstanding={outstanding}
         />
       </table>
@@ -168,8 +169,12 @@ const Invoice = (props) => {
     reference,
     total,
     paid,
-    leftToPay
+    leftToPay,
+    paymentSuccessPayload
   } = props;
+
+  const totalLeftToPay = paymentSuccessPayload !== null && paymentSuccessPayload.AMOUNT ? parseFloat(leftToPay, 10) - parseFloat(paymentSuccessPayload.AMOUNT, 10) : parseFloat(leftToPay, 10);
+  const totalPaid = paymentSuccessPayload !== null && paymentSuccessPayload.AMOUNT ? parseFloat(paid, 10) + parseFloat(paymentSuccessPayload.AMOUNT, 10) : parseFloat(paid, 10);
   return (
     <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
@@ -189,8 +194,8 @@ const Invoice = (props) => {
       />
       <ItemsPurchased
         items={items}
-        paid={paid}
-        outstanding={leftToPay}
+        paid={totalPaid}
+        outstanding={totalLeftToPay}
       />
       <BusinessInfo />
     </div>

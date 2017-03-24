@@ -11,11 +11,12 @@ class EmailController {
 	}
 
 	function sendEmail($request) {
-		    return wp_mail(
+		    $mail = wp_mail(
 		    	urldecode($request['EMAIL']),
 		    	$this->getEmailSubject($request),
-		    	html_entity_decode($request['MARKUP']
+		    	html_entity_decode($request['MARKUP']),
+		    	array('Content-Type: text/html; charset=UTF-8')
 		    );
+		    return $mail;
 		}
-	}
 }
