@@ -105,13 +105,17 @@ class InvoiceLogin extends Component {
 
   getUrlParams(url) {
     var queryString = url.split("?")[1];
-    var keyValuePairs = queryString.split("&");
-    var keyValue, params = {};
-    keyValuePairs.forEach(function(pair) {
-      keyValue = pair.split("=");
-      params[keyValue[0]] = decodeURIComponent(keyValue[1]).replace("+", " ");
-    });
-    return params;
+    if (queryString) {
+      var keyValuePairs = queryString.split("&");
+      var keyValue, params = {};
+      keyValuePairs.forEach(function(pair) {
+        keyValue = pair.split("=");
+        params[keyValue[0]] = decodeURIComponent(keyValue[1]).replace("+", " ");
+      });
+      return params;
+    } else return {
+      isNewOrder: false
+    }
   }
 
   getEmailProps(orderParams, payload) {

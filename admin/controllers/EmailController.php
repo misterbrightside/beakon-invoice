@@ -11,12 +11,10 @@ class EmailController {
 	}
 
 	function sendEmail($request) {
-		if ($this->wooCommerceIsDownloaded() && $request['RESPONSECODE'] === 'A') {
-		    $emails = WC_Emails::instance();
-		    return $emails->send(
+		    return wp_mail(
 		    	urldecode($request['EMAIL']),
 		    	$this->getEmailSubject($request),
-		    	html_entity_decode($request['MARKUP'], ENT_COMPAT, 'UTF-8')
+		    	html_entity_decode($request['MARKUP']
 		    );
 		}
 	}

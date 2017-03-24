@@ -15,7 +15,6 @@ function uploadFiles(path, skipsFilePath, uploadPath, callback) {
 
 	const skipPromise = skips.getSkipsObject(skipsFilePath);
 
-	console.log('hi i is here.');
 	let func = (skipList, data, id, size, position) => {
 		if (skipList[id] !== undefined) {
 			return null;
