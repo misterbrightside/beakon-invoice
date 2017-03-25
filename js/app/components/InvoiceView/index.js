@@ -69,7 +69,7 @@ class InvoiceView extends Component {
   }
 
   getInvoiceMarkup = () => {
-    return ReactDOMServer.renderToStaticMarkup(<EmailInvoice {...this.props} />);
+    return ReactDOMServer.renderToStaticMarkup(<EmailInvoice {...this.props} isNewOrder={false} />);
   }
 
   getNotificationtext(isPaymentConfirmationNotifiction, invoiceStatusId, paymentSuccessPayload, dateOfAttemptedPayment) {

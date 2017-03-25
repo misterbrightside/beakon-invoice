@@ -150,13 +150,22 @@ class InvoiceLogin extends Component {
         ADDRLINE04: orderParams.county,
         ADDRLINE05: orderParams.eircode
       },
-      items: [],
+      items: [{
+        NAME: orderParams.ftype,
+        QUANTITY: orderParams.quant,
+        BUDGET: orderParams.budget
+      }],
       paid: 0
     };
   }
 
   getInvoiceMarkup = (objectParams) => {
-    return ReactDOMServer.renderToStaticMarkup(<EmailInvoice { ...this.getEmailProps(this.state.orderParams, objectParams) }/>);
+    return ReactDOMServer.renderToStaticMarkup(
+      <EmailInvoice 
+        { ...this.getEmailProps(this.state.orderParams, objectParams) }
+        isNewOrder={true}
+      />
+    );
   }
 
   getResponseParameters = (url) => {

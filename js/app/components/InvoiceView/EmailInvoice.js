@@ -140,8 +140,14 @@ const getRow = (index, data) => {
   );
 };
 
-const TableHeader = () => (
-  <thead>
+const TableHeader = ({ isNewOrder }) => {
+  return isNewOrder ? (<thead>
+    <tr style={style.invoiceItemTableRow}>
+      <th style={style.cellHeader}>Name/Description</th>
+      <th style={style.cellHeader}>Quantity</th>
+      <th style={style.cellHeader}>Price</th>
+    </tr>
+  </thead> ) : (<thead>
     <tr style={style.invoiceItemTableRow}>
       <th style={style.cellHeader}>Name/Description</th>
       <th style={style.cellHeader}>Quantity</th>
@@ -150,13 +156,13 @@ const TableHeader = () => (
       <th style={style.cellHeader}>VAT</th>
       <th style={style.cellHeader}>Price (Inc. VAT)</th>
     </tr>
-  </thead>
-);
+  </thead>);
+}
 
 
-const ItemsTotal = ({ subTotal, VAT, total }) => {
+const ItemsTotal = ({ isNewOrder, subTotal, VAT, total }) => {
   const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
-  return (
+   return isNewOrder ? null : (
     <tfoot className={style.invoicesFooter}>
       { getRow(1, ['', '', '', '', 'Subtotal', `€${subTotal}`]) }
       { getRow(2, ['', '', '', '', 'VAT', `€${VAT}`]) }
@@ -165,23 +171,34 @@ const ItemsTotal = ({ subTotal, VAT, total }) => {
   );
 };
 
-const Items = ({ items }) => {
-  return (
-    <tbody className={style.invoiceTableBody}>
-      { items.map((item, index) => getRow(uniqueId(), [
+const getItems = (items) => {
+  return items.map((item, index) => getRow(uniqueId(), [
+      item.NAME,
+      item.QUANTITY,
+      `€${item.FRGSALEPRICE}`,
+      `€${item.FRGAMOUNTVATEXC}`,
+      `€${item.FRGVATAMOUNT}`,
+      `€${round(parseFloat(item.FRGAMOUNTVATEXC, 10) + parseFloat(item.FRGVATAMOUNT, 10), 2)}`
+    ])
+  )
+};
+
+const Items = ({ isNewOrder, items }) => {
+  const rows = isNewOrder ? 
+      items.map((item, index) => getRow(uniqueId(), [
           item.NAME,
           item.QUANTITY,
-          `€${item.FRGSALEPRICE}`,
-          `€${item.FRGAMOUNTVATEXC}`,
-          `€${item.FRGVATAMOUNT}`,
-          `€${round(parseFloat(item.FRGAMOUNTVATEXC, 10) + parseFloat(item.FRGVATAMOUNT, 10), 2)}`
-        ])
-      )}
+          item.BUDGET
+        ]))
+    : getItems(items);
+  return (
+    <tbody className={style.invoiceTableBody}>
+      { rows }
     </tbody>
   )
 };
 
-const ItemsPurchased = ({ items }) => {
+const ItemsPurchased = ({ isNewOrder, items }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
     const price = parseFloat(items[key].FRGAMOUNTVATEXC, 10);
     return previous + price;
@@ -195,14 +212,16 @@ const ItemsPurchased = ({ items }) => {
   const total = round(subTotal + VAT, 2);
   return (
     <table style={style.invoiceItemsTable}>
-      <TableHeader />
+      <TableHeader isNewOrder={isNewOrder} />
       <Items
         items={items}
+        isNewOrder={isNewOrder}
       />
       <ItemsTotal
         subTotal={subTotalRounded}
         VAT={VAT}
         total={total}
+        isNewOrder={isNewOrder}
       />
     </table>
   );
@@ -217,7 +236,8 @@ class EmailInvoice extends Component {
     reference,
     total,
     paid,
-    leftToPay
+    leftToPay,
+    isNewOrder,
   } = this.props;
 		return (
 			    <div style={style.invoiceBox}>
@@ -259,6 +279,7 @@ class EmailInvoice extends Component {
 			            <tr>
     							 <ItemsPurchased
                       items={items}
+                      isNewOrder={isNewOrder}
                       paid={paid}
                       outstanding={leftToPay}
     					      />
