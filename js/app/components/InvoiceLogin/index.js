@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import InvoiceLoginField from './InvoiceLoginField';
 import ReactDOMServer from 'react-dom/server';
+import LoadingIndicator from '../LoadingIndicator/';
 import EmailInvoice from '../InvoiceView/EmailInvoice';
 import InvoiceAPI from '../../api/InvoiceAPI';
 import IFrame from '../IFrame/';
@@ -22,6 +23,15 @@ const CheckInvoiceButton = ({ disabled }) => (
 const InputFieldError = ({ label }) => (
   <div className={style.inputFieldErrorMessage}>
     { label }
+  </div>
+);
+
+const ThanksForOrdering = ({ message }) => (
+  <div className={style.thankYouMessageBox}>
+    <div className={style.thankYouHeader}>Thanks For Ordering</div>
+    <div>
+      {message}
+    </div>
   </div>
 );
 
@@ -65,6 +75,7 @@ class InvoiceLogin extends Component {
     this.state = {
       displayPaymentRedirectLoading: false,
       isNewOrder: this.isRedirectToNewOrder(),
+      isThankYouScreen: this.isThankYouScreen(),
       orderParams: this.getUrlParams(window.location.href),
       url: null
     };
@@ -100,7 +111,12 @@ class InvoiceLogin extends Component {
 
   isRedirectToNewOrder() {
     const params = this.getUrlParams(window.location.href);
-    return params.isNewOrder === "true";
+    return params && params.PayNow === "true";
+  }
+
+  isThankYouScreen() {
+    const params = this.getUrlParams(window.location.href);
+    return params && params.PayNow === "false";
   }
 
   getUrlParams(url) {
@@ -176,11 +192,19 @@ class InvoiceLogin extends Component {
 
 
     if (this.state.paymentSuccessPayload) {
-      return (<div>yass we paid!</div>);
+      return (<ThanksForOrdering message={'An email has been sent confirming your order.'} />);
+    } 
+    else if (this.state.isThankYouScreen) {
+      return (
+        <ThanksForOrdering message={'An email has been sent confirming your order.'} />
+      );
     }
     else if (this.state.isNewOrder && this.state.displayPaymentRedirectLoading) {
       return (
-        <div>Loading worldnet!!!</div>
+        <div>
+          <LoadingIndicator /> 
+          Loading WorldNet...
+        </div>
       );
     } else if (this.state.isNewOrder && this.state.url) {
       return (

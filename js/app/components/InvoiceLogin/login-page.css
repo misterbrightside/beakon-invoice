@@ -72,6 +72,22 @@
 	color: #e72128;
 }
 
+:local(.thankYouMessageBox) {
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1em;
+    margin-bottom: 5em;
+}
+
+:local(.thankYouHeader) {
+	color: #e52025;
+	font-size: 3rem;
+	font-weight: 900;
+	margin-top: 1em;
+    margin-bottom: 1em;
+}
 
 @media screen and (max-width: 425px) {
 	:local(.invoicesContainer) {
