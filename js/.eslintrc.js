@@ -2,10 +2,13 @@ module.exports = {
     "extends": "airbnb",
     "parser": "babel-eslint",
     "plugins": [
+        "lodash",
+        "transform-class-properties",
         "react",
         "jsx-a11y",
         "import"
     ],
+    "presets": ["es2015", "latest"],
     "env": {
     	"browser": true,
         "jquery": true,

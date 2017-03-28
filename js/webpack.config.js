@@ -23,6 +23,9 @@ const pluginsUsed = [
 
 pluginsUsed.push(
   new webpack.DefinePlugin({
+    'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+    },
     IS_PRODUCTION: JSON.stringify(isProduction),
     IS_DEVELOPMENT: JSON.stringify(!isProduction),
     IP_ADDRESS: JSON.stringify(ipAddress),
@@ -39,10 +42,14 @@ const config = {
   plugins: pluginsUsed,
   module: {
     loaders: [{
-      test: /\.js$/,
-      loaders: ['babel-loader'],
-      exclude: '/node_modules/',
-    }, {
+    'loader': 'babel-loader',
+    'test': /\.js$/,
+    'exclude': /node_modules/,
+    'query': {
+      'plugins': ['lodash', 'transform-class-properties'],
+      'presets': ['es2015', 'latest']
+    }
+  }, {
       test: /\.(png|gif|jpg)$/,
       loaders: ['url-loader?limit=10000&name=images/[hash:12].[ext]'],
       exclude: '/node_modules/',

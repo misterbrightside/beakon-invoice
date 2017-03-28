@@ -104,6 +104,11 @@ class InvoiceLogin extends Component {
     this.props[field].valid || !this.props[field].touched
   )
 
+  isValidEmail = field => {
+    var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+    return pattern.test(this.props[field].value) || !this.props[field].touched;
+  };
+
   isValidInvoiceNumber = field => {
     const value = this.props[field].value;
     return (value.startsWith('SI-') || value.startsWith('SO-') || value.startsWith('WO-') || !this.props[field].touched) && this.isValid(field);
@@ -231,14 +236,6 @@ class InvoiceLogin extends Component {
           >
             <h1 className={style.invoicesLoginHeader}>Pay a Bill</h1>
             <InvoiceLoginField
-              label={'Email Address'}
-              value={emailAddress.value}
-              onUpdateInput={updateFieldValue('emailAddress')}
-              errorMessage={<InputFieldError label={'This is not a valid email address.'} />}
-              isValid={this.isValid('emailAddress')}
-              tooltipText={'This is an email address which we will send a reciept on payment of the invoice.'}
-            />
-            <InvoiceLoginField
               id={'invoiceId'}
               label={'Invoice Number'}
               value={invoiceId.value}
@@ -254,6 +251,14 @@ class InvoiceLogin extends Component {
               errorMessage={<InputFieldError label={'You must enter a valid accountCode. i.e. NAME01'} />}
               isValid={this.isValid('accountCode')}
               tooltipText={'The account number provided on your invoice. i.e. NAME01'}
+            />
+            <InvoiceLoginField
+              label={'Email Address for receipt'}
+              value={emailAddress.value}
+              onUpdateInput={updateFieldValue('emailAddress')}
+              errorMessage={<InputFieldError label={'This is not a valid email address.'} />}
+              isValid={this.isValidEmail('emailAddress')}
+              tooltipText={'This is an email address which we will send a reciept on payment of the invoice.'}
             />
             <CheckInvoiceButton disabled={!(this.isValid('accountCode') && this.isValidInvoiceNumber('invoiceId'))} />
             { invoiceErrorMessage ?
