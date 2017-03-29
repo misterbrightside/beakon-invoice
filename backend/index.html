@@ -34,19 +34,24 @@
     var ipc = require('electron').ipcRenderer;
     var authButton = document.getElementById('uploadFiles');
     authButton.addEventListener('click', () => {
-        ipc.once('actionReply', (event, response) => {
-            console.log(response);
-        });
+      // ipc.once('actionReply', (event, response) => {
+      //     console.log(response);
+      // });
 
-        ipc.on('actionReplyTest', (event, response) => {
-          console.log(response);
-        })
+      // ipc.on('actionReplyTest', (event, response) => {
+      //   console.log(response);
+      // })
 
-        ipc.on('uploadEvent', (event, response) => {
-          console.log(response);
-        })
+      // ipc.on('uploadEvent', (event, response) => {
+      //   console.log(response);
+      // })
 
-        ipc.send('openDialog', {
+      ipc.on('disableButton', (event, response) => {
+        console.log('STUN');
+        authButton.disabled = true;
+      })
+
+      ipc.send('openDialog', {
         skips: localStorage.getItem('skipsFile'),
         address: localStorage.getItem('webAddress')
       });

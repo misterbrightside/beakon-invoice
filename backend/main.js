@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { requireTaskPool } = require('electron-remote');
 const path = require('path');
-const upload = require('./app/index').upload;
 const url = require('url')
 let win;
 
@@ -12,6 +11,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+
+  win.webContents.openDevTools()
 
   win.on('closed', () => {
     win = null
@@ -39,17 +40,18 @@ function quitApp() {
   }, (ints) => { app.quit() });
 }
 
-async function processFiles(files, event, data) {
-  const module = requireTaskPool(require.resolve('./app/index'));
-  const skipsPath = data.skips;
-  const site = data.address
-  upload(files[0] + "/", skipsPath, site, () => quitApp());
-}
-
-ipcMain.once('openDialog', (event, data) => {
+ipcMain.on('openDialog', (event, data) => {
     dialog.showOpenDialog({ properties: ['openDirectory'] }, (files) => {
       if (files) {
-          processFiles(files, event, data);
+          event.sender.send('disableButton');
+          const cp = require('child_process');
+          const n = cp.fork('foo.js', [files[0] + '/', data.skips, data.address]);
+          n.on('message', (m) => {
+            if (m.message === 'uploadedSuccessfully') {
+              console.log(m);
+              quitApp();
+            }
+          });
       }
     });
 });
