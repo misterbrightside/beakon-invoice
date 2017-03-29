@@ -1,7 +1,7 @@
 const upload = require('./app/index').upload;
 
 function processFiles(filePath, skipsFilePath, urlPath) {
-  upload(filePath, skipsFilePath, urlPath, () => {
+  upload(filePath, skipsFilePath, urlPath, process, () => {
     console.log('hey porkchop');
     process.send({ message: 'uploadedSuccessfully', args: [filePath, skipsFilePath, urlPath] });
   });

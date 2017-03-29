@@ -1,18 +1,17 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { requireTaskPool } = require('electron-remote');
 const path = require('path');
-const url = require('url')
+const url = require('url');
+const { round } = require('lodash');
 let win;
 
 function createWindow () {
-  win = new BrowserWindow({width: 800, height: 600});
+  win = new BrowserWindow({width: 900, height: 550});
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }))
-
-  win.webContents.openDevTools()
 
   win.on('closed', () => {
     win = null
@@ -41,20 +40,40 @@ function quitApp() {
 }
 
 ipcMain.on('openDialog', (event, data) => {
-    dialog.showOpenDialog({ properties: ['openDirectory'] }, (files) => {
-      if (files) {
-          event.sender.send('disableButton');
-          const cp = require('child_process');
-          const n = cp.fork('foo.js', [files[0] + '/', data.skips, data.address]);
-          n.on('message', (m) => {
-            if (m.message === 'uploadedSuccessfully') {
-              console.log(m);
-              quitApp();
-            }
-          });
-      }
-    });
+  if (data.file) {
+      event.sender.send('disableButton');
+      const cp = require('child_process');
+      const n = cp.fork('foo.js', [data.file + '/', data.skips, data.address]);
+      let progress = 1;
+      let progressFiles = 0;
+      n.on('message', (m) => {
+        if (m.message === 'uploadedSuccessfully') {
+          console.log(m);
+          quitApp();
+        } else if (m.message === 'init') {
+          event.sender.send('uploadEvent', { messageForScreen: 'Initialising process and beginning to load files into memory...', progress: 2});
+        } else if (m.message === 'fileLoaded') {
+          progressFiles += 20;
+          event.sender.send('uploadEvent', { messageForScreen: `Loading ${m.file}...`, progress: progressFiles });
+        } else if (m.message === 'filesLoaded') {
+          event.sender.send('uploadEvent', { messageForScreen: `All files loaded!`, progress: 0 });
+        } else if (m.message === 'processingInvoice') {
+          if (m.percent > progress) {
+            progress += 2;
+            event.sender.send('uploadEvent', { messageForScreen: `${round(m.percent, 0)}% of invoices computed.`, progress: progress});
+          }
+        } else if (m.message === 'processingStarting') {
+          event.sender.send('uploadEvent', { messageForScreen: 'Starting to process invoices...', progress: 0 });
+        } 
+      });
+  }
 });
+
+ipcMain.on('selectDataFolder', (event, data) => {
+  dialog.showOpenDialog({ properties: ['openDirectory'] }, (files) => {
+    event.sender.send('dataFolderSelected', files);
+  })
+})
 
 ipcMain.on('openSkipsDialog', (event, data) => {
   dialog.showOpenDialog({ properties: ['openFile'] }, (files) => {

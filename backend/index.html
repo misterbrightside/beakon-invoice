@@ -8,53 +8,75 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
   </head>
   <body>
-    <div class="header">
-      <h1>Select folder to upload</h1>
-      <button class="waves-effect waves-light btn" id='uploadFiles'>Select directory for upload</button>
-    </div>
-    <div class='formPart'>
-      <span><button id='skipFiles' class="waves-effect waves-light btn">List of invoices to skip.</button></span>
-      <input id='skipFilesValue' type="text" readonly />
-    </div>
-
-    <div class='formPart'>
-      <span>URL to upload to: </span>
-      <input id='webAddress' type="text" />
-    </div>
-
-    <div class="progressShow hide">
-      <div id='progressOutput'></div>
-      <div class="progress">
-        <div class="determinate" style="width: 70%"></div>
+    <div class="containerApp">
+      <div class="header">
+        <img src='lib/beakon-invoice.png' />
       </div>
-    </div>
 
+      <div class='formPart'>
+          <label>Data Folder:</label>
+          <input id='dataFolderValue' type="text" readonly />
+          <span><button id='dataFolderButton' class="secondary">Select File</button></span>
+      </div>
+
+      <div class='formPart'>
+        <label>Skip List:</label>
+        <input id='skipFilesValue' type="text" readonly />
+        <span><button id='skipFiles' class="secondary">Select File</button></span>
+      </div>
+
+      <div class='formPart'>
+        <label>Upload URL:</label>
+        <input id='webAddress' type="text" />
+        <span></span>
+      </div>
+
+      <div class="progressShow hide">
+        <div id='progressOutput'></div>
+        <div class="progress">
+          <div class="determinate" style="width: 1%"></div>
+        </div>
+        <div id='progressDescription'></div>
+      </div>
+
+      <button class="primary" id='uploadFiles' disabled=true>Upload</button>
+    </div>
+    <div class="copyright">Powered by <span>beakon</span></div>
   </body>
   <script>
     var ipc = require('electron').ipcRenderer;
     var authButton = document.getElementById('uploadFiles');
+    var progressBar = document.getElementsByClassName('progressShow')[0];
+    var progressBarWidth = document.getElementsByClassName('determinate')[0];
+    var progressDescription = document.getElementById('progressDescription');
     authButton.addEventListener('click', () => {
-      // ipc.once('actionReply', (event, response) => {
-      //     console.log(response);
-      // });
-
-      // ipc.on('actionReplyTest', (event, response) => {
-      //   console.log(response);
-      // })
-
-      // ipc.on('uploadEvent', (event, response) => {
-      //   console.log(response);
-      // })
+      ipc.on('uploadEvent', (event, response) => {
+        console.log(response);
+        progressDescription.innerText = response.messageForScreen;
+        progressBarWidth.style.width = `${response.progress}%`;
+      })
 
       ipc.on('disableButton', (event, response) => {
-        console.log('STUN');
         authButton.disabled = true;
+        progressBar.className = 'progressShow';
       })
 
       ipc.send('openDialog', {
+        file: document.getElementById('dataFolderValue').value,
         skips: localStorage.getItem('skipsFile'),
         address: localStorage.getItem('webAddress')
       });
+    });
+
+    var dataFolderButton = document.getElementById('dataFolderButton');
+    dataFolderButton.addEventListener('click', () => {
+      ipc.on('dataFolderSelected', (event, response) => {
+        document.getElementById('dataFolderValue').value = response[0];
+        if (response[0] !== null || response[0] !== undefined) {
+          authButton.disabled = false;
+        }
+      })
+      ipc.send('selectDataFolder');
     });
 
     var skipsButton = document.getElementById('skipFiles');

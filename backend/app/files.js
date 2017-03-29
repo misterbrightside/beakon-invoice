@@ -36,7 +36,7 @@ const parseRow = (data, file) => {
 	globalData[file].push(data);
 };
 
-const parseFile = (filePath, key) => {
+const parseFile = (filePath, key, childProcess) => {
 	const arrayOfData = [];
 	return new Promise((resolve, reject) => {
 		const file = XLSX.readFile(filePath);
@@ -44,12 +44,13 @@ const parseFile = (filePath, key) => {
 		const ref = file.Sheets[sheetname];
 		const json = XLSX.utils.sheet_to_json(ref);
 		console.log('Loading ' + filePath + '...');
+		childProcess.send({message: 'fileLoaded', file: filePath});
 		resolve({ [key]: json });
 	});
 }
 
-const loadExcelFiles = (files) => {
-	const streamPromises = Object.keys(files).map(file => parseFile(files[file], file));
+const loadExcelFiles = (files, childProcess) => {
+	const streamPromises = Object.keys(files).map(file => parseFile(files[file], file, childProcess));
 	return Promise.all(streamPromises)
 		.then((data) => Object.assign(...data));
 };

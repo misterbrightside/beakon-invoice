@@ -9,13 +9,14 @@ const skips = require('./readSkips');
 var ipc = require('electron').ipcRenderer;
 
 
-function uploadFiles(path, skipsFilePath, uploadPath, callback) {
+function uploadFiles(path, skipsFilePath, uploadPath, childProcess, callback) {
 	const excelDataPromise = files.getFiles(path)
-		.then(files.loadExcelFiles);
+		.then((docs) => files.loadExcelFiles(docs, childProcess));
 
 	const skipPromise = skips.getSkipsObject(skipsFilePath);
 
 	let func = (skipList, data, id, size, position) => {
+		childProcess.send({ message: 'processingInvoice', percent: position/size * 100});
 		if (skipList[id] !== undefined) {
 			return null;
 		}
@@ -51,18 +52,20 @@ function uploadFiles(path, skipsFilePath, uploadPath, callback) {
 
 	var filtered = (arr1, arr2) => arr1.filter(function(e){return this.indexOf(e)<0;},arr2);
  	return new Promise((resolve, reject) => {
+		 childProcess.send({ message: 'init' });
 		 Promise.all([excelDataPromise, skipPromise])
 		.then(([excelData, skipData]) => {
-			console.log('Files loaded..');
+			childProcess.send({ message: 'filesLoaded' });
 			let slice = excelData['SaleDoc'].map(i => i.ID);
 			let trimmedData = skips.filterData2(skipData, excelData);
 			const idsToSkip = Object.keys(skipData).map(id => parseInt(id, 10));
 			const arrayToDo = filtered(slice, idsToSkip);
 			
-			console.log('starting to process');
+			childProcess.send({ message: 'processingStarting' });
 			const processed = arrayToDo.map((i, index, arr) => func(skipData, trimmedData, i, arr.length, index));
 			const newSkips = processed.filter(item => item !== null).filter(item => item.skip === true);
 			const todo = processed.filter(item => item !== null).filter(item => !item.skip);
+			childProcess.send({ message: 'processingInvoice', percent: 100});
 			skips.printSkipsToFile(newSkips, skipData, skipsFilePath);
 			return todo;
 		})
