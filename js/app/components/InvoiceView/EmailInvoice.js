@@ -160,13 +160,15 @@ const TableHeader = ({ isNewOrder }) => {
 }
 
 
-const ItemsTotal = ({ isNewOrder, subTotal, VAT, total }) => {
+const ItemsTotal = ({ isNewOrder, subTotal, VAT, total, paid }) => {
   const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
+  const paidAmount = <span className={style.totalCost}>{`€${paid}`}</span>;
    return isNewOrder ? null : (
     <tfoot className={style.invoicesFooter}>
       { getRow(1, ['', '', '', '', 'Subtotal', `€${subTotal}`]) }
       { getRow(2, ['', '', '', '', 'VAT', `€${VAT}`]) }
       { getRow(3, ['', '', '', '', <span className={style.totalString}>Total</span>, totalCost]) }
+      { getRow(4, ['', '', '', '', <span className={style.totalString}>Paid</span>, totalCost]) }
     </tfoot>
   );
 };
@@ -198,7 +200,7 @@ const Items = ({ isNewOrder, items }) => {
   )
 };
 
-const ItemsPurchased = ({ isNewOrder, items }) => {
+const ItemsPurchased = ({ isNewOrder, items, paid }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
     const price = parseFloat(items[key].FRGAMOUNTVATEXC, 10);
     return previous + price;
@@ -222,6 +224,7 @@ const ItemsPurchased = ({ isNewOrder, items }) => {
         VAT={VAT}
         total={total}
         isNewOrder={isNewOrder}
+        paid={paid}
       />
     </table>
   );

@@ -181,17 +181,40 @@ tbody > tr:last-child > td:first-child {
 }
 
 @media print {
-	.site-header {
+	.site-header, #main-header, #main-footer, .site-footer, iframe {
 		display: none;
 	}
 
-	.site-footer {
-		display: none;
+	:local(.customerAddress) {
+		font-size: .8em;
 	}
 
 	:local(.invoiceView) {
 		width: 100%;
 		max-width: 900px;
+		padding: 0px 30px 0 30px;
+		margin: 5px;
+	}
+
+	:local(.businessInfo) {
+		font-size: .7em;
+		padding: 5px 0;
+	}
+
+	:local(.invoiceHeader) {
+		font-size: 1.75em;
+	}
+
+	:local(.invoiceItemCell) {
+		padding: 8px 0;
+	}
+
+	:local(.blockAddress) {
+		margin: 12px 0;
+	}
+
+	:local(tbody.invoiceTableBody) {
+		min-height: 60px;
 	}
 }
 
