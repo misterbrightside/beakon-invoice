@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray } = require('electron');
 const { requireTaskPool } = require('electron-remote');
 const path = require('path');
 const url = require('url');
@@ -6,7 +6,12 @@ const { round } = require('lodash');
 let win;
 
 function createWindow () {
-  win = new BrowserWindow({width: 900, height: 550});
+  const appIcon = new Tray(path.join(__dirname, 'lib/DesktopIcon.png'));
+  win = new BrowserWindow({
+    width: 900,
+    height: 550,
+    icon: path.join(__dirname, 'lib/DesktopIcon.png')
+  });
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
