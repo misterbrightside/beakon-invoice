@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Tray } = require('electron');
 const { requireTaskPool } = require('electron-remote');
 const path = require('path');
+let fs = require('fs');
 const url = require('url');
 const { round } = require('lodash');
 let win;
@@ -8,8 +9,8 @@ let win;
 function createWindow () {
   const appIcon = new Tray(path.join(__dirname, 'lib/DesktopIcon.png'));
   win = new BrowserWindow({
-    width: 900,
-    height: 550,
+    width: 920,
+    height: 570,
     icon: path.join(__dirname, 'lib/DesktopIcon.png')
   });
   win.loadURL(url.format({
@@ -48,7 +49,8 @@ ipcMain.on('openDialog', (event, data) => {
   if (data.file) {
       event.sender.send('disableButton');
       const cp = require('child_process');
-      const n = cp.fork('foo.js', [data.file + '/', data.skips, data.address]);
+      let spawnPath  = path.join(__dirname, 'foo.js');
+      const n = cp.fork(spawnPath, [data.file + '/', data.skips, data.address]);
       let progress = 1;
       let progressFiles = 0;
       n.on('message', (m) => {
