@@ -7,6 +7,7 @@ import InvoiceAPI from '../../api/InvoiceAPI';
 import IFrame from '../IFrame/';
 import style from './login-page.css';
 import buttonStyle from '../Button/button.css';
+import ThanksForOrdering from '../ThankYouScreen/';
 
 const CheckInvoiceButton = ({ disabled }) => (
   <div className={style.findInvoiceButtonContainer}>
@@ -23,15 +24,6 @@ const CheckInvoiceButton = ({ disabled }) => (
 const InputFieldError = ({ label }) => (
   <div className={style.inputFieldErrorMessage}>
     { label }
-  </div>
-);
-
-const ThanksForOrdering = ({ message }) => (
-  <div className={style.thankYouMessageBox}>
-    <div className={style.thankYouHeader}>Thanks For Ordering</div>
-    <div>
-      {message}
-    </div>
   </div>
 );
 
@@ -77,7 +69,8 @@ class InvoiceLogin extends Component {
       isNewOrder: this.isRedirectToNewOrder(),
       isThankYouScreen: this.isThankYouScreen(),
       orderParams: this.getUrlParams(window.location.href),
-      url: null
+      url: null,
+      orderId: null
     };
   }
 
@@ -87,8 +80,10 @@ class InvoiceLogin extends Component {
       InvoiceAPI.getURLForWorldNetPaymentForNewOrder(this.getUrlParams(window.location.href))
         .then(res => res.json())
         .then(({ url }) => {
+          const params = this.getUrlParams(url);          
           this.setState({
             url: url,
+            orderId: params.ORDERID,
             displayPaymentRedirectLoading: false,
           });
         })
@@ -97,6 +92,17 @@ class InvoiceLogin extends Component {
             displayPaymentRedirectLoading: false,
           });
         });
+    } else if (this.state.isThankYouScreen) {
+      this.setState({ displayPaymentRedirectLoading: true });
+      InvoiceAPI.getURLForWorldNetPaymentForNewOrder(this.getUrlParams(window.location.href))
+        .then(res => res.json())
+        .then(({ url }) => {
+          const params = this.getUrlParams(url);          
+          this.setState({
+            orderId: params.ORDERID,
+            displayPaymentRedirectLoading: true,
+          })
+        })
     }
   }
 
@@ -166,9 +172,10 @@ class InvoiceLogin extends Component {
 
   getInvoiceMarkup = (objectParams) => {
     return ReactDOMServer.renderToStaticMarkup(
-      <EmailInvoice 
-        { ...this.getEmailProps(this.state.orderParams, objectParams) }
-        isNewOrder={true}
+      <ThanksForOrdering
+        message={<span>Paid Online with WorldNet</span>} 
+        orderId={this.state.orderId}
+        {...this.state.orderParams}
       />
     );
   }
@@ -190,7 +197,8 @@ class InvoiceLogin extends Component {
       displayPaymentRedirectLoading: false,
       redirectToPaymentUrl: false,
     });
-    InvoiceAPI.updatePaymentStatusOfInvoice(payload);
+    const newPayload = Object.assign(payload, this.state.orderParams);
+    InvoiceAPI.updatePaymentStatusOfInvoice(newPayload);
   }
 
   render() {
@@ -206,11 +214,21 @@ class InvoiceLogin extends Component {
 
 
     if (this.state.paymentSuccessPayload) {
-      return (<ThanksForOrdering message={'An email has been sent confirming your order.'} />);
+      return (
+        <ThanksForOrdering
+          message={<span>Paid Online with WorldNet</span>} 
+          orderId={this.state.orderId}
+          {...this.state.orderParams}
+        />
+      );
     } 
     else if (this.state.isThankYouScreen) {
       return (
-        <ThanksForOrdering message={'An email has been sent confirming your order.'} />
+        <ThanksForOrdering 
+          message={<span className={style.paymentBlurb}>Payment to be arranged.</span>}
+          orderId={this.state.orderId} 
+          {...this.state.orderParams}
+        />
       );
     }
     else if (this.state.isNewOrder && this.state.displayPaymentRedirectLoading) {
@@ -220,6 +238,11 @@ class InvoiceLogin extends Component {
           Loading WorldNet...
         </div>
       );
+    } else if (this.state.isThankYouScreen && this.state.displayPaymentRedirectLoading) {
+        <div>
+          <LoadingIndicator /> 
+          Loading...
+        </div>
     } else if (this.state.isNewOrder && this.state.url) {
       return (
         <IFrame

@@ -64,12 +64,14 @@ class UploadController {
 		register_setting( 'beakonInvoiceSettingsGroup', 'terminalId' );
 		register_setting( 'beakonInvoiceSettingsGroup', 'worldnetSecret' );
 		register_setting( 'beakonInvoiceSettingsGroup', 'isTestEnv' );
+		register_setting( 'beakonInvoiceSettingsGroup', 'adminEmailInvoices' );
 
 		add_settings_section( 'beakonInvoiceWorldnetSettings', 'Worldnet Options', array($this, 'getWorldnetOptions'), 'edit.php?post_type=invoice');
 
 		add_settings_field('worldnetTerminalId', 'Worldnet Terminal Id', array($this, 'getWorldnetId'), 'edit.php?post_type=invoice', 'beakonInvoiceWorldnetSettings');
 		add_settings_field('worldnetTestEnv', 'Is Test Enviornment?', array($this, 'getTestEnv'), 'edit.php?post_type=invoice', 'beakonInvoiceWorldnetSettings');
 		add_settings_field('worldnetSecret', 'Worldnet Secret', array($this, 'getWorldnetSecret'), 'edit.php?post_type=invoice', 'beakonInvoiceWorldnetSettings');
+		add_settings_field('adminEmailInvoices', 'Admin Email for orders', array($this, 'getAdminEmail'), 'edit.php?post_type=invoice', 'beakonInvoiceWorldnetSettings');
 	}
 
 	function getSettingsTemplate() {
@@ -83,6 +85,11 @@ class UploadController {
 	function getWorldnetSecret() {
 		$secret = esc_attr( get_option('worldnetSecret') );
 		echo "<input type='password' name='worldnetSecret' value='$secret' placeholder='Secret' />";		
+	}
+
+	function getAdminEmail() {
+		$email = esc_attr( get_option('adminEmailInvoices') );
+		echo "<input type='email' name='adminEmailInvoices' value='$email' placeholder='Email' />";
 	}
 
 	function getTestEnv() {
