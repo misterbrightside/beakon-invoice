@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-// const autoprefixer = require('autoprefixer');
 const isProduction = process.env.NODE_ENV === 'production';
 const ipAddress = process.env.IP_ADDRESS && !isProduction ? process.env.IP_ADDRESS : '';
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -9,20 +8,24 @@ const buildPath = path.resolve(__dirname, 'build');
 const frontendEntryPath = path.resolve(__dirname, 'app', 'index.js');
 const adminEntryPath = path.resolve(__dirname, 'admin', 'index.js');
 const bulkImportEntryPath = path.resolve(__dirname, 'admin/BulkImport', 'index.js');
+const settingsPageEntryPath = path.resolve(__dirname, 'admin/SettingsPage', 'index.js');
 
 const entries = {
   frontendBundle: frontendEntryPath,
   adminBundle: adminEntryPath,
   bulkImportBundle: bulkImportEntryPath,
+  settingsPageBundle: settingsPageEntryPath,
 };
 
 const pluginsUsed = [
-  // new webpack.optimize.UglifyJsPlugin(),
-  // new ExtractTextPlugin("[name]-styles.css"),
+  new webpack.optimize.UglifyJsPlugin(),
 ];
 
 pluginsUsed.push(
   new webpack.DefinePlugin({
+    'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+    },
     IS_PRODUCTION: JSON.stringify(isProduction),
     IS_DEVELOPMENT: JSON.stringify(!isProduction),
     IP_ADDRESS: JSON.stringify(ipAddress),
@@ -31,7 +34,7 @@ pluginsUsed.push(
 const cssIdentifer = '[path][name]---[local]';
 
 // const cssLoader = ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?localIdentName=' + cssIdentifer });
-const cssLoader = [ 'style-loader', 'css-loader?localIdentName=' + cssIdentifer ];
+const cssLoader = [ 'style-loader', 'css-loader?localIdentName=' + cssIdentifer + '&importLoaders=1', 'postcss-loader'];
 
 const config = {
   devtool: '#source-maps',
@@ -39,10 +42,14 @@ const config = {
   plugins: pluginsUsed,
   module: {
     loaders: [{
-      test: /\.js$/,
-      loaders: ['babel-loader'],
-      exclude: '/node_modules/',
-    }, {
+    'loader': 'babel-loader',
+    'test': /\.js$/,
+    'exclude': /node_modules/,
+    'query': {
+      'plugins': ['lodash', 'transform-class-properties'],
+      'presets': ['es2015', 'latest']
+    }
+  }, {
       test: /\.(png|gif|jpg)$/,
       loaders: ['url-loader?limit=10000&name=images/[hash:12].[ext]'],
       exclude: '/node_modules/',

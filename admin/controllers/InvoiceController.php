@@ -5,7 +5,6 @@ require_once __DIR__ . '/../models/InvoiceModel.php';
 require_once __DIR__ . '/../models/InvoiceNotFound.php';
 require_once 'EmailController.php';
 
-
 class InvoiceController {
 	protected $invoiceModel;
 	protected $NAMESPACE = 'beakon-invoices/v1';
@@ -16,7 +15,14 @@ class InvoiceController {
 		$this->invoiceModel = new InvoiceModel();
 		$this->worldnetController = new WorldnetPaymentController();
 		$this->emailController = new EmailController();
+
+		add_action( 'init', array($this, 'registerInvoiceType' ));
 		add_action('rest_api_init', array($this, 'registerRoutes'));
+	}
+
+	function registerInvoiceType() {
+		$args = $this->invoiceModel->getArgsForPostType();
+		register_post_type( 'invoice', $args );
 	}
 
 	function registerRoutes() {
@@ -24,6 +30,17 @@ class InvoiceController {
 		$this->registerGetInvoiceRoute();
 		$this->registerGetWorldnetPaymentUrlRoute();
 		$this->registerPutWorldnetPaymentStatus();
+		$this->registerBulkUploadFromCLI();
+		$this->registerNewOrderRoute();
+	}
+
+	protected function registerBulkUploadFromCLI() {
+		register_rest_route($this->NAMESPACE, 'invoices',
+			array(
+				'methods' => 'POST',
+				'callback' => array($this, 'addInvoicesFromCLI')
+			)
+		);			
 	}
 
 	protected function registerPostAddInvoices() {
@@ -33,6 +50,15 @@ class InvoiceController {
 				'callback' => array($this, 'addInvoices')
 			)
 		);		
+	}
+
+	protected function registerNewOrderRoute() {
+		register_rest_route($this->NAMESPACE, 'order',
+			array(
+				'methods' => 'POST',
+				'callback' => array($this, 'newOrder')
+			)
+		);			
 	}
 
 	protected function registerGetInvoiceRoute() {
@@ -67,7 +93,7 @@ class InvoiceController {
 		$response = array();
 		foreach ($invoices as $invoice) {
 			$id = $this->invoiceModel->addInvoice( $invoice );
-			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDocument']['number'])));
+			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDoc']['NUMBER'])));
 		}
 		return json_encode($response);
 	}
@@ -75,13 +101,24 @@ class InvoiceController {
 	function getInvoice( $request ) {
 		$invoiceId = $request['invoiceId'];
 		$accountCode = $request['accountCode'];
-		if (substr( $invoiceId, 0, 3 ) === "SI-") $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
-		else $invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
-		if ( $invoice !== NULL && $invoice['salesDocument']['customerCode'] === $accountCode) {
+		if (substr( $invoiceId, 0, 3 ) === "SI-" || substr( $invoiceId, 0, 3 ) === "SO-") {
+			$invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'invoiceId');
+		} else {
+			$invoice = $this->invoiceModel->getInvoiceByID($invoiceId, 'workingOrder');
+		}
+		if ( $invoice !== NULL && $invoice['customer']['CODE'] === $accountCode) {
 			return $invoice;
 		} else {
 			return InvoiceNotFound::getNotFoundObject();
 		}
+	}
+	
+	function newOrder($request) {
+		$amount = $request['budget'];
+		$email = $request['email'];
+		$order = $this->invoiceModel->createNewOrder($request);
+		$orderAttempt = $this->worldnetController->processOrderAndGetUrlForPayment($order, $amount, $email );
+		return $orderAttempt['url'];
 	}
 
 	function getWorldnetPaymentUrl( $request ) {
@@ -94,11 +131,22 @@ class InvoiceController {
 	}
 
 	function updatePaymentStatus( $request ) {
-		$result = $this->invoiceModel->addPaymentAttemptResponse( $request );
-		return $this->sendPaymentRecieptEmail($request);
+		$id = $this->invoiceModel ->addPaymentAttemptResponse( $request );
+		return $this->sendPaymentRecieptEmail($request, $id);
 	} 
 
-	function sendPaymentRecieptEmail( $request ) {
-		return $this->emailController->sendEmail($request);
+	function sendPaymentRecieptEmail( $request, $id ) {
+		return $this->emailController->sendEmail($request, $id);
 	} 
+
+	function addInvoicesFromCLI( $request ) {
+		$invoices = $request->get_json_params();
+		$sliced_invoices = array_slice($invoices, 0, 10);
+		$response = array();
+		foreach ($invoices as $invoice) {
+			$id = $this->invoiceModel->addInvoice( $invoice );
+			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDoc']['NUMBER'])));
+		}
+		return json_encode($response);
+	}
 }

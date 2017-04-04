@@ -72,29 +72,29 @@ const CustomerAddress = ({ name, ...address }) => (
   </address>
 );
 
-const ItemsTotal = ({ subTotal, VAT, total }) => {
+const ItemsTotal = ({ subTotal, VAT, total, paid, outstanding }) => {
   const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
   return (
     <tfoot className={style.invoicesFooter}>
       { getRow(1, ['', '', '', '', 'Subtotal', `€${subTotal}`]) }
       { getRow(2, ['', '', '', '', 'VAT', `€${VAT}`]) }
       { getRow(3, ['', '', '', '', <span className={style.totalString}>Total</span>, totalCost]) }
-      { getRow(4, ['', '', '', '', <span className={style.totalString}>Paid</span>, `€0`]) }
-      { getRow(5, ['', '', '', '', <span className={style.totalString}>Outstanding</span>, `€0`])}
+      { getRow(4, ['', '', '', '', <span className={style.totalString}>Paid</span>, `€${paid}`]) }
+      { getRow(5, ['', '', '', '', <span className={style.totalString}>Outstanding</span>, `€${outstanding}`])}
     </tfoot>
   );
 };
 
-const Items = ({ items }) => {
+const Items = ({ items, outstanding, paid }) => {
   return (
     <tbody className={style.invoiceTableBody}>
       { items.map((item, index) => getRow(uniqueId(), [
-          item.name,
-          item.qty,
-          `€${item.salePrice}`,
-          `€${item.amountVatExc}`,
-          `€${item.vatAmount}`,
-          `€${round(parseFloat(item.qty, 10) * parseFloat(item.salePriceVatInclusive, 10), 2)}`
+          item.NAME,
+          item.QUANTITY,
+          `€${item.FRGSALEPRICE}`,
+          `€${item.FRGAMOUNTVATEXC}`,
+          `€${item.FRGVATAMOUNT}`,
+          `€${round(parseFloat(item.FRGAMOUNTVATEXC, 10) + parseFloat(item.FRGVATAMOUNT, 10), 2)}`
         ])
       )}
     </tbody>
@@ -114,34 +114,35 @@ const TableHeader = () => (
   </thead>
 );
 
-const ItemsPurchased = ({ items }) => {
+const ItemsPurchased = ({ items, paid, outstanding }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
-    const price = parseFloat(items[key].amountVatExc, 10);
+    const price = parseFloat(items[key].FRGAMOUNTVATEXC, 10);
     return previous + price;
   }, 0);
   const subTotalRounded = round(subTotal, 2);
   const VAT = Object.keys(items).reduce((previous, key) => {
-    const vatAmount = parseFloat(items[key].vatAmount, 10);
+    const vatAmount = parseFloat(items[key].FRGVATAMOUNT, 10);
     return previous + vatAmount;
   }, 0);
-  const totalBmu = Object.keys(items).reduce((previous, key) => {
-    const vatAmount = parseFloat(items[key].vatAmount, 10);
-    const price = parseFloat(items[key].amountVatExc, 10);
-    return previous + (vatAmount + price);
-  }, 0);
-  const total = round(totalBmu, 2);
+  const VATRounded = round(VAT, 2);
+  const total = round(subTotal + VAT, 2);
+  const totalPaid = outstanding === 0 ? total : paid;
   return (
-    <table className={style.invoiceItemsTable}>
-      <TableHeader />
-      <Items
-        items={items}
-      />
-      <ItemsTotal
-        subTotal={subTotalRounded}
-        VAT={VAT}
-        total={total}
-      />
-    </table>
+    <div className={style.tableWrapper}>
+      <table className={style.invoiceItemsTable}>
+        <TableHeader />
+        <Items
+          items={items}
+        />
+        <ItemsTotal
+          subTotal={subTotalRounded}
+          VAT={VATRounded}
+          total={total}
+          paid={totalPaid}
+          outstanding={outstanding}
+        />
+      </table>
+    </div>
   );
 }
 
@@ -162,33 +163,39 @@ const Invoice = (props) => {
   const {
     firstNameId,
     surnameId,
-    number: invoiceId,
-    postDate: invoiceIssueDate,
+    saleDoc,
     items,
     customer,
-    remark,
-    reference
+    reference,
+    total,
+    paid,
+    leftToPay,
+    paymentSuccessPayload
   } = props;
+
+  const totalLeftToPay = paymentSuccessPayload !== null && paymentSuccessPayload.AMOUNT ? parseFloat(leftToPay, 10) - parseFloat(paymentSuccessPayload.AMOUNT, 10) : parseFloat(leftToPay, 10);
+  const totalPaid = paymentSuccessPayload !== null && paymentSuccessPayload.AMOUNT ? parseFloat(paid, 10) + parseFloat(paymentSuccessPayload.AMOUNT, 10) : parseFloat(paid, 10);
   return (
     <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
-        invoiceId={invoiceId}
-        invoiceIssueDate={invoiceIssueDate}
-        remark={remark}
-        reference={reference}
+        invoiceId={saleDoc.NUMBER}
+        invoiceIssueDate={saleDoc.POSTDATE}
+        remark={saleDoc.REMARKS}
+        reference={saleDoc.REFERENCE}
       />
       <CustomerAddress
-        name={customer.name}
-        address1={customer.address1}
-        address2={customer.address2}
-        address3={customer.address3}
-        address4={customer.address4}
-        address5={customer.address5}
-        address5={customer.address5}
-        address6={customer.address6}
+        name={customer.NAME}
+        address1={customer.ADDRLINE01}
+        address2={customer.ADDRLINE02}
+        address3={customer.ADDRLINE03}
+        address4={customer.ADDRLINE04}
+        address5={customer.ADDRLINE05}
+        address6={customer.ADDRLINE06}
       />
       <ItemsPurchased
         items={items}
+        paid={totalPaid}
+        outstanding={totalLeftToPay}
       />
       <BusinessInfo />
     </div>

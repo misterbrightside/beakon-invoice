@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Dundalk Oil Invoices Upload | Powered by Beakon</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+  </head>
+  <body>
+    <div class="containerApp">
+      <div class="header">
+        <img src='lib/beakon-invoice.png' />
+      </div>
+
+      <div class='formPart'>
+          <label>Data Folder:</label>
+          <input id='dataFolderValue' type="text" readonly />
+          <span><button id='dataFolderButton' class="secondary">Select File</button></span>
+      </div>
+
+      <div class='formPart'>
+        <label>Skip List:</label>
+        <input id='skipFilesValue' type="text" readonly />
+        <span><button id='skipFiles' class="secondary">Select File</button></span>
+      </div>
+
+      <div class='formPart'>
+        <label>Upload URL:</label>
+        <input id='webAddress' type="text" />
+        <span></span>
+      </div>
+
+      <div class="progressShow hide">
+        <div id='progressOutput'></div>
+        <div class="progress">
+          <div class="determinate" style="width: 1%"></div>
+        </div>
+        <div id='progressDescription'></div>
+      </div>
+
+      <button class="primary" id='uploadFiles' disabled=true>Upload</button>
+    </div>
+    <div class="copyright">Powered by <span>beakon</span></div>
+  </body>
+  <script>
+    var ipc = require('electron').ipcRenderer;
+    var authButton = document.getElementById('uploadFiles');
+    var progressBar = document.getElementsByClassName('progressShow')[0];
+    var progressBarWidth = document.getElementsByClassName('determinate')[0];
+    var progressDescription = document.getElementById('progressDescription');
+    authButton.addEventListener('click', () => {
+      ipc.on('uploadEvent', (event, response) => {
+        console.log(response);
+        progressDescription.innerText = response.messageForScreen;
+        progressBarWidth.style.width = `${response.progress}%`;
+      })
+
+      ipc.on('disableButton', (event, response) => {
+        authButton.disabled = true;
+        progressBar.className = 'progressShow';
+      })
+
+      ipc.send('openDialog', {
+        file: document.getElementById('dataFolderValue').value,
+        skips: localStorage.getItem('skipsFile'),
+        address: localStorage.getItem('webAddress')
+      });
+    });
+
+    var dataFolderButton = document.getElementById('dataFolderButton');
+    dataFolderButton.addEventListener('click', () => {
+      ipc.on('dataFolderSelected', (event, response) => {
+        document.getElementById('dataFolderValue').value = response[0];
+        if (response[0] !== null || response[0] !== undefined) {
+          authButton.disabled = false;
+        }
+      })
+      ipc.send('selectDataFolder');
+    });
+
+    var skipsButton = document.getElementById('skipFiles');
+    var skipsValue = document.getElementById('skipFilesValue');
+    skipsValue.value = localStorage.getItem('skipsFile');
+    skipsButton.addEventListener('click', () => {
+      ipc.send('openSkipsDialog');
+
+      ipc.once('actionReply', (event, response) => {
+          localStorage.setItem("skipsFile", response);
+          skipsValue.value = response;
+      });
+    });
+
+    var webAddress = document.getElementById('webAddress');
+    webAddress.value = localStorage.getItem('webAddress');
+    webAddress.addEventListener('change', (event) => {
+      localStorage.setItem("webAddress", event.target.value);
+    })
+  </script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+</html>

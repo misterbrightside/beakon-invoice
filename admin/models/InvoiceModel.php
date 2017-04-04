@@ -10,6 +10,57 @@ class InvoiceModel {
 		$this->worldnetPaymentController = new WorldnetPaymentController();
 	}
 
+	function getLabelsForPostType() {
+		$singular = 'Invoice Record';
+		$plural = 'Invoice Records';
+		$add_name = 'Upload';
+		$add_new_item = $add_name . ' ' . $singular;
+		$not_found_in_trash = 'No ' . $plural . ' in Bin';
+		
+		return array(
+			'name' => $plural,
+			'singular' => $singular,
+			'add_name' => $add_name,
+			'add_new_item' => $add_new_item,
+			'edit' => 'Edit',
+			'edit_item' => 'Edit ' . $singular,
+			'new_item' => 'New ' . $singular,
+			'view' => 'View ' . $singular,
+			'search_term' => 'Search ' . $plural,
+			'parent' => 'Parent ' . $singular,
+			'not_found' => 'No ' . $plural . ' found',
+			'not_found_in_trash' => $not_found_in_trash,
+		);
+	}
+
+
+	function getArgsForPostType() {
+	$below_posts_position_in_admin_ui = 6;
+	return array(
+		'labels' => $this->getLabelsForPostType(),
+		'public' => true,
+		'publicly_queryable' => false,
+		'exclude_from_search' => true,
+		'show_in_nav_menus' => false,
+		'show_in_admin_bar' => false,
+		'show_in_menu' => true,
+		'menu_position'	=> $below_posts_position_in_admin_ui,
+		'can_export' => true,
+		'delete_with_user' => false,
+		'menu_icon' => 'dashicons-portfolio',
+		'hierarchical' => false,
+		'has_archive' => true,
+		'query_var'	=> false,
+		'capability_type' => 'page',
+		'rewrite' => array(
+			'slug' => 'invoices',
+			'pages' => false,
+			'feeds' => false,
+		),
+		'supports' => false,
+	);
+}
+
 	public function getInvoiceByID( $id, $key ) {
 		$seralizedMeta = $this->getMeta( $id, $key );
 		if ($seralizedMeta !== NULL) {
@@ -20,7 +71,7 @@ class InvoiceModel {
 	}
 
 	public function addInvoice( $invoice ) {
-		$invoiceId = $invoice['salesDocument']['number'];
+		$invoiceId = $invoice['saleDoc']['NUMBER'];
 		if ($this->getInvoiceByID($invoiceId, 'invoiceId') === NULL) {  
 			$postId = wp_insert_post(
 				array(
@@ -32,18 +83,24 @@ class InvoiceModel {
 		} else {
 			$postId = $this->getInternalWordPressId($invoiceId);
 		}
-		add_post_meta($postId, 'invoiceId', $invoice['salesDocument']['number']);
-		add_post_meta($postId, 'workingOrder', $invoice['salesDocument']['remarks']);
+		add_post_meta($postId, 'invoiceId', $invoice['saleDoc']['NUMBER']);
+		add_post_meta($postId, 'workingOrder', $invoice['saleDoc']['REMARKS']);
 		add_post_meta($postId, 'customer', $invoice['customer']);
-		add_post_meta($postId, 'salesDocument', $invoice['salesDocument']);
-		add_post_meta($postId, 'invoice', $invoice['invoice']);
+		add_post_meta($postId, 'saleDoc', $invoice['saleDoc']);
+		add_post_meta($postId, 'saleDocItems', $invoice['saleDocItems']);
+		add_post_meta($postId, 'debtorAlloc', $invoice['debtorAlloc']);
+		add_post_meta($postId, 'debtorEntry', $invoice['debtorEntry']);
+		add_post_meta($postId, 'total', $invoice['total']);
+		add_post_meta($postId, 'paid', $invoice['paid']);
+		add_post_meta($postId, 'leftToPay', $invoice['leftToPay']);
+		add_post_meta($postId, 'amountFree', $invoice['amountFree']);
 		return $postId;
 	}
 
 	protected function getInvoiceTitle( $data ) {
-		$name = $data['customer']['name'];
-		$dateOfInvoice = $data['salesDocument']['postDate'];
-		$id = $data['salesDocument']['number'];
+		$name = $data['customer']['NAME'];
+		$dateOfInvoice = $data['saleDoc']['POSTDATE'];
+		$id = $data['saleDoc']['NUMBER'];
 		return "$name - $dateOfInvoice - $id";
 	}
 
@@ -52,18 +109,9 @@ class InvoiceModel {
 		return $this->queryHasAnInvoiceThatExists($query);
 	}
 
-	public function getItemsOfInvoice( $id ) {
-		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
-		return $invoiceDoc['invoice'];
-	}
-
 	public function getTotalAmountToPay( $id ) {
-		$items = $this->getItemsOfInvoice($id);
-		$total = 0;
-		foreach ($items as $item) {
-			$total += $item['vatAmount'] + $item['amountVatExc'];
-		}
-		return $total;
+		$invoiceDoc = $this->getInvoiceByID( $id, 'invoiceId' );
+		return $invoiceDoc['leftToPay'];		
 	}
 
 	public function appendToInvoiceValue( $orderDetails, $invoiceId, $key ) {
@@ -87,7 +135,28 @@ class InvoiceModel {
 		if ($this->worldnetPaymentController->isValidPayload($paymentAttemptResponse)) {
 			$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		}
-		return $paymentAttemptResponse;
+		return $id;
+	}
+
+	public function createNewOrder( $request ) {
+		$postId = wp_insert_post(
+			array(
+				'post_type' => 'invoice',
+				'post_status' => 'publish',
+				'post_title' => $this->getNewOrderTitle($request)
+			)
+		);
+		$orderId = ($request['PayNow'] === 'true' || $request['PayNow'] === true) ? 'PN-' . $request['orderId'] : 'PL-' . $request['orderId']; 
+		add_post_meta($postId, 'invoiceId', $orderId);
+		return $orderId;		
+	}
+
+	function getNewOrderTitle( $request ) {
+		if ($request['PayNow'] === 'true') {
+			return $request['fname'] . ' - Pay Now - ' . $request['orderId'];
+		} else {
+			return $request['fname'] . ' - Pay Later - ' . $request['orderId'];
+		}
 	}
 
 	protected function getWorldnetPayLoad( $request ) {

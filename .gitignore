@@ -1,2 +1,11 @@
 js/node_modules
 js/build
+backend/tmp
+backend/out.nex
+backend/tmp/nexe/nodejs/6.10.0/node-v6.10.0/out/Release/libv8_base.a
+backend/node_modules/
+backend/npm-debug.log
+backend/app/files/
+backend/app/invoices.json
+backend/.vscode/launch.json
+backend/invoices.json

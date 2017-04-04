@@ -26,8 +26,13 @@ export default class IFrame extends Component {
 
   render() {
     const { src } = this.props;
+    let display;
+    if (this.iframe) {
+      display = this.iframe.contentWindow.location.href !== src ? { display: none } : null;
+    }
     return (
       <iframe
+        style={display}
         className={style.paymentIframe}
         ref={(iframeWindow) => { this.iframe = iframeWindow; }}
         src={src}

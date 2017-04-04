@@ -69,7 +69,7 @@ const Logo = () => (
   	<td className="title">
     	<img 
     		src={'http://dundalkoil.beakon.ie/wp-content/uploads/2016/11/Logo.png'} 
-			style={{width:'100%', maxWidth:'300px'}}
+			  style={{width:'100%', maxWidth:'300px'}}
     	/>
 	</td>
 );
@@ -140,8 +140,14 @@ const getRow = (index, data) => {
   );
 };
 
-const TableHeader = () => (
-  <thead>
+const TableHeader = ({ isNewOrder }) => {
+  return isNewOrder ? (<thead>
+    <tr style={style.invoiceItemTableRow}>
+      <th style={style.cellHeader}>Name/Description</th>
+      <th style={style.cellHeader}>Quantity</th>
+      <th style={style.cellHeader}>Price</th>
+    </tr>
+  </thead> ) : (<thead>
     <tr style={style.invoiceItemTableRow}>
       <th style={style.cellHeader}>Name/Description</th>
       <th style={style.cellHeader}>Quantity</th>
@@ -150,63 +156,75 @@ const TableHeader = () => (
       <th style={style.cellHeader}>VAT</th>
       <th style={style.cellHeader}>Price (Inc. VAT)</th>
     </tr>
-  </thead>
-);
+  </thead>);
+}
 
 
-const ItemsTotal = ({ subTotal, VAT, total }) => {
+const ItemsTotal = ({ isNewOrder, subTotal, VAT, total, paid }) => {
   const totalCost = <span className={style.totalCost}>{`€${total}`}</span>;
-  return (
+  const paidAmount = <span className={style.totalCost}>{`€${paid}`}</span>;
+   return isNewOrder ? null : (
     <tfoot className={style.invoicesFooter}>
       { getRow(1, ['', '', '', '', 'Subtotal', `€${subTotal}`]) }
       { getRow(2, ['', '', '', '', 'VAT', `€${VAT}`]) }
       { getRow(3, ['', '', '', '', <span className={style.totalString}>Total</span>, totalCost]) }
+      { getRow(4, ['', '', '', '', <span className={style.totalString}>Paid</span>, totalCost]) }
     </tfoot>
   );
 };
 
-const Items = ({ items }) => {
+const getItems = (items) => {
+  return items.map((item, index) => getRow(uniqueId(), [
+      item.NAME,
+      item.QUANTITY,
+      `€${item.FRGSALEPRICE}`,
+      `€${item.FRGAMOUNTVATEXC}`,
+      `€${item.FRGVATAMOUNT}`,
+      `€${round(parseFloat(item.FRGAMOUNTVATEXC, 10) + parseFloat(item.FRGVATAMOUNT, 10), 2)}`
+    ])
+  )
+};
+
+const Items = ({ isNewOrder, items }) => {
+  const rows = isNewOrder ? 
+      items.map((item, index) => getRow(uniqueId(), [
+          item.NAME,
+          item.QUANTITY,
+          item.BUDGET
+        ]))
+    : getItems(items);
   return (
     <tbody className={style.invoiceTableBody}>
-      { items.map((item, index) => getRow(uniqueId(), [
-          item.name,
-          item.qty,
-          `€${item.salePrice}`,
-          `€${item.amountVatExc}`,
-          `€${item.vatAmount}`,
-          `€${round(parseFloat(item.qty, 10) * parseFloat(item.salePriceVatInclusive, 10), 2)}`
-        ])
-      )}
+      { rows }
     </tbody>
   )
 };
 
-const ItemsPurchased = ({ items }) => {
+const ItemsPurchased = ({ isNewOrder, items, paid }) => {
   const subTotal = Object.keys(items).reduce((previous, key) => {
-    const price = parseFloat(items[key].amountVatExc, 10);
+    const price = parseFloat(items[key].FRGAMOUNTVATEXC, 10);
     return previous + price;
   }, 0);
   const subTotalRounded = round(subTotal, 2);
   const VAT = Object.keys(items).reduce((previous, key) => {
-    const vatAmount = parseFloat(items[key].vatAmount, 10);
+    const vatAmount = parseFloat(items[key].FRGVATAMOUNT, 10);
     return previous + vatAmount;
   }, 0);
-  const totalBmu = Object.keys(items).reduce((previous, key) => {
-    const vatAmount = parseFloat(items[key].vatAmount, 10);
-    const price = parseFloat(items[key].amountVatExc, 10);
-    return previous + (vatAmount + price);
-  }, 0);
-  const total = round(totalBmu, 2);
+  const VATRounded = round(VAT, 2);
+  const total = round(subTotal + VAT, 2);
   return (
     <table style={style.invoiceItemsTable}>
-      <TableHeader />
+      <TableHeader isNewOrder={isNewOrder} />
       <Items
         items={items}
+        isNewOrder={isNewOrder}
       />
       <ItemsTotal
         subTotal={subTotalRounded}
         VAT={VAT}
         total={total}
+        isNewOrder={isNewOrder}
+        paid={paid}
       />
     </table>
   );
@@ -214,16 +232,16 @@ const ItemsPurchased = ({ items }) => {
 
 class EmailInvoice extends Component {
 	render() {
-	const {
-	    firstNameId,
-	    surnameId,
-	    number: invoiceId,
-	    postDate: invoiceIssueDate,
-	    items,
-	    customer,
-	    remark,
-	    reference
-	  } = this.props;
+  const {
+    saleDoc,
+    items,
+    customer,
+    reference,
+    total,
+    paid,
+    leftToPay,
+    isNewOrder,
+  } = this.props;
 		return (
 			    <div style={style.invoiceBox}>
 			        <table cellpadding="0" cellspacing="0" style={style.fullWidthTable}>
@@ -233,10 +251,10 @@ class EmailInvoice extends Component {
 			                        <tr>
 			                            <Logo />
 			                            <InvoiceMetaDetails 
-											invoiceId={invoiceId}
-											invoiceIssueDate={invoiceIssueDate}
-											remark={remark}
-											reference={reference}
+											invoiceId={saleDoc.NUMBER}
+											invoiceIssueDate={saleDoc.POSTDATE}
+											remark={saleDoc.REMARKS}
+											reference={saleDoc.REFERENCE}
 			                            />
 			                        </tr>
 			                    </table>
@@ -251,21 +269,23 @@ class EmailInvoice extends Component {
 							</BusinessAddress>
 			            </tr>
 			            <tr colSpan="1">
-	            	      <CustomerAddress
-					        name={customer.name}
-					        address1={customer.address1}
-					        address2={customer.address2}
-					        address3={customer.address3}
-					        address4={customer.address4}
-					        address5={customer.address5}
-					        address5={customer.address5}
-					        address6={customer.address6}
-					      />
+            	      <CustomerAddress
+    					        name={customer.NAME}
+    					        address1={customer.ADDRLINE01}
+    					        address2={customer.ADDRLINE02}
+    					        address3={customer.ADDRLINE03}
+    					        address4={customer.ADDRLINE04}
+    					        address5={customer.ADDRLINE05}
+    					        address6={customer.ADDRLINE06}
+    					      />
 			            </tr>
 			            <tr>
-							<ItemsPurchased
-					        	items={items}
-					      	/>
+    							 <ItemsPurchased
+                      items={items}
+                      isNewOrder={isNewOrder}
+                      paid={paid}
+                      outstanding={leftToPay}
+    					      />
 			            </tr>
 			        </table>
 			    </div>

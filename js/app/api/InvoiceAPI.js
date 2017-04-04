@@ -16,21 +16,29 @@ export default class InvoiceAPI {
       .then(response => response.json());
   }
 
-  static getUpdateInfoForSavingInvoice(payload) {
+  static makeFormData(payload) {
     const form = new FormData();
     Object.keys(payload).forEach((key) => {
       const value = payload[key];
-      form.append(key, escape(value.trim()));
+      if (value) {
+        form.append(key, escape(value.trim()));
+      }
     });
     return form;
   }
 
+  static getURLForWorldNetPaymentForNewOrder(payload) {
+    return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/order`, {
+      method: 'POST',
+      body: this.makeFormData(payload),
+    });
+  }
+
   static updatePaymentStatusOfInvoice(payload) {
-    debugger;
     const id = payload.ORDERID;
     return fetch(`${IP_ADDRESS}/wp-json/beakon-invoices/v1/invoice/${id}/payment`, {
       method: 'POST',
-      body: this.getUpdateInfoForSavingInvoice(payload),
+      body: this.makeFormData(payload),
     })
       .then(response => response.json());
   }
