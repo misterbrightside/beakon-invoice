@@ -34,7 +34,7 @@ class EmailController {
 				<div style="color:#e52025;font-size:3.6rem;font-weight:bolder;margin-top:1em;margin-bottom:.5em;">
 					A paid order has been recieved
 				</div>
-				<div style="font-size:1.5em;">Order No: <span style="font-weight:900;">#' . $orderId . '</span></div>
+				<div style="font-size:1.5em;">Order No: <span style="font-weight:900;">#PL-' . $orderId . '</span></div>
 				<div style="text-align:center;font-size:1.5em;">
 					<p>The online order was received on <span style="font-weight:900;">' . $date . '</span></p>
 					<p>A member of staff will need to confirm the order, and arrange delivery.</p>

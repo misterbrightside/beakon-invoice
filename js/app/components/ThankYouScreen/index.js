@@ -9,6 +9,7 @@ const style = {
     padding: '25px',
     textAlign: 'center',
     marginTop: '1em',
+    lineHeight: 'normal',
     marginBottom: '5em',
   },
 
@@ -28,7 +29,8 @@ const style = {
   },
 
   orderNumber: {
-    fontSize: '1.5em'
+    fontSize: '1.5em',
+    paddingBottom: '10px'
   },
 
   orderNumberSpan: {
@@ -90,12 +92,12 @@ const isUndefined = (prop) => (
   prop === undefined || prop === 'undefined' || prop === null || prop === 'null'
 );
 
-const ThanksForOrdering = ({ budget, message, ftype, quant, date, orderId, fname, company, add1, add2, town, county, eircode, phone }) => (
+const ThanksForOrdering = ({ budget, message, ftype, quant, date, orderId, fname, company, add1, add2, town, county, eircode, phone, PayNow }) => (
   <div>
     <div style={style.thankYouMessageBoxNoBackground}><img style={style.image} src={'http://dundalkoil.beakon.ie/wp-content/uploads/2016/11/Logo.png'} /></div>
     <div style={style.thankYouMessageBox}>
       <div style={style.thankYouHeader}>Thank you for your order.</div>
-      <div style={style.orderNumber}>Order No.: <span style={style.orderNumberSpan}>#{orderId}</span></div>
+      <div style={style.orderNumber}>Order No.: <span style={style.orderNumberSpan}>#{PayNow === 'true' || PayNow === true ? `PN-${orderId}` : `PL-${orderId}` }</span></div>
       <div style={style.orderBlurb}>
         <p>Your online order was received on <span style={style.orderNumberSpan}>{moment(unescape(date), 'DD/MM/YYYY').format('DD/MM/YYYY')}.</span></p>
         <p>A member of staff will be in contact with you to confirm your order and to arrange delivery.</p>

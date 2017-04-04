@@ -146,15 +146,16 @@ class InvoiceModel {
 				'post_title' => $this->getNewOrderTitle($request)
 			)
 		);
-		add_post_meta($postId, 'invoiceId', request['orderId']);
+		$orderId = ($request['PayNow'] === 'true' || $request['PayNow'] === true) ? 'PN-' . $request['orderId'] : 'PL-' . $request['orderId']; 
+		add_post_meta($postId, 'invoiceId', $orderId);
 		return $orderId;		
 	}
 
 	function getNewOrderTitle( $request ) {
-		if (request['PayNow'] === 'true') {
-			return request['fname'] . ' - Pay Now - ' request['orderId'];
+		if ($request['PayNow'] === 'true') {
+			return $request['fname'] . ' - Pay Now - ' . $request['orderId'];
 		} else {
-			return request['fname'] . ' - Pay Later - ' request['orderId'];
+			return $request['fname'] . ' - Pay Later - ' . $request['orderId'];
 		}
 	}
 
