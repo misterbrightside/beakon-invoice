@@ -78,6 +78,10 @@ class UploadController {
 		SettingsView::getTemplate();
 	}
 
+	function getPaymentsTemplate() {
+		SettingsView::getPaymentsTemplate();
+	}
+
 	function getWorldnetOptions() {
 		echo SettingsView::getFieldInfo();
 	}
@@ -119,6 +123,14 @@ class UploadController {
 			'manage_options',
 			'settings_page_invoices',
 			array($this, 'getSettingsTemplate')
+		);
+		add_submenu_page(
+			'edit.php?post_type=invoice',
+			'Payment History',
+			'Payment History',
+			'manage_options',
+			'payments_page_invoices',
+			array($this, 'getPaymentsTemplate')
 		);
 	}
 }
