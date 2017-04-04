@@ -13,7 +13,7 @@ class EmailController {
 	protected function getAdminEmailTemplate(
 		$orderId, $date, $quant, $budget, $fname,
 		$company, $phone, $add1, $add2, $town,
-		$county, $eircode
+		$county, $eircode, $ftype
 	) {
 		return '
 		<tbody>
@@ -78,24 +78,26 @@ class EmailController {
 		return "Payment confirmation of " . $request['ORDERID'] . " for Dundalk Oil.";
 	}
 
-	function sendEmail($request) {
+	function sendEmail($request, $id) {
 	    $userMail = wp_mail(
 	    	urldecode($request['EMAIL']),
 	    	$this->getEmailSubject($request),
 	    	html_entity_decode($request['MARKUP']),
 	    	array('Content-Type: text/html; charset=UTF-8')
 	    );
-	    $adminEmailTemplate = $this->getAdminEmailTemplate(
-	    	$request['ORDERID'], $request['date'], $request['quant'], $request['budget'], $request['fname'],
-	    	$request['company'], $request['phone'], $request['add1'], $request['add2'], $request['town'],
-	    	$request['county'], $request['eircode']
-	    );
-	    $adminMail = wp_mail(
-	    	urldecode(get_option('adminEmailInvoices')),
-	    	"Dundalk Oil 'Pay NOW' Quote Recieved",
-	    	$adminEmailTemplate,
-	    	array('Content-Type: text/html; charset=UTF-8')
-	    );
-	    return $adminMail && $userMail;
+	    if (isset($request['PayNow'])) {
+		    $adminEmailTemplate = $this->getAdminEmailTemplate(
+		    	$request['orderId'], $request['date'], $request['quant'], $request['budget'], $request['fname'],
+		    	$request['company'], $request['phone'], $request['add1'], $request['add2'], $request['town'],
+		    	$request['county'], $request['eircode'], $request['ftype']
+		    );
+		    $adminMail = wp_mail(
+		    	urldecode(get_option('adminEmailInvoices')),
+		    	"Dundalk Oil 'Pay NOW' Quote Recieved",
+		    	$adminEmailTemplate,
+		    	array('Content-Type: text/html; charset=UTF-8')
+		    );
+	    }
+	    return $userMail;
 	}
 }

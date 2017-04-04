@@ -131,12 +131,12 @@ class InvoiceController {
 	}
 
 	function updatePaymentStatus( $request ) {
-		$result = $this->invoiceModel->addPaymentAttemptResponse( $request );
-		return $this->sendPaymentRecieptEmail($request);
+		$id = $this->invoiceModel ->addPaymentAttemptResponse( $request );
+		return $this->sendPaymentRecieptEmail($request, $id);
 	} 
 
-	function sendPaymentRecieptEmail( $request ) {
-		return $this->emailController->sendEmail($request);
+	function sendPaymentRecieptEmail( $request, $id ) {
+		return $this->emailController->sendEmail($request, $id);
 	} 
 
 	function addInvoicesFromCLI( $request ) {

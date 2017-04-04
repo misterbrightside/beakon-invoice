@@ -135,7 +135,7 @@ class InvoiceModel {
 		if ($this->worldnetPaymentController->isValidPayload($paymentAttemptResponse)) {
 			$this->appendToInvoiceValue($paymentAttemptResponse, $paymentAttemptResponse['ORDERID'], 'paymentResponse');
 		}
-		return $paymentAttemptResponse;
+		return $id;
 	}
 
 	public function createNewOrder( $request ) {
@@ -143,11 +143,19 @@ class InvoiceModel {
 			array(
 				'post_type' => 'invoice',
 				'post_status' => 'publish',
+				'post_title' => $this->getNewOrderTitle($request)
 			)
 		);
-		$orderId = "OO-" . str_pad($postId, 6, "0", STR_PAD_LEFT);
-		add_post_meta($postId, 'invoiceId', $orderId);
+		add_post_meta($postId, 'invoiceId', request['orderId']);
 		return $orderId;		
+	}
+
+	function getNewOrderTitle( $request ) {
+		if (request['PayNow'] === 'true') {
+			return request['fname'] . ' - Pay Now - ' request['orderId'];
+		} else {
+			return request['fname'] . ' - Pay Later - ' request['orderId'];
+		}
 	}
 
 	protected function getWorldnetPayLoad( $request ) {
