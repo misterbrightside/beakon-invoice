@@ -50,6 +50,7 @@ ipcMain.on('openDialog', (event, data) => {
       event.sender.send('disableButton');
       const cp = require('child_process');
       let spawnPath  = path.join(__dirname, 'foo.js');
+      event.sender.send('uploadEvent', { messageForScreen: spawnPath });
       const n = cp.fork(spawnPath, [data.file + '/', data.skips, data.address]);
       let progress = 1;
       let progressFiles = 0;

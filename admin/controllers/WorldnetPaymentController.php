@@ -67,7 +67,7 @@ class WorldnetPaymentController {
 			$this->getTerminalId() . 	
 			$args['ORDERID'] .
 			$args['AMOUNT'] .
-			$args['DATETIME'] .
+			urldecode($args['DATETIME']) .
 			$args['RESPONSECODE'] .
 			$args['RESPONSETEXT'] .
 			$this->getSecret()

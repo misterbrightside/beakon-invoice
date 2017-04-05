@@ -112,7 +112,7 @@ class UploadController {
 			'edit.php?post_type=invoice',
 			'Bulk Import Invoices',
 			'Bulk Import',
-			'manage_options',
+			'edit_pages',
 			'bulk_import_invoices',
 			array($this, 'getAdminTemplateForBulkUpload')
 		);
@@ -120,7 +120,7 @@ class UploadController {
 			'edit.php?post_type=invoice',
 			'Invoice Settings',
 			'Settings',
-			'manage_options',
+			'edit_pages',
 			'settings_page_invoices',
 			array($this, 'getSettingsTemplate')
 		);
@@ -128,7 +128,7 @@ class UploadController {
 			'edit.php?post_type=invoice',
 			'Payment History',
 			'Payment History',
-			'manage_options',
+			'edit_pages',
 			'payments_page_invoices',
 			array($this, 'getPaymentsTemplate')
 		);
