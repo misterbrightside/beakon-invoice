@@ -141,11 +141,11 @@ class InvoiceController {
 
 	function addInvoicesFromCLI( $request ) {
 		$invoices = $request->get_json_params();
-		$sliced_invoices = array_slice($invoices, 0, 10);
 		$response = array();
 		foreach ($invoices as $invoice) {
 			$id = $this->invoiceModel->addInvoice( $invoice );
 			array_push($response, (array('id' => $id, 'salesInvoice' => $invoice['salesDoc']['NUMBER'])));
+			array_push($response, $id);
 		}
 		return json_encode($response);
 	}

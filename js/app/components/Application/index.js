@@ -37,9 +37,9 @@ export default class PayInvoicesApplication extends Component {
         isSearchingForInvoice: false,
         invoiceErrorMessage: !payload.invoiceId ? 'The invoice number and reference number you provided did not match. Please ensure you have entered both correctly.' : '',
       }),
-      invoice: Object.assign({}, previousState.saleDocItems, {
-        invoiceDoc: payload.invoiceId ? payload.saleDoc : {},
-        items: payload.saleDocItems,
+      invoice: Object.assign({}, previousState.salesDocItems, {
+        invoiceDoc: payload.invoiceId ? payload.salesDoc : {},
+        items: payload.salesDocItems,
         paymentResponse: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1] : { RESPONSECODE: '', DATETIME: null },
         customer: payload.customer,
         leftToPay: payload.paymentResponse ? payload.paymentResponse[payload.paymentResponse.length - 1].AMOUNT - payload.leftToPay : payload.leftToPay,
@@ -138,7 +138,7 @@ export default class PayInvoicesApplication extends Component {
     );
     const invoiceView = !isEmpty(invoice.invoiceDoc) ? (
       <InvoiceView
-        saleDoc={invoice.invoiceDoc}
+        salesDoc={invoice.invoiceDoc}
         leftToPay={invoice.leftToPay}
         paid={invoice.paid}
         total={invoice.total}

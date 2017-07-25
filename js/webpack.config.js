@@ -18,7 +18,7 @@ const entries = {
 };
 
 const pluginsUsed = [
-  new webpack.optimize.UglifyJsPlugin(),
+  // new webpack.optimize.UglifyJsPlugin(),
 ];
 
 pluginsUsed.push(

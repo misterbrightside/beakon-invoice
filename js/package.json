@@ -51,7 +51,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "dev": "NODE_ENV=development webpack --watch",
+    "dev": "NODE_ENV=development IP_ADDRESS=http://192.168.99.100:8080 webpack --watch",
     "dev-server": "NODE_ENV=development IP_ADDRESS=http://192.168.99.100:8080 webpack-dev-server --content-base ./ --port 9966 --hot"
   }
 }

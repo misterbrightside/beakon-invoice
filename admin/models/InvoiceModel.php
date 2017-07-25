@@ -71,7 +71,7 @@ class InvoiceModel {
 	}
 
 	public function addInvoice( $invoice ) {
-		$invoiceId = $invoice['saleDoc']['NUMBER'];
+		$invoiceId = $invoice['salesDoc']['NUMBER'];
 		if ($this->getInvoiceByID($invoiceId, 'invoiceId') === NULL) {  
 			$postId = wp_insert_post(
 				array(
@@ -83,24 +83,35 @@ class InvoiceModel {
 		} else {
 			$postId = $this->getInternalWordPressId($invoiceId);
 		}
-		add_post_meta($postId, 'invoiceId', $invoice['saleDoc']['NUMBER']);
-		add_post_meta($postId, 'workingOrder', $invoice['saleDoc']['REMARKS']);
-		add_post_meta($postId, 'customer', $invoice['customer']);
-		add_post_meta($postId, 'saleDoc', $invoice['saleDoc']);
-		add_post_meta($postId, 'saleDocItems', $invoice['saleDocItems']);
-		add_post_meta($postId, 'debtorAlloc', $invoice['debtorAlloc']);
-		add_post_meta($postId, 'debtorEntry', $invoice['debtorEntry']);
+		$items = $this->getNestedField($invoice['items'], 'itemFields');
+		$debtorAlloc = $this->getNestedField($invoice['debtorAllocs'], 'debtorAllocFields');
+		$debtorEntry = $this->getNestedField($invoice['debtorEntries'], 'debtorEntryFields');
+		add_post_meta($postId, 'invoiceId', $invoice['salesDoc']['NUMBER']);
+		add_post_meta($postId, 'workingOrder', $invoice['salesDoc']['REMARKS']);
+		add_post_meta($postId, 'customer', $invoice['customer']['customer']);
+		add_post_meta($postId, 'salesDoc', $invoice['salesDoc']);
+		add_post_meta($postId, 'salesDocItems', $items);
+		add_post_meta($postId, 'debtorAlloc', $debtorAlloc);
+		add_post_meta($postId, 'debtorEntry', $debtorEntry);
 		add_post_meta($postId, 'total', $invoice['total']);
 		add_post_meta($postId, 'paid', $invoice['paid']);
-		add_post_meta($postId, 'leftToPay', $invoice['leftToPay']);
+		add_post_meta($postId, 'leftToPay', $invoice['amountAllocated']);
 		add_post_meta($postId, 'amountFree', $invoice['amountFree']);
 		return $postId;
 	}
 
+	public function getNestedField( $arrayOfFields, $field ) {
+		$unnestedArray = array();
+		foreach ($arrayOfFields as $item) {
+			array_push($unnestedArray, $item[$field]);
+		}
+		return $unnestedArray;
+	}
+
 	protected function getInvoiceTitle( $data ) {
-		$name = $data['customer']['NAME'];
-		$dateOfInvoice = $data['saleDoc']['POSTDATE'];
-		$id = $data['saleDoc']['NUMBER'];
+		$name = $data['customer']['customer']['NAME'];
+		$dateOfInvoice = $data['salesDoc']['POSTDATE'];
+		$id = $data['salesDoc']['NUMBER'];
 		return "$name - $dateOfInvoice - $id";
 	}
 

@@ -5,8 +5,6 @@
 	Plugin URI: http://beakon.ie/
 	Description: Customised solution integrating uploaded invoices with Worldnet payments.
 	Version: 0.0.1
-	Author: John Brennan
-	Author URI: http://sentogue.com
 	License: GPL2
 */
 

@@ -233,7 +233,7 @@ const ItemsPurchased = ({ isNewOrder, items, paid }) => {
 class EmailInvoice extends Component {
 	render() {
   const {
-    saleDoc,
+    salesDoc,
     items,
     customer,
     reference,
@@ -251,10 +251,10 @@ class EmailInvoice extends Component {
 			                        <tr>
 			                            <Logo />
 			                            <InvoiceMetaDetails 
-											invoiceId={saleDoc.NUMBER}
-											invoiceIssueDate={saleDoc.POSTDATE}
-											remark={saleDoc.REMARKS}
-											reference={saleDoc.REFERENCE}
+											invoiceId={salesDoc.NUMBER}
+											invoiceIssueDate={salesDoc.POSTDATE}
+											remark={salesDoc.REMARKS}
+											reference={salesDoc.REFERENCE}
 			                            />
 			                        </tr>
 			                    </table>

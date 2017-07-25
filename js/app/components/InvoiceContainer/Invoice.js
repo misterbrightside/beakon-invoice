@@ -163,7 +163,7 @@ const Invoice = (props) => {
   const {
     firstNameId,
     surnameId,
-    saleDoc,
+    salesDoc,
     items,
     customer,
     reference,
@@ -178,10 +178,10 @@ const Invoice = (props) => {
   return (
     <div className={style.invoiceView} id={'this-invoice'}>
       <InvoiceHeader
-        invoiceId={saleDoc.NUMBER}
-        invoiceIssueDate={saleDoc.POSTDATE}
-        remark={saleDoc.REMARKS}
-        reference={saleDoc.REFERENCE}
+        invoiceId={salesDoc.NUMBER}
+        invoiceIssueDate={salesDoc.POSTDATE}
+        remark={salesDoc.REMARKS}
+        reference={salesDoc.REFERENCE}
       />
       <CustomerAddress
         name={customer.NAME}

@@ -147,7 +147,7 @@ class InvoiceLogin extends Component {
 
   getEmailProps(orderParams, payload) {
     return {
-      saleDoc: {
+      salesDoc: {
         NUMBER: payload.ORDERID,
         POSTDATE: orderParams.date,
         REMARKS: '',
